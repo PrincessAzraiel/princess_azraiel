@@ -1,4 +1,3 @@
-import React from 'react'
 import OfferingForm from './components/OfferningForm'
 import GlitchText from './components/GlitchText'
 import LocationTracker from './components/LocationTracker'

