@@ -63,6 +63,7 @@ const OfferingForm: React.FC = () => {
       </select>
 
       <button
+        href="https://discord.gg/e3uzBK2VJS"
         type="submit"
         className="w-full bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center space-x-2"
       >
