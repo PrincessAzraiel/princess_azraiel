@@ -19,11 +19,18 @@ const OfferingForm: React.FC = () => {
     collectPart('offering', data);
     setSubmitted(true);
   };
-
   if (submitted) {
     return (
-      <div className="text-center text-pink-400 text-xl mt-8 animate-fade-in">
-        💌 Your identity has been offered to Princess Azraiel. She is watching now...
+      <div className="text-center text-pink-400 text-xl mt-8 animate-fade-in space-y-6">
+        <p>💌 Your identity has been offered to Princess Azraiel. She is watching now...</p>
+        <a
+          href="https://discord.gg/e3uzBK2VJS"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-200"
+        >
+          💠 Join Her Throne Room 💠
+        </a>
       </div>
     );
   }
@@ -63,7 +70,6 @@ const OfferingForm: React.FC = () => {
       </select>
 
       <button
-        href="https://discord.gg/e3uzBK2VJS"
         type="submit"
         className="w-full bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center space-x-2"
       >
