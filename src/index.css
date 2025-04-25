@@ -41,7 +41,6 @@ overflow: hidden;
   }
 }
 
-/* Enhanced glitch effect */
 .glitch {
   position: relative;
   text-shadow: 
@@ -109,7 +108,7 @@ overflow: hidden;
 }
 
 .floating-heart {
-  position: fixed; /* Use fixed positioning */
+  position: fixed; 
   pointer-events: none;
   color: #ff69eb;
   opacity: 100%;
@@ -117,8 +116,6 @@ overflow: hidden;
   filter: drop-shadow(0 0 10px rgba(255, 105, 235, 0.5));
 }
 
-/* Add z-index to magic-bg */
-/* Ensure content stays on top */
 .magic-bg > div:not(.floating-heart) {
   position: relative;
   z-index: 9;
