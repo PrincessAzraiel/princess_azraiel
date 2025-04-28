@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { collectPart } from '../utils/trackData';
+import React from 'react';
 
-const OfferingForm: React.FC = () => {
-  const [submitted, setSubmitted] = useState(false);
+interface OfferingFormProps {
+  setSubmitted: (value: boolean) => void;
+}
 
+const OfferingForm: React.FC<OfferingFormProps> = ({ setSubmitted }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
@@ -14,26 +15,22 @@ const OfferingForm: React.FC = () => {
       level: formData.get('level') as string,
     };
 
-    console.log("Form Data:", data); // <-- Add this line to debug
+    try {
+      const response = await fetch('/api/offer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
 
-    collectPart('offering', data);
-    setSubmitted(true);
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        console.error('Failed to send offering');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+    }
   };
-  if (submitted) {
-    return (
-      <div className="text-center text-pink-400 text-xl mt-8 animate-fade-in space-y-6">
-        <p>💌 Your identity has been offered to Princess Azraiel. She is watching now...</p>
-        <a
-          href="https://discord.gg/e3uzBK2VJS"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-block bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-200"
-        >
-          💠 Join Her Throne Room 💠
-        </a>
-      </div>
-    );
-  }
 
   return (
     <form
@@ -41,7 +38,7 @@ const OfferingForm: React.FC = () => {
       className="max-w-md mx-auto mt-8 bg-black/50 backdrop-blur-lg p-8 rounded-3xl border-2 border-pink-400/30 shadow-2xl space-y-6 hover:border-pink-400/50 transition-all duration-300"
     >
       <h2 className="text-pink-300 text-3xl font-bold mb-6 text-center glitch">
-        Twitter Devotion Portal 
+        Twitter Devotion Portal
       </h2>
 
       <input
