@@ -1,0 +1,6 @@
+{
+    "rewrites": [
+      { "source": "/corruption", "destination": "/corruption/index.html" }
+    ]
+  }
+  
