@@ -19,7 +19,6 @@ export default function CorruptionRainPage() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [audioStarted, setAudioStarted] = useState(false);
 
-  // Text cycling effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setFlashText(null);
