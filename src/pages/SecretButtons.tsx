@@ -1,29 +1,32 @@
 import GlitchText from '../components/GlitchText';
-import LocationTracker from '../components/LocationTracker';
 
 const secretLinks = [
   {
-    label: "💸 Tribute Now",
+    label: "Tribute Now",
     url: "https://throne.com/princessazraiel"
   },
   {
-    label: "📢 Spread the Gospel",
+    label: "Spread the Gospel",
     url: "https://twitter.com/intent/tweet?text=I+just+offered+my+devotion+to+Princess+Azraiel+~+come+submit+too+%F0%9F%92%96+https://princessazraiel.vercel.app/"
   },
   {
-    label: "🌸 Discord Entry",
+    label: "Discord Entry",
     url: "https://discord.gg/sCusdWXxZF"
   },
   {
-    label: "🧠 Corrupt Me More",
+    label: "Corrupt Me More",
     url: "https://gofile.io/d/2uZY0d"
+  },
+  {
+    label: "Steam Profile",
+    url: "https://steamcommunity.com/profiles/76561199854908095/"
   }
 ];
 
 export default function SecretButtonsPage() {
   return (
     <>
-      <LocationTracker />
+
       <div className="magic-bg min-h-screen text-pink-300 flex flex-col items-center justify-center p-6 relative">
         {[...Array(15)].map((_, i) => (
           <div 
@@ -50,7 +53,7 @@ export default function SecretButtonsPage() {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-200"
+                className="bg-gradient-to-r from-pink-500/80 to-purple-600/80 hover:from-pink-500 hover:to-purple-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-[1.02] transition-all duration-200 hover:shadow-pink-500/30"
               >
                 {label}
               </a>
