@@ -18,8 +18,8 @@ const secretLinks = [
     url: "https://gofile.io/d/2uZY0d"
   },
   {
-    label: "Steam Profile",
-    url: "https://steamcommunity.com/profiles/76561199854908095/"
+    label: "Steam Wishlist",
+    url: "https://store.steampowered.com/wishlist/profiles/76561199854908095/?sort=discount"
   }
 ];
 
