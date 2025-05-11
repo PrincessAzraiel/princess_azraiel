@@ -6,11 +6,14 @@ import LandingPage from './pages/LandingPage';
 // import AboutPage from './pages/AboutPage';
 // import ProgramsPage from './pages/ProgramsPage';
 import Nav from './components/Nav';
+import { Analytics } from "@vercel/analytics/next"
+
 
 
 export default function App() {
   return (
     <>
+    <Analytics
       <Nav />
       <Routes>
         <Route path="/" element={<LandingPage />} />
