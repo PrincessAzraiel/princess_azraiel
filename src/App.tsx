@@ -13,7 +13,6 @@ import { Analytics } from "@vercel/analytics/next"
 export default function App() {
   return (
     <>
-    <Analytics
       <Nav />
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -22,6 +21,7 @@ export default function App() {
          {/* <Route path="/about" element={<AboutPage />} /> */}
         {/* <Route path="/programs" element={<ProgramsPage />} /> */} 
       </Routes>
+      <Analytics/>
     </>
   );
 }
