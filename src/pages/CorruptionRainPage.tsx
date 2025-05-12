@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 
-const imageCount = 15;
+const imageCount = 88;
 const glitchTexts = [
   'SUBMIT', 'CORRUPT', 'OBEY', 'PRINCESS', 'OFFER MORE', 
   'NO ESCAPE', 'AZRAIEL', 'GLITCHED', '💗'
