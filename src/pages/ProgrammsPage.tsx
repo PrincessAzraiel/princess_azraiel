@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-
 export default function ProgrammsPage() {
   const programms = [
     {
@@ -36,8 +35,8 @@ export default function ProgrammsPage() {
   ];
 
   return (
-    <div className="magic-bg min-h-screen w-full flex items-center justify-center text-pink-300">
-      <div className="text-center space-y-10 max-w-3xl px-6 animate-fade-in">
+    <div className="magic-bg min-h-screen w-full text-pink-300 py-20 px-6 overflow-y-auto">
+    <div className="text-center space-y-10 max-w-3xl mx-auto animate-fade-in">
         <h1 className="text-4xl md:text-5xl font-bold shimmer-text">Available Rituals</h1>
         <p className="text-pink-400 italic text-lg">Choose your poison, pet.</p>
         <p className="text-pink-400 italic text-sm">make sure to read the README files!! 
