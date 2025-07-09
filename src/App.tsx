@@ -4,7 +4,7 @@ import SecretButtonsPage from  './pages/SecretButtons'
 import CorruptionRainPage from './pages/CorruptionRainPage';
 import LandingPage from './pages/LandingPage';
 // import AboutPage from './pages/AboutPage';
-// import ProgramsPage from './pages/ProgramsPage';
+import ProgrammsPage from './pages/ProgrammsPage';
 import Nav from './components/Nav';
 import { Analytics } from "@vercel/analytics/next"
 
@@ -19,7 +19,7 @@ export default function App() {
         <Route path="/corruption" element={<CorruptionRainPage />} />
         <Route path="/links" element={<SecretButtonsPage />} />
          {/* <Route path="/about" element={<AboutPage />} /> */}
-        {/* <Route path="/programs" element={<ProgramsPage />} /> */} 
+        <Route path="/programms" element={<ProgrammsPage />} />
       </Routes>
       <Analytics/>
     </>

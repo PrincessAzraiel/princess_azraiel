@@ -6,8 +6,8 @@ export default function Nav() {
       <Link to="/" className="hover:text-pink-400">Home</Link>
       <Link to="/corruption" className="hover:text-pink-400">Corruption</Link>
       <Link to="/links" className="hover:text-pink-400">Links</Link>
-      {/* <Link to="/about" className="hover:text-pink-400">About</Link>
-      <Link to="/programs" className="hover:text-pink-400">Programs</Link> */}
+      {/* <Link to="/about" className="hover:text-pink-400">About</Link> */}
+      <Link to="/programms" className="hover:text-pink-400">Programs</Link>
     </nav>
   );
 }

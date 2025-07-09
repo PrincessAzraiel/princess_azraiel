@@ -6,7 +6,7 @@ export default function LandingPage() {
     <div className="magic-bg min-h-screen w-full flex items-center justify-center text-pink-300">
       <div className="text-center space-y-8 max-w-xl px-6 animate-fade-in">
         <h1 className="text-4xl md:text-5xl font-bold shimmer-text">
-          Welcome to Princess Azraiel’s Corruption Hub
+          Welcome to Princess Azraiel's Corruption Hub
         </h1>
         <p className="text-xl italic text-pink-400">Submit. Suffer. Smile.</p>
 
@@ -17,7 +17,7 @@ export default function LandingPage() {
             </Button>
           </Link>
           <a
-            href="https://twitter.com/PrincessAzraiel" // replace with your real link
+            href="https://x.com/PrincessAzraiel" 
             target="_blank"
             rel="noopener noreferrer"
           >
