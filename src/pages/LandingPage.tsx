@@ -16,6 +16,11 @@ export default function LandingPage() {
               Begin Your Corruption
             </Button>
           </Link>
+          <Link to="/programms">
+            <Button className="w-60 py-4 text-lg bg-pink-600 hover:bg-pink-700 transition">
+              Programms
+            </Button>
+          </Link>
           <a
             href="https://x.com/PrincessAzraiel" 
             target="_blank"
