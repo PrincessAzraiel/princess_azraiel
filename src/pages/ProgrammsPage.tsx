@@ -52,8 +52,7 @@ export default function ProgrammsPage() {
             >
               <h2 className="text-2xl font-semibold mb-2 shimmer-text">{title}</h2>
               <p className="mb-4 text-pink-400">{description}</p>
-              //all links should open in new tap, except the "/corrupt"
-              
+
               <Link to={link}>
                 <Button className="w-full bg-pink-600 hover:bg-pink-700 text-lg py-3">
                   Enter
