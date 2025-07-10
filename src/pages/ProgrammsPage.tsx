@@ -18,7 +18,7 @@ export default function ProgrammsPage() {
       link: 'https://gofile.io/d/qsbdzs',
     },
     {
-      title: 'Her.exe ACT 01',
+      title: 'Her.exe ACT 01 & 02',
       description: 'A 3-minute interactive experience. Enter the world of Princess Azraiel.',
       link: 'https://gofile.io/d/yhQrNt',
     },
