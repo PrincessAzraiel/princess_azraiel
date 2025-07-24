@@ -8,6 +8,7 @@ export default function Nav() {
       <Link to="/links" className="hover:text-pink-400">Links</Link>
       {/* <Link to="/about" className="hover:text-pink-400">About</Link> */}
       <Link to="/programms" className="hover:text-pink-400">Programs</Link>
+      <Link to="/pre-order" className="hover:text-pink-400">Infection Protocol</Link>
     </nav>
   );
 }

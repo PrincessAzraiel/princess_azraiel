@@ -259,3 +259,67 @@ overflow-x: hidden;
     @apply bg-background text-foreground;
   }
 }
+
+/* src/App.css */
+/* Existing CSS remains unchanged */
+
+/* Add new spiral-specific styles */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Additional spiral styles */
+.hypno-spiral {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.spiral-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-conic-gradient(
+      from 0deg at 50% 50%,
+      var(--pink-heart) 0deg 10deg,
+      var(--neon-blue) 10deg 20deg
+    );
+  animation: spin 2s linear infinite;
+}
+
+/* Add a subtle pulsating effect to the center */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .controls-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .spiral-container {
+    width: 80vmin;
+    height: 80vmin;
+  }
+}
