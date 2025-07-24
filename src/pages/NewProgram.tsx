@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ReactDOM from 'react-dom';
-// import { link } from 'fs';
+
+type Character = {
+  name: string;
+  role: string;
+  image: string;
+  tone: string;
+  description: string;
+  sample: string;
+};
 
 const characters = [
   {
@@ -132,12 +140,13 @@ const tiers = [
 
 
 export default function PreOrderPage() {
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
 
 
-  const openCharacterModal = (character) => {
+  const openCharacterModal = (character : Character) => {
+    
     setSelectedCharacter(character);
     setShowModal(true);
   };
@@ -223,7 +232,13 @@ export default function PreOrderPage() {
           <div className="mt-8 text-center">
             <Button 
               className="bg-pink-700 hover:bg-pink-600 text-white px-8 py-6 text-lg font-medium transition-all transform hover:scale-105"
-              onClick={() => document.getElementById('tiers').scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => {
+                const target = document.getElementById('tiers');
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+
             >
               Unlock All Characters →
             </Button>
@@ -434,14 +449,14 @@ export default function PreOrderPage() {
   )
 }
 
-
-      <style jsx>{`
+    <style>
+      {`
         .magic-bg {
           background: radial-gradient(ellipse at center, #1a0629 0%, #0d0419 70%);
           background-size: 400% 400%;
           animation: gradientBG 15s ease infinite;
         }
-        
+
         .shimmer-text {
           background: linear-gradient(90deg, #ff69eb, #ffffff, #ff69eb);
           background-size: 300% 100%;
@@ -449,27 +464,29 @@ export default function PreOrderPage() {
           -webkit-text-fill-color: transparent;
           animation: shimmer 4s infinite;
         }
-        
+
         .animate-pulse-slow {
           animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-        
+
         @keyframes gradientBG {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        
+
         @keyframes shimmer {
           0% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
         }
-      `}</style>
+      `}
+    </style>
+
     </div>
   );
 }
