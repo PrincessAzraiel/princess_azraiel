@@ -98,7 +98,7 @@ const characters = [
 const tiers = [
   {
     title: 'Tier I: Low Flood (Submissive)',
-    price: '$-',
+    price: '3€',
     benefits: [
       'Gentle Whisper',
       '1 Active Bot',
@@ -111,7 +111,7 @@ const tiers = [
   },
   {
     title: 'Tier II: Medium Flood (Devoted)',
-    price: '$-',
+    price: '5€',
     benefits: [
       'Steady Stream',
       '3 Active Bots',
@@ -124,7 +124,7 @@ const tiers = [
   },
   {
     title: 'Tier III: High Flood (Possessed)',
-    price: '$-',
+    price: '10€',
     benefits: [
       'Deep Drown',
       'All 10 Bots',
