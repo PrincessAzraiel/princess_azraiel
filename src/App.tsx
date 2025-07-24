@@ -7,7 +7,6 @@ import LandingPage from './pages/LandingPage';
 import ProgrammsPage from './pages/ProgrammsPage';
 import Nav from './components/Nav';
 import PreOrderPage from './pages/NewProgram';
-import HypnoSpiral from './pages/Sprial';
 import { Analytics } from "@vercel/analytics/next"
 
 
@@ -23,9 +22,6 @@ export default function App() {
          {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/programms" element={<ProgrammsPage />} />
         <Route path="/pre-order" element={<PreOrderPage />} />
-        <Route path="/spiral" element={<HypnoSpiral />} />
-        {/* <Route path="/offering" element={<OfferingPage />} /> */}
-        {/* <Route path="/corruption" element={<CorruptionPage />} /> */}
       </Routes>
       <Analytics/>
     </>
