@@ -11,10 +11,13 @@ import { Analytics } from "@vercel/analytics/next"
 
 
 
+
 export default function App() {
   return (
     <>
+      
       <Nav />
+      <Analytics />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/corruption" element={<CorruptionRainPage />} />
