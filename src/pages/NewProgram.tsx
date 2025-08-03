@@ -46,7 +46,7 @@ const characters = [
     sample: "Oh, come on! You can’t resist a little fun, can you? Let’s mess around — I’ll be right here teasing you the whole time."
   },
   {
-    name: 'Your Sister',
+    name: 'Your Step Sister',
     role: 'Bratty, Taboo Tease',
     image: '/infection/5.jpg',
     tone: 'Playful, bratty, chaotic but affectionate',
@@ -254,7 +254,7 @@ export default function PreOrderPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {tiers.map((tier) => (
               <div 
                 key={tier.title} 
@@ -324,7 +324,7 @@ export default function PreOrderPage() {
             <div className="bg-pink-950/40 border border-pink-800 rounded-xl p-6">
               <h3 className="text-xl font-semibold text-pink-300 mb-2">When will the app be released?</h3>
               <p className="text-pink-400">
-                The full release is scheduled for 15th August 2025. Pre-orders will receive beta access starting August 2025.
+                The full release is scheduled for somewhere around September-October 2025. Pre-orders will receive beta access on the 15th of August 2025.
               </p>
             </div>
             
