@@ -7,60 +7,137 @@ export default function RiskyLinkPage() {
   const [typed, setTyped] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fullscreenError, setFullscreenError] = useState('');
 
   const [ip, setIP] = useState('');
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
   const [address, setAddress] = useState('');
+  const [browserInfo, setBrowserInfo] = useState('');
 
   const navigate = useNavigate();
 
-  // Fetch public IP from api.ipify.org
-  const fetchIP = async () => {
+  // Enhanced fullscreen function with mobile support
+  const requestFullscreen = async () => {
+    const el = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+      webkitEnterFullscreen?: () => Promise<void>;
+      mozRequestFullScreen?: () => Promise<void>;
+      msRequestFullscreen?: () => Promise<void>;
+    };
+
     try {
-      const res = await fetch('https://api.ipify.org?format=json');
-      const data = await res.json();
-      setIP(data.ip);
-    } catch {
-      setIP('Unknown');
+      if (el.requestFullscreen) {
+        await el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) { // Chrome, Safari, Opera
+        await el.webkitRequestFullscreen();
+      } else if (el.webkitEnterFullscreen) { // iOS Safari
+        await el.webkitEnterFullscreen();
+      } else if (el.mozRequestFullScreen) { // Firefox
+        await el.mozRequestFullScreen();
+      } else if (el.msRequestFullscreen) { // IE/Edge
+        await el.msRequestFullscreen();
+      } else {
+        setFullscreenError('Fullscreen not supported on this device');
+      }
+    } catch (err) {
+      setFullscreenError('Failed to enter fullscreen mode');
+      console.error('Fullscreen error:', err);
     }
   };
 
-  // Reverse geocode coordinates to address using OpenStreetMap Nominatim API
+  // Fetch public IP from multiple fallback services
+  const fetchIP = async () => {
+    try {
+      // Try ipify first
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      if (data.ip) {
+        setIP(data.ip);
+        return;
+      }
+      throw new Error('No IP returned');
+    } catch {
+      try {
+        // Fallback to icanhazip
+        const res = await fetch('https://icanhazip.com');
+        const ip = await res.text();
+        setIP(ip.trim());
+      } catch {
+        setIP('Unknown');
+      }
+    }
+  };
+
+  // Reverse geocode coordinates to address with multiple fallbacks
   const fetchAddress = async (lat: number, lon: number) => {
     try {
-      const res = await fetch(
+      // Try OpenStreetMap first
+      const osmRes = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
       );
-      const data = await res.json();
-      if (data.address) {
-        // Compose a nice address string from available parts
+      const osmData = await osmRes.json();
+      
+      if (osmData.address) {
         const parts = [
-          data.address.road,
-          data.address.house_number,
-          data.address.neighbourhood,
-          data.address.suburb,
-          data.address.city,
-          data.address.county,
-          data.address.state,
-          data.address.postcode,
-          data.address.country,
+          osmData.address.road,
+          osmData.address.house_number,
+          osmData.address.neighbourhood,
+          osmData.address.suburb,
+          osmData.address.city,
+          osmData.address.county,
+          osmData.address.state,
+          osmData.address.postcode,
+          osmData.address.country,
         ].filter(Boolean);
 
         setAddress(parts.join(', '));
-      } else {
-        setAddress('Unable to determine precise address');
+        return;
       }
+      throw new Error('No address from OSM');
     } catch {
-      setAddress('Failed to fetch address');
+      try {
+        // Fallback to BigDataCloud
+        const bdcRes = await fetch(
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+        );
+        const bdcData = await bdcRes.json();
+        
+        if (bdcData.locality) {
+          setAddress(`${bdcData.locality}, ${bdcData.principalSubdivision}, ${bdcData.countryName}`);
+        } else {
+          setAddress('Approximate location only');
+        }
+      } catch {
+        setAddress('Location detected but address unavailable');
+      }
     }
   };
 
-  // Ask for GPS location
+  // Get browser and device info
+  const getBrowserInfo = () => {
+    const ua = navigator.userAgent;
+    let browser = 'Unknown Browser';
+    
+    if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('SamsungBrowser')) browser = 'Samsung Browser';
+    else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+    else if (ua.includes('Trident')) browser = 'Internet Explorer';
+    else if (ua.includes('Edge')) browser = 'Edge';
+    else if (ua.includes('Chrome')) browser = 'Chrome';
+    else if (ua.includes('Safari')) browser = 'Safari';
+    
+    const mobile = /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua);
+    
+    setBrowserInfo(`${browser} on ${mobile ? 'Mobile' : 'Desktop'}`);
+  };
+
+  // Ask for GPS location with enhanced options
   const fetchLocation = () => {
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by your browser');
       return;
     }
+    
     setLoading(true);
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -69,15 +146,21 @@ export default function RiskyLinkPage() {
         await fetchAddress(latitude, longitude);
         setLoading(false);
       },
-      () => { // <-- no parameter here to avoid TS6133
-        setError('GPS permission denied or unavailable');
+      (err) => {
+        setError(`GPS ${err.message.toLowerCase()}`);
         setLoading(false);
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { 
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      }
     );
   };
 
   useEffect(() => {
+    getBrowserInfo();
+    
     if (step === 2) {
       setTimeout(() => setStep(3), 4000);
     } else if (step === 3) {
@@ -88,16 +171,8 @@ export default function RiskyLinkPage() {
     }
   }, [step]);
 
-  const handleFullscreenStart = () => {
-    const el = document.documentElement as HTMLElement & {
-      webkitRequestFullscreen?: () => Promise<void>;
-      mozRequestFullScreen?: () => Promise<void>;
-      msRequestFullscreen?: () => Promise<void>;
-    };
-    if (el.requestFullscreen) el.requestFullscreen();
-    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
-    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  const handleFullscreenStart = async () => {
+    await requestFullscreen();
     setStep(1);
   };
 
@@ -113,6 +188,9 @@ export default function RiskyLinkPage() {
             <p className="text-pink-400 mb-8">
               This page is not meant for the faint of heart. Your reality will be rewritten.
             </p>
+            {fullscreenError && (
+              <p className="text-red-400 mb-4">{fullscreenError}</p>
+            )}
             <Button
               className="bg-pink-600 hover:bg-pink-700 text-lg px-6 py-3"
               onClick={handleFullscreenStart}
@@ -155,11 +233,24 @@ export default function RiskyLinkPage() {
             ) : (
               <>
                 {error && <p className="text-red-400 mb-4">{error}</p>}
-                <p className="text-pink-400 mb-4">IP: <span className="text-white">{ip || 'Unknown'}</span></p>
+                <p className="text-pink-400 mb-2">Device: <span className="text-white">{browserInfo}</span></p>
+                <p className="text-pink-400 mb-2">IP: <span className="text-white">{ip || 'Unknown'}</span></p>
                 {coords && (
-                  <p className="text-pink-400 mb-4">
-                    Coordinates: <span className="text-white">{coords.lat.toFixed(5)}, {coords.lon.toFixed(5)}</span>
-                  </p>
+                  <>
+                    <p className="text-pink-400 mb-2">
+                      Coordinates: <span className="text-white">{coords.lat.toFixed(5)}, {coords.lon.toFixed(5)}</span>
+                    </p>
+                    <p className="text-pink-400 mb-4">
+                      <a 
+                        href={`https://www.google.com/maps?q=${coords.lat},${coords.lon}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-white underline hover:text-pink-200"
+                      >
+                        View on Google Maps
+                      </a>
+                    </p>
+                  </>
                 )}
                 {address && (
                   <p className="text-pink-400 mb-8">
