@@ -69,7 +69,7 @@ export default function RiskyLinkPage() {
         await fetchAddress(latitude, longitude);
         setLoading(false);
       },
-      (err) => {
+      () => { // <-- no parameter here to avoid TS6133
         setError('GPS permission denied or unavailable');
         setLoading(false);
       },
@@ -89,11 +89,15 @@ export default function RiskyLinkPage() {
   }, [step]);
 
   const handleFullscreenStart = () => {
-    const el = document.documentElement;
+    const el = document.documentElement as HTMLElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+      mozRequestFullScreen?: () => Promise<void>;
+      msRequestFullscreen?: () => Promise<void>;
+    };
     if (el.requestFullscreen) el.requestFullscreen();
-    else if ((el as any).webkitRequestFullscreen) (el as any).webkitRequestFullscreen();
-    else if ((el as any).mozRequestFullScreen) (el as any).mozRequestFullScreen();
-    else if ((el as any).msRequestFullscreen) (el as any).msRequestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.mozRequestFullScreen) el.mozRequestFullScreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
     setStep(1);
   };
 
