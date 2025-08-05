@@ -218,16 +218,19 @@ const RiskyLinkPage = () => {
     return (
 
       <>
-        <audio src="/bam_images/bam_start.mp3" autoPlay />
         <div className="min-h-screen w-full bg-black text-pink-400 flex items-center justify-center p-6">
           <div className="text-center">
-            <h1 className="text-3xl md:text-4xl mb-6">Welcome to Her shrine…</h1>
-            <button
-              onClick={() => setStarted(true)}
-              className="px-6 py-3 bg-pink-600 text-white text-lg rounded-xl hover:bg-pink-700 transition"
-            >
-              Start submitting
-            </button>
+        <h1 className="text-3xl md:text-4xl mb-6">Welcome to Her shrine…</h1>
+        <button
+          onClick={() => {
+            const audio = new Audio("/bam_images/bam_start.mp3");
+            audio.play();
+            setStarted(true);
+          }}
+          className="px-6 py-3 bg-pink-600 text-white text-lg rounded-xl hover:bg-pink-700 transition"
+        >
+          Start submitting
+        </button>
           </div>
         </div>
       </>
