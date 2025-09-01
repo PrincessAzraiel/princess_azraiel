@@ -10,7 +10,7 @@ type Message = {
 function YanderePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const [revealed, setRevealed] = useState(false);
+//   const [revealed, setRevealed] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll
@@ -73,7 +73,7 @@ function YanderePage() {
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        setRevealed(true);
+        // setRevealed(true);
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
 
@@ -84,7 +84,9 @@ function YanderePage() {
           );
           const data = await res.json();
           address = data.display_name || address;
-        } catch {}
+        } catch {
+          // Ignore errors when fetching address
+        }
 
         await addMessage({ sender: "yandere", text: `Latitude: ${lat.toFixed(6)}` }, 3500);
         await addMessage({ sender: "yandere", text: `Longitude: ${lon.toFixed(6)}` }, 3500);
