@@ -9,6 +9,7 @@ import Nav from './components/Nav';
 import PreOrderPage from './pages/NewProgram';
 import { Analytics } from "@vercel/analytics/next"
 import RiskyLinkPage from './pages/Bambam';
+import YanderePage from './pages/YanderePage';
 
 
 
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/programms" element={<ProgrammsPage />} />
         <Route path="/pre-order" element={<PreOrderPage />} />
         <Route path="/bam" element={<RiskyLinkPage />} />
+        <Route path="/yandere" element={<YanderePage />} />
       </Routes>
       <Analytics/>
     </>
