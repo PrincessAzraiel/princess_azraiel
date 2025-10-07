@@ -2,8 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 
 const IMAGE_COUNT = 88;
 const GLITCH_TEXTS = [
-  'SUBMIT', 'CORRUPT', 'OBEY', 'PRINCESS', 'OFFER MORE',
-  'NO ESCAPE', 'AZRAIEL', 'GLITCHED', '💗', "LOVE YOURSELF"
+    'SUBMIT', 'CORRUPT', '💕','OBEY', 'PRINCESS', 'OFFER MORE',
+    'NO ESCAPE', 'AZRAIEL', 'GLITCHED', '💗', "LOVE YOURSELF", "CUTE",
+    'SLEEP', '💞', 'DEEPER', 'SURRENDER', 'DREAM', 'RELAX', 'LET GO',
+    'FOCUS', 'DRIFT', 'FALL', 'TRANCE', '💓', 'YES', 'EMPTY','💖', 'FOLLOW',
+    'MELT', 'SINK', 'SOFT', 'BLANK', 'DOWN', 'DEEP', 'YOURS', "go drink water dummy <3", "THIGHS",
+       '💘'
 ];
 
 type Particle = {
@@ -26,14 +30,14 @@ const IMAGE_OPACITY = 0.68;
 
 // --- video overlay tuning
 const VIDEO_OPACITY = 0.32;        // lower = subtler
-const VIDEO_BLEND: React.CSSProperties['mixBlendMode'] = 'screen'; // or 'lighten'
+const VIDEO_BLEND = 'screen';      // 'screen' or 'lighten' both work nicely
 const VIDEO_PLAYBACK_RATE = 1.0;   // tweak if you want slower/faster motion
 
 export default function CorruptionRainPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // spiral video overlay
+  // NEW: spiral video overlay
   const spiralVideoRef = useRef<HTMLVideoElement>(null);
 
   const imgElsRef = useRef<HTMLImageElement[]>([]);
@@ -243,19 +247,21 @@ export default function CorruptionRainPage() {
     }
   };
 
-  // control spiral video playback & reduced motion
+  // NEW: control spiral video playback & reduced motion
   useEffect(() => {
     const v = spiralVideoRef.current;
     if (!v) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ensure proper playback settings
     v.playbackRate = VIDEO_PLAYBACK_RATE;
 
     const tryPlay = async () => {
       try {
         if (!prefersReduced) await v.play();
       } catch {
-        // ignore autoplay errors
+        // ignore autoplay errors; muted+playsInline should usually pass
       }
     };
 
@@ -316,7 +322,7 @@ export default function CorruptionRainPage() {
         />
       ))}
 
-      {/* Spiral video overlay (replaces canvas) */}
+      {/* NEW: Spiral video overlay (replaces canvas) */}
       <video
         ref={spiralVideoRef}
         src="/spirals.mp4"
@@ -332,60 +338,34 @@ export default function CorruptionRainPage() {
           height: '100%',
           objectFit: 'cover',
           opacity: VIDEO_OPACITY,
-          mixBlendMode: VIDEO_BLEND,
+          mixBlendMode: VIDEO_BLEND as React.CSSProperties['mixBlendMode'],
           pointerEvents: 'none',
           zIndex: 2,
-          // filter: 'blur(0.5px)' // optional
+          // optional soft blur to blend harder edges; comment out if not wanted:
+          // filter: 'blur(0.5px)'
         }}
       />
 
-      {/* Glitch text (enhanced readability + flair) */}
+      {/* Glitch text */}
       {flashText && (
         <div
-          className="glitch-wrap"
+          className="glitch-text"
           style={{
             position: 'absolute',
             top: '45vh',
             left: 0,
             width: '100%',
-            display: 'grid',
-            placeItems: 'center',
+            textAlign: 'center',
+            fontSize: '10vw',
+            animation: 'flash 2s ease-in-out',
+            color: '#ff69eb',
+            opacity: 0.7,
+            textShadow: '0 0 5px #ff69eb, 0 0 12px #ff69eb, 0 0 20px #ff69eb',
             pointerEvents: 'none',
             zIndex: 3
           }}
         >
-          {/* contrast plate */}
-          <div
-            className="glitch-plate"
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              inset: 'auto 8vw',
-              height: 'min(22vh, 28vw)',
-              borderRadius: '24px',
-              background:
-                'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              boxShadow: '0 20px 80px rgba(0,0,0,0.45)',
-            }}
-          />
-
-          {/* RGB split layers */}
-          <div className="glitch-text glitch-r" aria-hidden="true">{flashText}</div>
-          <div className="glitch-text glitch-g" aria-hidden="true">{flashText}</div>
-          <div className="glitch-text glitch-b" aria-hidden="true">{flashText}</div>
-
-          {/* main text on top */}
-          <div
-            className="glitch-text"
-            style={{
-              fontSize: 'min(14vw, 140px)',
-              animation: 'flash 2s ease-in-out, flicker 3.5s infinite linear',
-            }}
-          >
-            {flashText}
-          </div>
+          {flashText}
         </div>
       )}
 
@@ -395,55 +375,14 @@ export default function CorruptionRainPage() {
           45% { opacity: 1; transform: scale(1.08); filter: hue-rotate(25deg); }
           100% { opacity: 0; transform: scale(1.35); filter: hue-rotate(0deg); }
         }
-        @keyframes flicker {
-          0%, 100% { opacity: 1 }
-          10% { opacity: .98 }
-          11% { opacity: .86 }
-          12% { opacity: 1 }
-          50% { opacity: .97 }
-          51% { opacity: .9 }
-          52% { opacity: 1 }
-        }
-
         .glitch-text {
           font-weight: 900;
           font-family: 'Arial Black', system-ui, sans-serif;
-          /* readability */
-          color: #fff;
-          mix-blend-mode: normal;               /* ensure legibility over the video */
-          -webkit-text-stroke: 1.25px rgba(10,10,10,0.9);
-          text-shadow:
-            0 0 8px rgba(255, 105, 235, 0.70),
-            0 0 18px rgba(255, 105, 235, 0.55),
-            0 0 34px rgba(255, 182, 244, 0.45),
-            0 0 60px rgba(255, 182, 244, 0.35);
-          letter-spacing: .01em;
-          line-height: 1;
-          text-align: center;
-          padding: 0 3vw;
+          mix-blend-mode: screen;
         }
-
-        /* subtle chromatic aberration */
-        .glitch-r, .glitch-g, .glitch-b {
-          position: absolute;
-          font-size: min(14vw, 140px);
-          filter: blur(.3px);
-          opacity: .8;
-        }
-        .glitch-r { color: #ff3a3a; transform: translate3d(1.5px, -1px, 0); mix-blend-mode: screen; }
-        .glitch-g { color: #3aff88; transform: translate3d(-1.5px, .5px, 0); mix-blend-mode: screen; }
-        .glitch-b { color: #67aaff; transform: translate3d(.75px, 1px, 0); mix-blend-mode: screen; }
-
-        /* plate tweaks on small screens */
-        @media (max-width: 640px) {
-          .glitch-plate { inset: auto 4vw; height: min(20vh, 40vw); }
-        }
-
-        /* reduced motion = no flicker / no RGB split / hide video */
         @media (prefers-reduced-motion: reduce) {
           video[aria-hidden="true"] { display: none; }
-          .glitch-r, .glitch-g, .glitch-b { display: none; }
-          .glitch-text { animation: none !important; }
+          .glitch-text { animation: none; opacity: 1; }
         }
       `}</style>
     </div>

@@ -29,6 +29,7 @@ export default function App() {
          {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/programms" element={<ProgrammsPage />} />
         <Route path="/pre-order" element={<PreOrderPage />} />
+        <Route path="/infection-protocol" element={<PreOrderPage />} />
         <Route path="/bam" element={<RiskyLinkPage />} />
         <Route path="/yandere" element={<YanderePage />} />
         <Route path="/verification" element={<iframe src="https://premium.chat/verify/1731002" style={{width: '100%', height: '100vh', border: 'none'}} />} />

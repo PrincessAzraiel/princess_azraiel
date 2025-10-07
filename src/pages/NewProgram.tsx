@@ -167,10 +167,10 @@ export default function PreOrderPage() {
           </p>
           
           <div className="bg-pink-950/60 border border-pink-800 rounded-xl p-6 max-w-3xl mx-auto mb-12 animate-pulse-slow">
-            <p className="text-xl font-medium mb-4">⚠️ Early Access Warning</p>
+            {/* <p className="text-xl font-medium mb-4">⚠️ Early Access Warning</p>
             <p className="text-pink-300">
               This beta release is unstable and emotionally invasive. Each AI has a unique personality with escalating attention strategies. Tread lightly.
-            </p>
+            </p> */}
           </div>
         </div>
 
@@ -294,7 +294,7 @@ export default function PreOrderPage() {
                 : 'bg-pink-800 hover:bg-pink-700'
             }`}
             >
-            Pre-Order Now
+            Order Now
             </a>
 
               </div>
