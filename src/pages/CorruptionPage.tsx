@@ -14,7 +14,7 @@ type Particle = {
   rot: number;
   rotVel: number;
   width: number;
-  imgIdx: number;     // index into preloaded srcs
+  imgIdx: number;     // index into preloaded src
 };
 
 const POOL_SIZE = 28;        // number of on-screen sprites (recycled)
@@ -105,7 +105,7 @@ export default function CorruptionRainPage() {
   }, []);
 
   // --- small helper for random spawn
-  function spawnParticle(p: Particle, w: number, h: number, desktop: boolean) {
+  function spawnParticle(p: Particle, w: number, desktop: boolean) {
     const width = desktop ? 240 + Math.random() * 180 : 96 + Math.random() * 64;
     const x = Math.random() * (w - width);
     const y = - (50 + Math.random() * 200);  // start slightly above the top
@@ -124,7 +124,7 @@ export default function CorruptionRainPage() {
     const h = window.innerHeight;
     particlesRef.current = new Array(POOL_SIZE).fill(0).map(() => {
       const p: Particle = { x: 0, y: 0, vx: 0, vy: 0, rot: 0, rotVel: 0, width: 120, imgIdx: 0 };
-      spawnParticle(p, w, h, isDesktop);
+      spawnParticle(p, w, isDesktop);
       // stagger starts across height for prettier initial fill
       p.y = Math.random() * h;
       return p;
@@ -195,7 +195,7 @@ export default function CorruptionRainPage() {
 
         // recycle if off-screen
         if (p.y > h + 120 || p.x < -400 || p.x > w + 400) {
-          spawnParticle(p, w, h, isDesktop);
+          spawnParticle(p, w, isDesktop);
         }
 
         // draw (transform only, no React re-render)
