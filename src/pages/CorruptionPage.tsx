@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const IMAGE_COUNT = 88;
 const GLITCH_TEXTS = [
@@ -6,41 +6,38 @@ const GLITCH_TEXTS = [
   'NO ESCAPE', 'AZRAIEL', 'GLITCHED', '💗'
 ];
 
-type GlitchImage = {
-  id: number;
-  src: string;
-  style: React.CSSProperties;
+type Particle = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rot: number;
+  rotVel: number;
+  width: number;
+  imgIdx: number;     // index into preloaded srcs
 };
 
-const MAX_IMAGES = 48; // cap to prevent runaway DOM/memory
+const POOL_SIZE = 28;        // number of on-screen sprites (recycled)
+const PRELOAD_COUNT = 14;    // how many unique images to load & reuse
 const DESKTOP_QUERY = '(min-width: 768px)';
 
-export default function CorruptionPage() {
-  const [images, setImages] = useState<GlitchImage[]>([]);
+export default function CorruptionRainPage() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const imgElsRef = useRef<HTMLImageElement[]>([]);
+  const particlesRef = useRef<Particle[]>([]);
+  const rafRef = useRef<number | null>(null);
+  const lastTsRef = useRef<number | null>(null);
+  const targetRef = useRef<{x: number; y: number}>({ x: 0.5, y: 0.3 }); // normalized (0..1), pointer attractor
+
   const [flashText, setFlashText] = useState<string | null>(GLITCH_TEXTS[0]);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [audioStarted, setAudioStarted] = useState(false);
-  const [isDesktop, setIsDesktop] = useState<boolean>(() => typeof window !== 'undefined' ? window.matchMedia(DESKTOP_QUERY).matches : true);
+  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.matchMedia(DESKTOP_QUERY).matches : true
+  );
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const idRef = useRef<number>(0);
-  const timeoutsRef = useRef<number[]>([]);
-
-  // Cycle the glitch text
-  useEffect(() => {
-    const t = window.setTimeout(() => {
-      setFlashText(null);
-      setCurrentTextIndex(prev => (prev + 1) % GLITCH_TEXTS.length);
-    }, 2000);
-    timeoutsRef.current.push(t);
-    return () => clearTimeout(t);
-  }, [currentTextIndex]);
-
-  useEffect(() => {
-    setFlashText(GLITCH_TEXTS[currentTextIndex]);
-  }, [currentTextIndex]);
-
-  // MatchMedia for responsive sizing that reacts to resize/rotation
+  // --- responsive flag
   useEffect(() => {
     const mm = window.matchMedia(DESKTOP_QUERY);
     const onChange = () => setIsDesktop(mm.matches);
@@ -49,74 +46,201 @@ export default function CorruptionPage() {
     return () => mm.removeEventListener?.('change', onChange);
   }, []);
 
-  // Image creation loop (interval + document visibility guard)
+  // --- cycle glitch text
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      if (document.hidden) return; // pause when tab not visible
+    const t = window.setTimeout(() => {
+      setFlashText(null);
+      setCurrentTextIndex(prev => (prev + 1) % GLITCH_TEXTS.length);
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [currentTextIndex]);
 
-      // Respect reduced motion: spawn slower
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced && Math.random() < 0.7) return;
+  useEffect(() => {
+    setFlashText(GLITCH_TEXTS[currentTextIndex]);
+  }, [currentTextIndex]);
 
-      const id = ++idRef.current;
-      const width = isDesktop ? 300 + Math.random() * 200 : 100 + Math.random() * 80;
-      const top = `${Math.random() * 90}vh`;
-      const left = `${Math.random() * 90}vw`;
+  // --- preload a small, reusable subset of images
+  const [preloadedSrcs] = useState<string[]>(() => {
+    // fixed, deterministic random subset to keep cache tight
+    const picks = new Set<number>();
+    while (picks.size < PRELOAD_COUNT) {
+      picks.add(Math.floor(Math.random() * IMAGE_COUNT) + 1);
+    }
+    return Array.from(picks).map(n => `/corrupt/${n}.png`);
+  });
 
-      const newImage: GlitchImage = {
-        id,
-        src: `/corrupt/${Math.floor(Math.random() * IMAGE_COUNT) + 1}.png`,
-        style: {
-          position: 'absolute',
-          top,
-          left,
-          width: `${width}px`,
-          opacity: 0.8,
-          transform: `rotate(${Math.random() * 30 - 15}deg)`,
-          filter: 'drop-shadow(0 0 10px pink)',
-          transition: 'opacity 1000ms ease-out',
-          pointerEvents: 'none',
-          zIndex: 1
+  useEffect(() => {
+    preloadedSrcs.forEach(src => {
+      const i = new Image();
+      i.src = src;
+    });
+  }, [preloadedSrcs]);
+
+  // --- pointer attractor (they "follow" your cursor a bit)
+  useEffect(() => {
+    const onMove = (e: PointerEvent | MouseEvent | TouchEvent) => {
+      let x: number;
+      let y: number;
+
+      if ('touches' in e && e.touches[0]) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      } else {
+        const me = e as MouseEvent;
+        x = me.clientX;
+        y = me.clientY;
+      }
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      targetRef.current = { x: x / w, y: y / h };
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('touchstart', onMove, { passive: true });
+    window.addEventListener('touchmove', onMove, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('touchstart', onMove);
+      window.removeEventListener('touchmove', onMove);
+    };
+  }, []);
+
+  // --- small helper for random spawn
+  function spawnParticle(p: Particle, w: number, h: number, desktop: boolean) {
+    const width = desktop ? 240 + Math.random() * 180 : 96 + Math.random() * 64;
+    const x = Math.random() * (w - width);
+    const y = - (50 + Math.random() * 200);  // start slightly above the top
+    const vy = desktop ? (120 + Math.random() * 220) : (90 + Math.random() * 160);
+    const vx = (Math.random() - 0.5) * 40;   // initial tiny drift
+    const rot = (Math.random() * 30 - 15);
+    const rotVel = (Math.random() - 0.5) * 40; // deg/sec
+    const imgIdx = Math.floor(Math.random() * PRELOAD_COUNT);
+
+    p.x = x; p.y = y; p.vx = vx; p.vy = vy; p.rot = rot; p.rotVel = rotVel; p.width = width; p.imgIdx = imgIdx;
+  }
+
+  // --- initialize pool once
+  useEffect(() => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    particlesRef.current = new Array(POOL_SIZE).fill(0).map(() => {
+      const p: Particle = { x: 0, y: 0, vx: 0, vy: 0, rot: 0, rotVel: 0, width: 120, imgIdx: 0 };
+      spawnParticle(p, w, h, isDesktop);
+      // stagger starts across height for prettier initial fill
+      p.y = Math.random() * h;
+      return p;
+    });
+
+    // create IMG refs array placeholder
+    imgElsRef.current = new Array(POOL_SIZE);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // once
+
+  // --- main RAF loop (physics + render)
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return; // respect user setting
+
+    const gravity = 520;  // px/s^2
+    let windBase = 0;     // slow changing wind
+    let windTimer = 0;
+
+    const step = (ts: number) => {
+      if (document.hidden) { // pause when tab hidden
+        lastTsRef.current = ts;
+        rafRef.current = requestAnimationFrame(step);
+        return;
+      }
+
+      const last = lastTsRef.current ?? ts;
+      let dt = (ts - last) / 1000;
+      // clamp dt to avoid big jumps after tab restore
+      if (dt > 0.05) dt = 0.05;
+      lastTsRef.current = ts;
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // evolve wind slowly
+      windTimer += dt;
+      if (windTimer > 0.6) {
+        windTimer = 0;
+        windBase = (Math.random() - 0.5) * (isDesktop ? 55 : 35); // px/s side wind
+      }
+
+      const target = targetRef.current; // normalized
+      const tx = target.x * w;
+      const ty = target.y * h;
+
+      const parts = particlesRef.current;
+      for (let i = 0; i < parts.length; i++) {
+        const p = parts[i];
+
+        // attraction to pointer (very subtle so it "follows")
+        const dx = tx - (p.x + p.width * 0.5);
+        const dy = ty - (p.y + p.width * 0.25);
+        const dist = Math.hypot(dx, dy) || 1;
+        const strength = isDesktop ? 18 : 12; // px/s max
+        p.vx += (dx / dist) * strength * dt * 0.6;
+
+        // wind sway
+        p.vx += windBase * 0.25 * dt;
+
+        // gravity
+        p.vy += gravity * dt;
+
+        // integrate
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.rotVel * dt;
+
+        // recycle if off-screen
+        if (p.y > h + 120 || p.x < -400 || p.x > w + 400) {
+          spawnParticle(p, w, h, isDesktop);
         }
-      };
 
-      setImages(prev => {
-        const next = [...prev, newImage];
-        // enforce cap
-        if (next.length > MAX_IMAGES) next.splice(0, next.length - MAX_IMAGES);
-        return next;
-      });
+        // draw (transform only, no React re-render)
+        const el = imgElsRef.current[i];
+        if (el) {
+          el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
+          el.style.width = `${p.width}px`;
+        }
+      }
 
-      const to = window.setTimeout(() => {
-        setImages(prev => prev.filter(img => img.id !== id));
-      }, 4000);
-      timeoutsRef.current.push(to);
-    }, 600);
+      rafRef.current = requestAnimationFrame(step);
+    };
 
-    return () => clearInterval(interval);
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
   }, [isDesktop]);
 
-  const startAudio = useCallback(async () => {
+  // --- handle resize (light touch: just recycle off-screen soon)
+  useEffect(() => {
+    const onResize = () => {
+      // nudge particles a bit so they reflow quickly after resize
+      particlesRef.current.forEach(p => (p.y -= 20));
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // --- start audio on first interaction
+  const startAudio = async () => {
     if (audioRef.current && !audioStarted) {
       try {
         await audioRef.current.play();
         setAudioStarted(true);
       } catch {
-        // Some browsers block; keep the hint visible
+        // autoplay blocked; hint stays visible
       }
     }
-  }, [audioStarted]);
-
-  // Cleanup any pending timeouts on unmount
-  useEffect(() => {
-    return () => {
-      timeoutsRef.current.forEach(t => clearTimeout(t));
-      timeoutsRef.current = [];
-    };
-  }, []);
+  };
 
   return (
     <div
+      ref={containerRef}
       className="magic-bg min-h-screen w-full relative overflow-hidden text-pink-300 font-bold text-xl select-none"
       onClick={startAudio}
       onTouchStart={startAudio}
@@ -134,17 +258,30 @@ export default function CorruptionPage() {
         </div>
       )}
 
-      {images.map(img => (
+      {/* Fixed, recycled pool of sprites */}
+      {new Array(POOL_SIZE).fill(0).map((_, i) => (
         <img
-          key={img.id}
-          src={img.src}
-          style={img.style}
+          key={i}
+          ref={el => { if (el) imgElsRef.current[i] = el; }}
+          src={preloadedSrcs[i % preloadedSrcs.length]}
           alt=""
           aria-hidden="true"
           draggable={false}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            willChange: 'transform',
+            opacity: 0.85,
+            filter: 'drop-shadow(0 0 10px pink)',
+            pointerEvents: 'none',
+            zIndex: 1,
+            transform: 'translate3d(-9999px,-9999px,0)'
+          }}
         />
       ))}
 
+      {/* Glitch text */}
       {flashText && (
         <div
           className="glitch-text"
