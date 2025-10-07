@@ -14,34 +14,33 @@ type Particle = {
   rot: number;
   rotVel: number;
   width: number;
-  imgIdx: number;     // index into preloaded src
+  imgIdx: number;
 };
 
-const POOL_SIZE = 28;        // number of on-screen sprites (recycled)
-const PRELOAD_COUNT = 14;    // how many unique images to load & reuse
+const POOL_SIZE = 28;
+const PRELOAD_COUNT = 14;
 const DESKTOP_QUERY = '(min-width: 768px)';
 
 // --- visual tuning
-const IMAGE_OPACITY = 0.68;      // slightly lower so spiral pops but rain stays visible
-const SPIRAL_ALPHA = 0.62;       // spiral opacity (0..1)
-const SPIRAL_ARMS = 3;           // number of spiral arms (try 4 for denser)
-const SPIRAL_LINE_WIDTH = 7.5;   // thicker lines
-const SPIRAL_GLOW = 28;          // stronger glow
+const IMAGE_OPACITY = 0.68;
 
-// hypno zoom (breathing)
-const SPIRAL_ZOOM_AMPLITUDE = 0.18; // 0.10..0.25 feels nice
-const SPIRAL_ZOOM_SPEED = 0.45;     // cycles per second
+// --- video overlay tuning
+const VIDEO_OPACITY = 0.32;        // lower = subtler
+const VIDEO_BLEND = 'screen';      // 'screen' or 'lighten' both work nicely
+const VIDEO_PLAYBACK_RATE = 1.0;   // tweak if you want slower/faster motion
 
 export default function CorruptionRainPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const spiralCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // NEW: spiral video overlay
+  const spiralVideoRef = useRef<HTMLVideoElement>(null);
 
   const imgElsRef = useRef<HTMLImageElement[]>([]);
   const particlesRef = useRef<Particle[]>([]);
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
-  const targetRef = useRef<{x: number; y: number}>({ x: 0.5, y: 0.3 }); // normalized (0..1), pointer attractor
+  const targetRef = useRef<{x: number; y: number}>({ x: 0.5, y: 0.3 });
 
   const [flashText, setFlashText] = useState<string | null>(GLITCH_TEXTS[0]);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -50,7 +49,7 @@ export default function CorruptionRainPage() {
     typeof window !== 'undefined' ? window.matchMedia(DESKTOP_QUERY).matches : true
   );
 
-  // --- responsive flag
+  // responsive flag
   useEffect(() => {
     const mm = window.matchMedia(DESKTOP_QUERY);
     const onChange = () => setIsDesktop(mm.matches);
@@ -59,7 +58,7 @@ export default function CorruptionRainPage() {
     return () => mm.removeEventListener?.('change', onChange);
   }, []);
 
-  // --- cycle glitch text
+  // cycle glitch text
   useEffect(() => {
     const t = window.setTimeout(() => {
       setFlashText(null);
@@ -72,7 +71,7 @@ export default function CorruptionRainPage() {
     setFlashText(GLITCH_TEXTS[currentTextIndex]);
   }, [currentTextIndex]);
 
-  // --- preload a small, reusable subset of images
+  // preload a small, reusable subset of images
   const [preloadedSrcs] = useState<string[]>(() => {
     const picks = new Set<number>();
     while (picks.size < PRELOAD_COUNT) {
@@ -88,12 +87,11 @@ export default function CorruptionRainPage() {
     });
   }, [preloadedSrcs]);
 
-  // --- pointer attractor (they "follow" your cursor a bit)
+  // pointer attractor
   useEffect(() => {
     const onMove = (e: PointerEvent | MouseEvent | TouchEvent) => {
       let x: number;
       let y: number;
-
       if ('touches' in e && e.touches[0]) {
         x = e.touches[0].clientX;
         y = e.touches[0].clientY;
@@ -116,13 +114,13 @@ export default function CorruptionRainPage() {
     };
   }, []);
 
-  // --- small helper for random spawn
+  // small helper for random spawn
   function spawnParticle(p: Particle, w: number, desktop: boolean) {
     const width = desktop ? 240 + Math.random() * 180 : 96 + Math.random() * 64;
     const x = Math.random() * (w - width);
-    const y = - (50 + Math.random() * 200);  // start slightly above the top
+    const y = -(50 + Math.random() * 200);
     const vy = desktop ? (120 + Math.random() * 220) : (90 + Math.random() * 160);
-    const vx = (Math.random() - 0.5) * 40;   // initial tiny drift
+    const vx = (Math.random() - 0.5) * 40;
     const rot = (Math.random() * 30 - 15);
     const rotVel = (Math.random() - 0.5) * 40; // deg/sec
     const imgIdx = Math.floor(Math.random() * PRELOAD_COUNT);
@@ -130,117 +128,31 @@ export default function CorruptionRainPage() {
     p.x = x; p.y = y; p.vx = vx; p.vy = vy; p.rot = rot; p.rotVel = rotVel; p.width = width; p.imgIdx = imgIdx;
   }
 
-  // --- initialize pool once
+  // initialize pool once
   useEffect(() => {
     const w = window.innerWidth;
     const h = window.innerHeight;
     particlesRef.current = new Array(POOL_SIZE).fill(0).map(() => {
       const p: Particle = { x: 0, y: 0, vx: 0, vy: 0, rot: 0, rotVel: 0, width: 120, imgIdx: 0 };
       spawnParticle(p, w, isDesktop);
-      p.y = Math.random() * h; // stagger starts across height
+      p.y = Math.random() * h;
       return p;
     });
-
     imgElsRef.current = new Array(POOL_SIZE);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // --- helper: size & clear spiral canvas
-  const resizeCanvas = () => {
-    const c = spiralCanvasRef.current;
-    if (!c) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const cw = Math.floor((c.clientWidth || window.innerWidth) * dpr);
-    const ch = Math.floor((c.clientHeight || window.innerHeight) * dpr);
-    if (c.width !== cw || c.height !== ch) {
-      c.width = cw;
-      c.height = ch;
-    }
-  };
-
-  // --- draw spiral overlay (logarithmic spiral arms) with glow + breathing zoom
-  function drawSpiralOverlay(ts: number) {
-    const c = spiralCanvasRef.current;
-    if (!c) return;
-    const ctx = c.getContext('2d');
-    if (!ctx) return;
-
-    resizeCanvas();
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = c.width;
-    const h = c.height;
-
-    // clear canvas with transparent background
-    ctx.clearRect(0, 0, w, h);
-
-    const cx = w / 2;
-    const cy = h / 2;
-    const minDim = Math.min(w, h);
-
-    // logarithmic spiral params
-    const a = 0.6;             // base radius factor
-    const b = 0.145;           // growth factor
-    const turns = 3.5;         // how many rotations to draw
-    const thetaMax = turns * Math.PI * 2;
-
-    // time & motion
-    const t = ts / 1000;                       // seconds
-    const rotation = t * 0.25;                 // rad/s rotation
-    const zoom = 1 + SPIRAL_ZOOM_AMPLITUDE * Math.sin(t * Math.PI * 2 * SPIRAL_ZOOM_SPEED);
-    const alphaPulse = 0.04 * Math.sin(t * 2.1) + SPIRAL_ALPHA; // subtle alpha wobble
-
-    // styling
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.lineWidth = SPIRAL_LINE_WIDTH * dpr;
-    ctx.shadowBlur = SPIRAL_GLOW * dpr;
-    ctx.shadowColor = 'rgba(255,105,235,0.95)';
-
-    const grad = ctx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, `rgba(255,105,235,${alphaPulse})`);
-    grad.addColorStop(1, `rgba(255,182,244,${alphaPulse * 0.92})`);
-    ctx.strokeStyle = grad;
-
-    // prefers-reduced-motion: freeze rotation & zoom but keep glow
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const rot = prefersReduced ? 0 : rotation;
-    const zm = prefersReduced ? 1 : zoom;
-
-    for (let arm = 0; arm < SPIRAL_ARMS; arm++) {
-      const armOffset = (arm / SPIRAL_ARMS) * Math.PI * 2;
-      ctx.beginPath();
-      let started = false;
-
-      for (let theta = 0; theta <= thetaMax; theta += 0.03) {
-        const th = theta + rot + armOffset;
-        const r = zm * (minDim * a) * Math.exp(b * theta) * 0.06;
-        const x = cx + r * Math.cos(th);
-        const y = cy + r * Math.sin(th);
-        if (!started) {
-          ctx.moveTo(x, y);
-          started = true;
-        } else {
-          ctx.lineTo(x, y);
-        }
-      }
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-
-  // --- main RAF loop (physics + render + spiral draw)
+  // RAF loop (physics + render)
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return; // respect user setting
+    if (prefersReduced) return;
 
     const gravity = 520;  // px/s^2
     let windBase = 0;     // slow changing wind
     let windTimer = 0;
 
     const step = (ts: number) => {
-      if (document.hidden) { // pause when tab hidden
+      if (document.hidden) {
         lastTsRef.current = ts;
         rafRef.current = requestAnimationFrame(step);
         return;
@@ -248,7 +160,7 @@ export default function CorruptionRainPage() {
 
       const last = lastTsRef.current ?? ts;
       let dt = (ts - last) / 1000;
-      if (dt > 0.05) dt = 0.05; // clamp dt
+      if (dt > 0.05) dt = 0.05;
       lastTsRef.current = ts;
 
       const w = window.innerWidth;
@@ -258,10 +170,10 @@ export default function CorruptionRainPage() {
       windTimer += dt;
       if (windTimer > 0.6) {
         windTimer = 0;
-        windBase = (Math.random() - 0.5) * (isDesktop ? 55 : 35); // px/s side wind
+        windBase = (Math.random() - 0.5) * (isDesktop ? 55 : 35);
       }
 
-      const target = targetRef.current; // normalized
+      const target = targetRef.current;
       const tx = target.x * w;
       const ty = target.y * h;
 
@@ -269,11 +181,11 @@ export default function CorruptionRainPage() {
       for (let i = 0; i < parts.length; i++) {
         const p = parts[i];
 
-        // attraction to pointer (very subtle so it "follows")
+        // attraction to pointer
         const dx = tx - (p.x + p.width * 0.5);
         const dy = ty - (p.y + p.width * 0.25);
         const dist = Math.hypot(dx, dy) || 1;
-        const strength = isDesktop ? 18 : 12; // px/s max
+        const strength = isDesktop ? 18 : 12;
         p.vx += (dx / dist) * strength * dt * 0.6;
 
         // wind sway
@@ -292,16 +204,13 @@ export default function CorruptionRainPage() {
           spawnParticle(p, w, isDesktop);
         }
 
-        // draw (transform only, no React re-render)
+        // draw
         const el = imgElsRef.current[i];
         if (el) {
           el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
           el.style.width = `${p.width}px`;
         }
       }
-
-      // draw spiral overlay last
-      drawSpiralOverlay(ts);
 
       rafRef.current = requestAnimationFrame(step);
     };
@@ -313,18 +222,16 @@ export default function CorruptionRainPage() {
     };
   }, [isDesktop]);
 
-  // --- handle resize (recycle off-screen soon) & canvas resize
+  // handle resize (nudge particles to recycle soon)
   useEffect(() => {
     const onResize = () => {
       particlesRef.current.forEach(p => (p.y -= 20));
-      resizeCanvas();
-      drawSpiralOverlay(performance.now());
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // --- start audio on first interaction
+  // start audio on first interaction
   const startAudio = async () => {
     if (audioRef.current && !audioStarted) {
       try {
@@ -335,6 +242,38 @@ export default function CorruptionRainPage() {
       }
     }
   };
+
+  // NEW: control spiral video playback & reduced motion
+  useEffect(() => {
+    const v = spiralVideoRef.current;
+    if (!v) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ensure proper playback settings
+    v.playbackRate = VIDEO_PLAYBACK_RATE;
+
+    const tryPlay = async () => {
+      try {
+        if (!prefersReduced) await v.play();
+      } catch {
+        // ignore autoplay errors; muted+playsInline should usually pass
+      }
+    };
+
+    tryPlay();
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        v.pause();
+      } else if (!prefersReduced) {
+        v.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
 
   return (
     <div
@@ -379,13 +318,27 @@ export default function CorruptionRainPage() {
         />
       ))}
 
-      {/* Spiral overlay canvas (above images, below glitch text) */}
-      <canvas
-        ref={spiralCanvasRef}
-        className="absolute inset-0 w-full h-full"
+      {/* NEW: Spiral video overlay (replaces canvas) */}
+      <video
+        ref={spiralVideoRef}
+        src="/spirals.mp4"
+        muted
+        loop
+        playsInline
+        preload="auto"
+        aria-hidden="true"
         style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          opacity: VIDEO_OPACITY,
+          mixBlendMode: VIDEO_BLEND as React.CSSProperties['mixBlendMode'],
+          pointerEvents: 'none',
           zIndex: 2,
-          pointerEvents: 'none'
+          // optional soft blur to blend harder edges; comment out if not wanted:
+          // filter: 'blur(0.5px)'
         }}
       />
 
@@ -424,6 +377,7 @@ export default function CorruptionRainPage() {
           mix-blend-mode: screen;
         }
         @media (prefers-reduced-motion: reduce) {
+          video[aria-hidden="true"] { display: none; }
           .glitch-text { animation: none; opacity: 1; }
         }
       `}</style>
