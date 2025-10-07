@@ -10,6 +10,7 @@ import PreOrderPage from './pages/NewProgram';
 import { Analytics } from "@vercel/analytics/next"
 import RiskyLinkPage from './pages/Bambam';
 import YanderePage from './pages/YanderePage';
+import CorruptionPage from './pages/CorruptionPage';
 
 
 
@@ -23,6 +24,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/corruption" element={<CorruptionRainPage />} />
+        <Route path="/corruption2" element={<CorruptionPage />} />
         <Route path="/links" element={<SecretButtonsPage />} />
          {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/programms" element={<ProgrammsPage />} />

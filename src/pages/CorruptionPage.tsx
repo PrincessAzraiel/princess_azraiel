@@ -15,7 +15,7 @@ type GlitchImage = {
 const MAX_IMAGES = 48; // cap to prevent runaway DOM/memory
 const DESKTOP_QUERY = '(min-width: 768px)';
 
-export default function CorruptionRainPage() {
+export default function CorruptionPage() {
   const [images, setImages] = useState<GlitchImage[]>([]);
   const [flashText, setFlashText] = useState<string | null>(GLITCH_TEXTS[0]);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
