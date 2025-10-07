@@ -14,16 +14,29 @@ type Particle = {
   rot: number;
   rotVel: number;
   width: number;
-  imgIdx: number;     // index into preloaded srcs
+  imgIdx: number;     // index into preloaded src
 };
 
 const POOL_SIZE = 28;        // number of on-screen sprites (recycled)
 const PRELOAD_COUNT = 14;    // how many unique images to load & reuse
 const DESKTOP_QUERY = '(min-width: 768px)';
 
+// --- visual tuning
+const IMAGE_OPACITY = 0.68;      // slightly lower so spiral pops but rain stays visible
+const SPIRAL_ALPHA = 0.62;       // spiral opacity (0..1)
+const SPIRAL_ARMS = 3;           // number of spiral arms (try 4 for denser)
+const SPIRAL_LINE_WIDTH = 7.5;   // thicker lines
+const SPIRAL_GLOW = 28;          // stronger glow
+
+// hypno zoom (breathing)
+const SPIRAL_ZOOM_AMPLITUDE = 0.18; // 0.10..0.25 feels nice
+const SPIRAL_ZOOM_SPEED = 0.45;     // cycles per second
+
 export default function CorruptionRainPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const spiralCanvasRef = useRef<HTMLCanvasElement>(null);
+
   const imgElsRef = useRef<HTMLImageElement[]>([]);
   const particlesRef = useRef<Particle[]>([]);
   const rafRef = useRef<number | null>(null);
@@ -61,7 +74,6 @@ export default function CorruptionRainPage() {
 
   // --- preload a small, reusable subset of images
   const [preloadedSrcs] = useState<string[]>(() => {
-    // fixed, deterministic random subset to keep cache tight
     const picks = new Set<number>();
     while (picks.size < PRELOAD_COUNT) {
       picks.add(Math.floor(Math.random() * IMAGE_COUNT) + 1);
@@ -105,7 +117,7 @@ export default function CorruptionRainPage() {
   }, []);
 
   // --- small helper for random spawn
-  function spawnParticle(p: Particle, w: number, h: number, desktop: boolean) {
+  function spawnParticle(p: Particle, w: number, desktop: boolean) {
     const width = desktop ? 240 + Math.random() * 180 : 96 + Math.random() * 64;
     const x = Math.random() * (w - width);
     const y = - (50 + Math.random() * 200);  // start slightly above the top
@@ -124,18 +136,101 @@ export default function CorruptionRainPage() {
     const h = window.innerHeight;
     particlesRef.current = new Array(POOL_SIZE).fill(0).map(() => {
       const p: Particle = { x: 0, y: 0, vx: 0, vy: 0, rot: 0, rotVel: 0, width: 120, imgIdx: 0 };
-      spawnParticle(p, w, h, isDesktop);
-      // stagger starts across height for prettier initial fill
-      p.y = Math.random() * h;
+      spawnParticle(p, w, isDesktop);
+      p.y = Math.random() * h; // stagger starts across height
       return p;
     });
 
-    // create IMG refs array placeholder
     imgElsRef.current = new Array(POOL_SIZE);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // once
 
-  // --- main RAF loop (physics + render)
+  // --- helper: size & clear spiral canvas
+  const resizeCanvas = () => {
+    const c = spiralCanvasRef.current;
+    if (!c) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const cw = Math.floor((c.clientWidth || window.innerWidth) * dpr);
+    const ch = Math.floor((c.clientHeight || window.innerHeight) * dpr);
+    if (c.width !== cw || c.height !== ch) {
+      c.width = cw;
+      c.height = ch;
+    }
+  };
+
+  // --- draw spiral overlay (logarithmic spiral arms) with glow + breathing zoom
+  function drawSpiralOverlay(ts: number) {
+    const c = spiralCanvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    if (!ctx) return;
+
+    resizeCanvas();
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = c.width;
+    const h = c.height;
+
+    // clear canvas with transparent background
+    ctx.clearRect(0, 0, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+    const minDim = Math.min(w, h);
+
+    // logarithmic spiral params
+    const a = 0.6;             // base radius factor
+    const b = 0.145;           // growth factor
+    const turns = 3.5;         // how many rotations to draw
+    const thetaMax = turns * Math.PI * 2;
+
+    // time & motion
+    const t = ts / 1000;                       // seconds
+    const rotation = t * 0.25;                 // rad/s rotation
+    const zoom = 1 + SPIRAL_ZOOM_AMPLITUDE * Math.sin(t * Math.PI * 2 * SPIRAL_ZOOM_SPEED);
+    const alphaPulse = 0.04 * Math.sin(t * 2.1) + SPIRAL_ALPHA; // subtle alpha wobble
+
+    // styling
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.lineWidth = SPIRAL_LINE_WIDTH * dpr;
+    ctx.shadowBlur = SPIRAL_GLOW * dpr;
+    ctx.shadowColor = 'rgba(255,105,235,0.95)';
+
+    const grad = ctx.createLinearGradient(0, 0, w, h);
+    grad.addColorStop(0, `rgba(255,105,235,${alphaPulse})`);
+    grad.addColorStop(1, `rgba(255,182,244,${alphaPulse * 0.92})`);
+    ctx.strokeStyle = grad;
+
+    // prefers-reduced-motion: freeze rotation & zoom but keep glow
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const rot = prefersReduced ? 0 : rotation;
+    const zm = prefersReduced ? 1 : zoom;
+
+    for (let arm = 0; arm < SPIRAL_ARMS; arm++) {
+      const armOffset = (arm / SPIRAL_ARMS) * Math.PI * 2;
+      ctx.beginPath();
+      let started = false;
+
+      for (let theta = 0; theta <= thetaMax; theta += 0.03) {
+        const th = theta + rot + armOffset;
+        const r = zm * (minDim * a) * Math.exp(b * theta) * 0.06;
+        const x = cx + r * Math.cos(th);
+        const y = cy + r * Math.sin(th);
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  // --- main RAF loop (physics + render + spiral draw)
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return; // respect user setting
@@ -153,8 +248,7 @@ export default function CorruptionRainPage() {
 
       const last = lastTsRef.current ?? ts;
       let dt = (ts - last) / 1000;
-      // clamp dt to avoid big jumps after tab restore
-      if (dt > 0.05) dt = 0.05;
+      if (dt > 0.05) dt = 0.05; // clamp dt
       lastTsRef.current = ts;
 
       const w = window.innerWidth;
@@ -195,7 +289,7 @@ export default function CorruptionRainPage() {
 
         // recycle if off-screen
         if (p.y > h + 120 || p.x < -400 || p.x > w + 400) {
-          spawnParticle(p, w, h, isDesktop);
+          spawnParticle(p, w, isDesktop);
         }
 
         // draw (transform only, no React re-render)
@@ -205,6 +299,9 @@ export default function CorruptionRainPage() {
           el.style.width = `${p.width}px`;
         }
       }
+
+      // draw spiral overlay last
+      drawSpiralOverlay(ts);
 
       rafRef.current = requestAnimationFrame(step);
     };
@@ -216,11 +313,12 @@ export default function CorruptionRainPage() {
     };
   }, [isDesktop]);
 
-  // --- handle resize (light touch: just recycle off-screen soon)
+  // --- handle resize (recycle off-screen soon) & canvas resize
   useEffect(() => {
     const onResize = () => {
-      // nudge particles a bit so they reflow quickly after resize
       particlesRef.current.forEach(p => (p.y -= 20));
+      resizeCanvas();
+      drawSpiralOverlay(performance.now());
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -252,7 +350,7 @@ export default function CorruptionRainPage() {
       {!audioStarted && (
         <div
           className="absolute inset-x-0 top-4 mx-auto w-fit px-4 py-2 rounded-xl"
-          style={{ background: 'rgba(255,105,235,0.12)', backdropFilter: 'blur(6px)', zIndex: 3 }}
+          style={{ background: 'rgba(255,105,235,0.12)', backdropFilter: 'blur(6px)', zIndex: 4 }}
         >
           Tap / click to enable audio
         </div>
@@ -272,7 +370,7 @@ export default function CorruptionRainPage() {
             top: 0,
             left: 0,
             willChange: 'transform',
-            opacity: 0.85,
+            opacity: IMAGE_OPACITY,
             filter: 'drop-shadow(0 0 10px pink)',
             pointerEvents: 'none',
             zIndex: 1,
@@ -280,6 +378,16 @@ export default function CorruptionRainPage() {
           }}
         />
       ))}
+
+      {/* Spiral overlay canvas (above images, below glitch text) */}
+      <canvas
+        ref={spiralCanvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{
+          zIndex: 2,
+          pointerEvents: 'none'
+        }}
+      />
 
       {/* Glitch text */}
       {flashText && (
@@ -297,7 +405,7 @@ export default function CorruptionRainPage() {
             opacity: 0.7,
             textShadow: '0 0 5px #ff69eb, 0 0 12px #ff69eb, 0 0 20px #ff69eb',
             pointerEvents: 'none',
-            zIndex: 2
+            zIndex: 3
           }}
         >
           {flashText}
