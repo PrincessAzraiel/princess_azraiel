@@ -284,7 +284,7 @@ export default function CorruptionRainPage() {
       role="application"
       aria-label="Corruption rain visual"
     >
-      <audio ref={audioRef} src="/audio/glitch.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="/bam_images/bam_start.mp3" loop preload="auto" />
 
       {!audioStarted && (
         <div
