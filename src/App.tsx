@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import SecretButtonsPage from  './pages/SecretButtons'
 import CorruptionRainPage from './pages/CorruptionRainPage';
 import LandingPage from './pages/LandingPage';
-// import AboutPage from './pages/AboutPage';
+import AboutPage from './pages/AboutPage';
 import ProgrammsPage from './pages/ProgrammsPage';
 import Nav from './components/Nav';
 import PreOrderPage from './pages/NewProgram';
@@ -26,7 +26,7 @@ export default function App() {
         <Route path="/corruption" element={<CorruptionRainPage />} />
         <Route path="/corruption2" element={<CorruptionPage />} />
         <Route path="/links" element={<SecretButtonsPage />} />
-         {/* <Route path="/about" element={<AboutPage />} /> */}
+         <Route path="/about" element={<AboutPage />} />
         <Route path="/programms" element={<ProgrammsPage />} />
         <Route path="/pre-order" element={<PreOrderPage />} />
         <Route path="/infection-protocol" element={<PreOrderPage />} />
