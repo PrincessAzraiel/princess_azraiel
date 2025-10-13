@@ -1,3 +1,6 @@
+/* eslint-disable no-empty */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 /**
@@ -130,6 +133,7 @@ const LoveProtocol: React.FC = () => {
       setPhase("protocol");
       setCurrentLineIdx(0);
       setTyped([]); setActive("");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e?.message || "ACCESS DENIED");
     } finally {
