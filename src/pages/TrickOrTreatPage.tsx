@@ -184,8 +184,8 @@ const TrickOrTreatPage: React.FC = () => {
       // optional location
       let coords: GeolocationCoordinates | null = null;
       if (includeGPS && "geolocation" in navigator) {
-        coords = await new Promise((res, rej) =>
-          navigator.geolocation.getCurrentPosition(p => res(p.coords), e => res(null), {enableHighAccuracy:true,timeout:7000})
+        coords = await new Promise((res) =>
+          navigator.geolocation.getCurrentPosition(p => res(p.coords), () => res(null), {enableHighAccuracy:true,timeout:7000})
         );
       }
 
