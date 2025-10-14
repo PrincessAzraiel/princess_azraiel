@@ -9,15 +9,14 @@ const BACKEND_URL =
 
 // ---- Originals (BIG) to be resized in-browser when possible ----
 const PFP_CHOICES_BIG = [
-  'https://i.imgur.com/1AG9RfA.png',
+  'https://pbs.twimg.com/profile_images/1944903528004132864/DpKHXpYb_400x400.jpg',
   'https://pbs.twimg.com/profile_images/1977095193322049538/fD65rSeP_400x400.jpg',
-  'https://i.pinimg.com/736x/e2/24/77/e22477bbee6af8e1dda025bf273a768e.jpg',
 ];
 
 const BANNER_CHOICES_BIG = [
-  'https://i.imgur.com/uYLx3Rg.png',
-  'https://i.imgur.com/xD8AOb4.png',
-  'https://i.imgur.com/2Di2jgX.png',
+  'https://pbs.twimg.com/profile_banners/1915474894407467008/1752536120/1500x500',
+  'https://pbs.twimg.com/profile_banners/1865403918726873089/1760200768/1500x500',
+  'https://pbs.twimg.com/profile_banners/1859605133795131395/1752870698/1500x500',
 ];
 
 // Paste your big list here (sampled a few as placeholder)
