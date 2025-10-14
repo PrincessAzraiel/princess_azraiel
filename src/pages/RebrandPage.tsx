@@ -20,7 +20,7 @@ const BANNER_CHOICES = [
   'https://pbs.twimg.com/profile_banners/1859605133795131395/1752870698/1500x500',
 ];
 
-// Sampled list (you can paste your full list here)
+// Sampled list (paste your full list if you want)
 const PRINCESS_NICKNAMES: string[] = [
   'Princess Azraiel’s Cupcake',
   'Princess Azraiel’s Muffin',
@@ -70,6 +70,7 @@ export default function RebrandPage() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<XUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<Record<string, string> | null>(null);
 
   // On mount: randomize name/pfp/banner once
   useEffect(() => {
@@ -101,6 +102,7 @@ export default function RebrandPage() {
 
   const submit = async () => {
     setError(null);
+    setWarnings(null);
     setResult(null);
 
     setBusy(true);
@@ -110,21 +112,26 @@ export default function RebrandPage() {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include', // IMPORTANT: send auth cookie
         body: JSON.stringify({
-          name,
-          description,
-          url,
-          location,
-          pfpUrl,
-          bannerUrl,
+          name: name?.trim(),
+          description: description?.trim(),
+          url: url?.trim(),
+          location: location?.trim(),
+          pfpUrl: pfpUrl?.trim(),
+          bannerUrl: bannerUrl?.trim(),
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok || !data?.ok) {
+        const status = res.status;
+        const details =
+          typeof data?.details === 'object' ? JSON.stringify(data.details) : data?.details;
+        const msg = data?.error || 'Request failed';
         throw new Error(
-          data?.details ? `${data.error}: ${data.details}` : (data?.error || 'Request failed')
+          `[${status}] ${details ? `${msg}: ${details}` : msg}`
         );
       }
+      setWarnings(data?.warnings || null);
       setResult(data.user as XUser);
     } catch (e: any) {
       setError(e?.message || 'Something went wrong');
@@ -187,6 +194,9 @@ export default function RebrandPage() {
                   className="w-full rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
                   maxLength={100}
                 />
+                <p className="text-xs text-pink-400 mt-1">
+                  If update fails, try a neutral URL (e.g. https://example.com).
+                </p>
               </div>
               <div>
                 <label className="block text-sm mb-1 text-pink-400">Location</label>
@@ -261,6 +271,12 @@ export default function RebrandPage() {
           {error && (
             <div className="text-sm text-red-300 border border-red-700/50 bg-red-900/20 rounded-xl p-3">
               {error}
+            </div>
+          )}
+
+          {warnings && (
+            <div className="text-sm text-yellow-200/90 border border-yellow-600/40 bg-yellow-900/20 rounded-xl p-3 whitespace-pre-wrap">
+              Some fields could not be updated:\n{JSON.stringify(warnings, null, 2)}
             </div>
           )}
 
