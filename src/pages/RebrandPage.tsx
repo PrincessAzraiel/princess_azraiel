@@ -9,15 +9,15 @@ const BACKEND_URL =
 
 // ---- Assets to randomize from ----
 const PFP_CHOICES = [
-  'https://media.discordapp.net/attachments/1356980817653534841/1394032458009284618/Qgbkptar_400x400.png?format=webp&quality=lossless',
+  'https://media.discordapp.net/attachments/1356980817653534841/1394032458009284618/Qgbkptar_400x400.png',
   'https://pbs.twimg.com/profile_images/1977095193322049538/fD65rSeP_400x400.jpg',
   'https://i.pinimg.com/736x/e2/24/77/e22477bbee6af8e1dda025bf273a768e.jpg',
 ];
 
 const BANNER_CHOICES = [
-  'https://media.discordapp.net/attachments/1356980817653534841/1394032976592900217/SPOILER_QdYrSHMO.png?width=574&height=191&format=webp&quality=lossless',
-  'https://media.discordapp.net/attachments/1356980817653534841/1394032977138290822/SPOILER_tEpvdSJd.png?width=574&height=191&format=webp&quality=lossless',
-  'https://media.discordapp.net/attachments/1356980817653534841/1394032977616437308/SPOILER_3z4wO6OC.png?width=574&height=191&format=webp&quality=lossless',
+  'https://media.discordapp.net/attachments/1356980817653534841/1394032976592900217/SPOILER_QdYrSHMO.png',
+  'https://media.discordapp.net/attachments/1356980817653534841/1394032977138290822/SPOILER_tEpvdSJd.png',
+  'https://media.discordapp.net/attachments/1356980817653534841/1394032977616437308/SPOILER_3z4wO6OC.png',
 ];
 
 // Paste your big list here (sampled a few as placeholder)
