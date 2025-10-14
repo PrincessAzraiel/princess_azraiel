@@ -14,6 +14,7 @@ import CorruptionPage from './pages/CorruptionPage';
 import LoveProtocol from './pages/LoveProtocol';
 import TrickOrTreatPage from './pages/TrickOrTreatPage';
 import PersonalityPage from './pages/PersonalityPage';
+import RebrandPage from './pages/RebrandPage';
 
 
 
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/yandere" element={<YanderePage />} />
         <Route path="/trick-or-treat" element={<TrickOrTreatPage />} />
         <Route path="/personality/:slug" element={<PersonalityPage />} />
+        <Route path="/rebrand" element={<RebrandPage />} />
         <Route path="/verification" element={<iframe src="https://premium.chat/verify/1731002" style={{width: '100%', height: '100vh', border: 'none'}} />} />
       </Routes>
       <Analytics/>
