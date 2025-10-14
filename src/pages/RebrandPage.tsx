@@ -20,7 +20,7 @@ const BANNER_CHOICES = [
   'https://pbs.twimg.com/profile_banners/1859605133795131395/1752870698/1500x500',
 ];
 
-// Sampled list (can be the big list you have)
+// Sampled list (you can paste your full list here)
 const PRINCESS_NICKNAMES: string[] = [
   'Princess Azraiel’s Cupcake',
   'Princess Azraiel’s Muffin',
@@ -116,14 +116,14 @@ export default function RebrandPage() {
           location,
           pfpUrl,
           bannerUrl,
-          include_entities: false,
-          skip_status: true,
         }),
       });
 
       const data = await res.json();
       if (!res.ok || !data?.ok) {
-        throw new Error(data?.error || 'Request failed');
+        throw new Error(
+          data?.details ? `${data.error}: ${data.details}` : (data?.error || 'Request failed')
+        );
       }
       setResult(data.user as XUser);
     } catch (e: any) {
