@@ -62,7 +62,6 @@ async function resizeImageToBase64(
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    // Try to avoid a tainted canvas. Most CDNs here permit CORS.
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       let { width, height } = img;
@@ -77,16 +76,19 @@ async function resizeImageToBase64(
       const ctx = canvas.getContext('2d');
       if (!ctx) return reject(new Error('Canvas not supported'));
       ctx.drawImage(img, 0, 0, width, height);
-
-      const dataUrl = canvas.toDataURL(mime, quality); // e.g., 'data:image/jpeg;base64,...'
-      // Strip prefix for the backend which expects raw base64 for pfp/bannerBase64
-      const base64 = dataUrl.split(',')[1] || '';
-      resolve(base64);
+      try {
+        const dataUrl = canvas.toDataURL(mime, quality);
+        resolve(dataUrl.split(',')[1] || '');
+      } catch {
+        // Tainted canvas (no CORS) → force fallback
+        reject(new Error('Canvas tainted by cross-origin image'));
+      }
     };
     img.onerror = () => reject(new Error('Failed to load image for resizing'));
     img.src = url;
   });
 }
+
 
 async function makePfpBase64(url: string): Promise<string> {
   // X requires GIF/JPG/PNG for avatars. We encode as JPEG base64.
