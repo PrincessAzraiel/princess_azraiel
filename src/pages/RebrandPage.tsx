@@ -10,11 +10,14 @@ const BACKEND_URL =
 
 // ---- Assets to randomize from ----
 const PFP_CHOICES = [
-  'https://media.discordapp.net/attachments/1356980682798268446/1427701204338737274/2be5086516b9ed954fcdea74d42f4556.jpg?ex=68efd1dc&is=68ee805c&hm=88721f1e48b0543d5e86dba1116f0ffd127fe2d0bcb045ebb269aca0736e1716&=&format=webp'
+  'https://pbs.twimg.com/profile_images/1944903528004132864/DpKHXpYb_400x400.jpg',
+  'https://pbs.twimg.com/profile_images/1977095193322049538/fD65rSeP_400x400.jpg',
 ];
 
 const BANNER_CHOICES = [
-'https://pbs.twimg.com/profile_banners/1798486097267179520/1743975461/1500x500'
+  'https://pbs.twimg.com/profile_banners/1915474894407467008/1752536120/1500x500',
+  'https://pbs.twimg.com/profile_banners/1865403918726873089/1760200768/1500x500',
+  'https://pbs.twimg.com/profile_banners/1859605133795131395/1752870698/1500x500',
 ];
 
 // Sampled list (can be the big list you have)
