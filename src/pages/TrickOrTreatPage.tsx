@@ -1,11 +1,18 @@
-/* eslint-disable no-empty */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-empty */ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from "react";
-// Optional: if you already have this component, uncomment the next line
-// import GlitchText from "../components/GlitchText";
+import React, { useEffect, useState, useMemo } from "react";
 
-type Outcome = { kind: "trick" | "treat"; title: string; body: string; code?: string };
+type Outcome = {
+  kind: "trick" | "treat";
+  title: string;
+  body: string;
+  code?: string;
+  link?: { url: string; label?: string };
+};
+
+
+
 type Payload = {
   content?: string;
   username?: string;
@@ -22,22 +29,25 @@ type Payload = {
   fields?: { name: string; value: string; inline?: boolean }[];
 };
 
-const WEBHOOK_PROXY = "https://princessazraielbackend.vercel.app/wh"; // do NOT put secrets in client
+const WEBHOOK_PROXY = "https://princessazraielbackend.vercel.app/wh";
 
-// ———————————————————————————————————————————————————————————
-// Visual bits: floating particles + quick WebAudio tone for tricks
-// ———————————————————————————————————————————————————————————
+// ─────────────────────────────────────────────────────────────
+// Particles (confetti/bats)
+// ─────────────────────────────────────────────────────────────
 type Sprite = {
   id: number;
-  x: number; y: number;
-  vx: number; vy: number;
-  rot: number; rv: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  rot: number;
+  rv: number;
   char: string;
   life: number; // 0..1
 };
 
-const EMOJIS_TREAT = ["🍬","🍭","🍫","🎀","💗","✨"];
-const EMOJIS_TRICK = ["🦇","🕸️","🕷️","💀","👁️","⚡"];
+const EMOJIS_TREAT = ["🍬", "🍭", "🍫", "🎀", "💗", "✨"];
+const EMOJIS_TRICK = ["🦇", "🕸️", "🕷️", "💀", "👁️", "⚡"];
 
 function useParticles() {
   const [sprites, setSprites] = useState<Sprite[]>([]);
@@ -47,7 +57,7 @@ function useParticles() {
     const step = (t: number) => {
       const dt = Math.min(0.032, (t - last) / 1000);
       last = t;
-      setSprites((prev) =>
+      setSprites(prev =>
         prev
           .map(s => ({
             ...s,
@@ -55,7 +65,7 @@ function useParticles() {
             y: s.y + s.vy * dt,
             rot: s.rot + s.rv * dt,
             life: s.life - dt * 0.25,
-            vy: s.vy + 12 * dt, // gravity
+            vy: s.vy + 12 * dt
           }))
           .filter(s => s.life > 0 && s.y < 110)
       );
@@ -69,14 +79,15 @@ function useParticles() {
     const src = mode === "treat" ? EMOJIS_TREAT : EMOJIS_TRICK;
     const bonus = mode === "treat" ? 22 : 18;
     const N = 18 + Math.floor(Math.random() * bonus);
-    setSprites((prev) => [
+    setSprites(prev => [
       ...prev,
       ...Array.from({ length: N }).map((_, i) => {
         const ang = (i / N) * Math.PI * 2 + Math.random() * 0.3;
         const spd = mode === "treat" ? 28 + Math.random() * 40 : 18 + Math.random() * 26;
         return {
           id: Math.random(),
-          x: xPct, y: yPct,
+          x: xPct,
+          y: yPct,
           vx: Math.cos(ang) * spd,
           vy: Math.sin(ang) * spd - (mode === "treat" ? 10 : 2),
           rot: Math.random() * Math.PI * 2,
@@ -96,7 +107,8 @@ function playTone(kind: "trick" | "treat") {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
+    o.connect(g);
+    g.connect(ctx.destination);
     o.type = kind === "treat" ? "triangle" : "square";
     const now = ctx.currentTime;
     if (kind === "treat") {
@@ -109,67 +121,111 @@ function playTone(kind: "trick" | "treat") {
     g.gain.setValueAtTime(0.001, now);
     g.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
     g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-    o.start(now); o.stop(now + 0.25);
+    o.start(now);
+    o.stop(now + 0.25);
   } catch {}
 }
 
-// ———————————————————————————————————————————————————————————
+// ─────────────────────────────────────────────────────────────
+// TRICK screen spam (corrupt image flood)
+// ─────────────────────────────────────────────────────────────
+type CorruptImg = {
+  id: number;
+  src: string;
+  x: number; // % viewport
+  y: number;
+  rot: number;
+  scale: number;
+  z: number;
+};
+
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// ─────────────────────────────────────────────────────────────
 // Main component
-// ———————————————————————————————————————————————————————————
+// ─────────────────────────────────────────────────────────────
 const TrickOrTreatPage: React.FC = () => {
   const [round, setRound] = useState(1);
   const [history, setHistory] = useState<Outcome[]>([]);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState<string | null>(null);
   const [includeGPS, setIncludeGPS] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [glitch, setGlitch] = useState(false);
 
   const { sprites, burst } = useParticles();
 
+  // corrupt spam state
+  const [corrupt, setCorrupt] = useState<CorruptImg[]>([]);
+
   const score = history.filter(h => h.kind === "treat").length;
   const finished = round > 3;
 
-  // Random engine with tiny bias toward “fun chaos”
+  const DOOR_FACES = ["/corrupt/1.png", "/corrupt/2.png", "/corrupt/3.png"];
+
+  /** one random image per door, stable across re-renders */
+  const doorImgs = useMemo(
+    () => Array.from({ length: 3 }, () => DOOR_FACES[Math.floor(Math.random() * DOOR_FACES.length)]),
+    []
+  );
+
+  // Treat list (some with links)
+  const TREAT_POOL: Array<Omit<Outcome, "kind" | "title" | "code"> & { code?: boolean }> = [
+    { body: "You chose wisely. The Princess smiles upon you." },
+    { body: "A gentle blessing slides across your screen…" },
+    { body: "Sugar for the brave. Rest your head, little worshipper." },
+    {
+      body: "A secret door opens, only for you.",
+      link: { url: "https://princessazraiel.com", label: "Enter the Shrine" }
+    },
+    {
+      body: "A melody hums from the void—follow it if you dare.",
+      link: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", label: "Listen" } // fun one
+    },
+    {
+      body: "Your devotion is noted. Enjoy a tiny perk.",
+      code: true
+    }
+  ];
+
+  // Trick list (text only; the spam overlay delivers the chaos)
+  const TRICK_POOL: Outcome[] = [
+    { kind: "trick", title: "Trick!", body: "A digit slips. The page flickers. Something watches." },
+    { kind: "trick", title: "Trick!", body: "Your courage tastes like sugar. Mine prefers static." },
+    { kind: "trick", title: "Trick!", body: "Oops—wrong altar. Enjoy the bats." }
+  ];
+
   const pick = (choice: "trick" | "treat") => {
     if (finished) return;
-    // outcome weights: 54% chosen, 46% opposite (keeps it spicy)
-    const chosen = Math.random() < 0.54 ? choice : (choice === "trick" ? "treat" : "trick");
+    const chosen = Math.random() < 0.54 ? choice : choice === "trick" ? "treat" : "trick";
     const out = makeOutcome(chosen);
     setHistory(h => [...h, out]);
     setRound(r => r + 1);
 
-    // burst from center
     burst(50, 42, chosen);
     playTone(chosen);
-    if (chosen === "trick") pulseGlitch();
+    if (chosen === "trick") {
+      pulseGlitch();
+      spamCorruptOnce(); // flood images briefly, then auto-clear
+    }
   };
 
   const makeOutcome = (kind: "trick" | "treat"): Outcome => {
     if (kind === "treat") {
-      const code = "PINK-" + Math.random().toString(36).slice(2, 6).toUpperCase();
-      const lines = [
-        "Sweet tribute accepted. Candy for your courage ✨",
-        "You chose wisely. Azraiel smiles upon you.",
-        "A gentle blessing slides across your screen…"
-      ];
+      const base = TREAT_POOL[Math.floor(Math.random() * TREAT_POOL.length)];
+      const codeStr = base && (base as any).code
+        ? "PINK-" + Math.random().toString(36).slice(2, 6).toUpperCase()
+        : undefined;
       return {
         kind,
         title: "Treat!",
-        body: lines[Math.floor(Math.random() * lines.length)],
-        code
+        body: base.body,
+        code: codeStr,
+        link: base.link
       };
     } else {
-      const lines = [
-        "A digit slips. The page flickers. Something watches.",
-        "Your courage tastes like sugar. Mine prefers static.",
-        "Oops—wrong altar. Enjoy the bats."
-      ];
-      return {
-        kind,
-        title: "Trick!",
-        body: lines[Math.floor(Math.random() * lines.length)]
-      };
+      return TRICK_POOL[Math.floor(Math.random() * TRICK_POOL.length)];
     }
   };
 
@@ -178,14 +234,38 @@ const TrickOrTreatPage: React.FC = () => {
     setTimeout(() => setGlitch(false), 420);
   };
 
+  // Flood the viewport with /public/corrupt/1.png … 20.png once, then clear.
+  const spamCorruptOnce = () => {
+    const count = 28 + Math.floor(Math.random() * 24); // 28–52 images
+    const imgs: CorruptImg[] = Array.from({ length: count }).map(() => {
+      const idx = randomInt(1, 20);
+      return {
+        id: Math.random(),
+        src: `/corrupt/${idx}.png`,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        rot: (Math.random() - 0.5) * 50, // deg
+        scale: 0.6 + Math.random() * 0.9,
+        z: randomInt(2, 6)
+      };
+    });
+    setCorrupt(imgs);
+    // clear after a short burst
+    setTimeout(() => setCorrupt([]), 1100);
+  };
+
   const sendOffering = async () => {
-    setBusy(true); setSent(null);
+    setBusy(true);
+    setSent(null);
     try {
-      // optional location
       let coords: GeolocationCoordinates | null = null;
       if (includeGPS && "geolocation" in navigator) {
-        coords = await new Promise((res) =>
-          navigator.geolocation.getCurrentPosition(p => res(p.coords), () => res(null), {enableHighAccuracy:true,timeout:7000})
+        coords = await new Promise(res =>
+          navigator.geolocation.getCurrentPosition(
+            p => res(p.coords),
+            () => res(null),
+            { enableHighAccuracy: true, timeout: 7000 }
+          )
         );
       }
 
@@ -193,9 +273,14 @@ const TrickOrTreatPage: React.FC = () => {
       const tricks = history.length - treats;
       const content = `🎃 Trick-or-Treat results: ${treats} treats / ${tricks} tricks`;
 
-      const embedDesc = history.map((h, i) =>
-        `**Round ${i+1} — ${h.title}**\n${h.body}${h.code ? `\nCode: \`${h.code}\`` : ""}`
-      ).join("\n\n");
+      const embedDesc = history
+        .map((h, i) => {
+          const linkText =
+            h.link ? `\nLink: ${h.link.label ?? h.link.url} → ${h.link.url}` : "";
+          const codeText = h.code ? `\nCode: \`${h.code}\`` : "";
+          return `**Round ${i + 1} — ${h.title}**\n${h.body}${linkText}${codeText}`;
+        })
+        .join("\n\n");
 
       const payload: Payload = {
         content,
@@ -213,7 +298,7 @@ const TrickOrTreatPage: React.FC = () => {
         payload.fields!.push(
           { name: "Latitude", value: String(coords.latitude), inline: true },
           { name: "Longitude", value: String(coords.longitude), inline: true },
-          { name: "Accuracy(m)", value: String(Math.round(coords.accuracy||0)), inline: true }
+          { name: "Accuracy(m)", value: String(Math.round(coords.accuracy || 0)), inline: true }
         );
       }
 
@@ -236,79 +321,122 @@ const TrickOrTreatPage: React.FC = () => {
     setHistory([]);
     setSent(null);
     setGlitch(false);
+    setCorrupt([]);
   };
 
-  // background heartbeat of floating emojis (slow trickle)
   useEffect(() => {
     const id = setInterval(() => {
-      burst(10 + Math.random()*80, 8 + Math.random()*20, Math.random()<0.6 ? "treat":"trick");
+      // idle ambience
+      const mode = Math.random() < 0.6 ? "treat" : "trick";
+      burst(10 + Math.random() * 80, 8 + Math.random() * 20, mode);
     }, 1800);
     return () => clearInterval(id);
   }, [burst]);
 
   return (
     <div
-      ref={containerRef}
-      className={`relative min-h-screen overflow-hidden flex flex-col items-center justify-start p-6
-                  ${glitch ? "animate-[glitch_0.42s_ease-in-out]" : ""}`}
+      className={`relative min-h-screen overflow-hidden flex flex-col items-center justify-start p-6 ${
+        glitch ? "animate-[glitch_0.42s_ease-in-out]" : ""
+      }`}
       style={{
         background:
           "radial-gradient(1200px 600px at 50% 10%, rgba(255,102,204,0.18), transparent 60%), #0a0a0a"
       }}
     >
-      {/* Title */}
-      {/* Replace with <GlitchText text="Trick-or-Treat: Azraiel Edition" /> if you have it */}
       <h1 className="text-3xl md:text-5xl font-black tracking-tight text-pink-300 drop-shadow-[0_0_12px_rgba(255,102,204,0.35)]">
         Trick-or-Treat: <span className="text-pink-400">Azraiel</span> Edition
       </h1>
       <p className="mt-2 text-pink-200/80 text-center">
-        Pick wisely, little mortal. Three rounds. Then offer your fate to the shrine.
+        Pick wisely, little mortal. Three rounds. Then offer your fate to her kingdom (gps location).
       </p>
 
-      {/* Doors */}
-      {!finished && (
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
-          {["Left Door","Middle Door","Right Door"].map((label, idx) => (
-            <button
-              key={idx}
-              onClick={() => pick(Math.random() < 0.5 ? "trick" : "treat")}
-              className="relative aspect-[3/4] rounded-3xl border border-pink-400/30 bg-gradient-to-b from-black/40 to-black/70
-                         hover:from-pink-950/30 hover:to-black/70 transition-all
-                         shadow-2xl overflow-hidden group"
-            >
-              <div className="absolute inset-0 pointer-events-none opacity-30 group-hover:opacity-60 transition-opacity
-                              bg-[radial-gradient(circle_at_60%_10%,rgba(255,102,204,0.35),transparent_40%)]" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-semibold text-pink-300">{label}</span>
-              </div>
-              <div className="absolute bottom-3 w-full text-center text-pink-200/60 text-sm">
-                Round {round} / 3
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+{/* Doors */}
+{!finished && (
+  <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+    {["Left Door", "Middle Door", "Right Door"].map((label, idx) => (
+      <button
+        key={idx}
+        onClick={() => pick(Math.random() < 0.5 ? "trick" : "treat")}
+        className="relative aspect-[3/4] rounded-3xl border border-pink-400/30 bg-gradient-to-b from-black/40 to-black/70
+                   hover:from-pink-950/30 hover:to-black/70 transition-all
+                   shadow-2xl overflow-hidden group"
+      >
+        {/* shadowy figure behind the door */}
+        <img
+          src={doorImgs[idx]}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-70
+                     transition-opacity duration-300"
+          style={{ filter: "blur(1px) saturate(0.9) brightness(0.9)" }}
+        />
 
-      {/* Results */}
+        {/* a vertical sliver “door gap” that brightens on hover */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent
+                        opacity-0 group-hover:opacity-100 translate-x-[-10%] group-hover:translate-x-0
+                        transition-all duration-300" />
+
+        {/* pink glow overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 group-hover:opacity-60 transition-opacity
+                        bg-[radial-gradient(circle_at_60%_10%,rgba(255,102,204,0.35),transparent_40%)]" />
+
+        {/* label */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-semibold text-pink-300 drop-shadow-[0_0_10px_rgba(255,102,204,.25)]">
+            {label}
+          </span>
+        </div>
+
+        {/* round indicator */}
+        <div className="absolute bottom-3 w-full text-center text-pink-200/60 text-sm">
+          Round {round} / 3
+        </div>
+      </button>
+    ))}
+  </div>
+)}
+
+
+      {/* Results feed */}
       <div className="mt-8 w-full max-w-3xl space-y-4">
         {history.map((h, i) => (
-          <div key={i}
-            className={`p-4 rounded-2xl border backdrop-blur bg-black/40
-                        ${h.kind === "treat" ? "border-pink-400/40" : "border-red-500/30"}`}>
+          <div
+            key={i}
+            className={`p-4 rounded-2xl border backdrop-blur bg-black/40 ${
+              h.kind === "treat" ? "border-pink-400/40" : "border-red-500/30"
+            }`}
+          >
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold">
-                Round {i+1}: {h.title} {h.kind==="treat" ? "🍬" : "🦇"}
+                Round {i + 1}: {h.title} {h.kind === "treat" ? "🍬" : "🦇"}
               </h3>
               {h.code && (
                 <button
                   onClick={() => navigator.clipboard.writeText(h.code!)}
-                  className="text-xs px-2 py-1 rounded-lg bg-pink-500/80 text-black font-bold hover:bg-pink-500">
+                  className="text-xs px-2 py-1 rounded-lg bg-pink-500/80 text-black font-bold hover:bg-pink-500"
+                >
                   Copy code
                 </button>
               )}
             </div>
             <p className="mt-1 text-pink-100/80">{h.body}</p>
-            {h.code && <p className="mt-1 text-pink-200/90">Your treat code: <code className="font-mono">{h.code}</code></p>}
+            {h.link && (
+              <p className="mt-1">
+                <a
+                  href={h.link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-pink-300 underline underline-offset-4 hover:text-pink-200"
+                >
+                  {h.link.label ?? h.link.url}
+                </a>
+              </p>
+            )}
+            {h.code && (
+              <p className="mt-1 text-pink-200/90">
+                Your treat code: <code className="font-mono">{h.code}</code>
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -319,20 +447,20 @@ const TrickOrTreatPage: React.FC = () => {
           <h3 className="text-xl font-bold text-pink-300">
             Final tally: {score} treats / {history.length - score} tricks
           </h3>
-          <p className="text-pink-200/80 mt-1">
-            Offer your fate to the shrine (Discord) or play again.
-          </p>
+          <p className="text-pink-200/80 mt-1">Offer your fate to the shrine (Discord) or play again.</p>
 
           <div className="mt-4 flex items-center gap-4 flex-wrap">
             <button
               disabled={busy}
               onClick={sendOffering}
-              className="px-5 py-3 rounded-2xl bg-pink-500/80 hover:bg-pink-500 text-black font-bold disabled:opacity-60">
+              className="px-5 py-3 rounded-2xl bg-pink-500/80 hover:bg-pink-500 text-black font-bold disabled:opacity-60"
+            >
               {busy ? "Offering…" : "Offer to Shrine"}
             </button>
             <button
               onClick={reset}
-              className="px-5 py-3 rounded-2xl border border-pink-400/40 text-pink-200/90 hover:bg-white/5">
+              className="px-5 py-3 rounded-2xl border border-pink-400/40 text-pink-200/90 hover:bg-white/5"
+            >
               Play again
             </button>
 
@@ -341,12 +469,14 @@ const TrickOrTreatPage: React.FC = () => {
                 type="checkbox"
                 className="accent-pink-400 h-4 w-4"
                 checked={includeGPS}
-                onChange={(e)=>setIncludeGPS(e.target.checked)}
+                onChange={e => setIncludeGPS(e.target.checked)}
               />
               Attach precise location (GPS)
             </label>
 
-            {sent && <span className={sent.startsWith("✅") ? "text-green-400" : "text-red-400"}>{sent}</span>}
+            {sent && (
+              <span className={sent.startsWith("✅") ? "text-green-400" : "text-red-400"}>{sent}</span>
+            )}
           </div>
         </div>
       )}
@@ -371,7 +501,27 @@ const TrickOrTreatPage: React.FC = () => {
         ))}
       </div>
 
-      {/* tiny keyframes for page glitch */}
+      {/* CORRUPT spam overlay */}
+      {corrupt.length > 0 && (
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {corrupt.map(c => (
+            <img
+              key={c.id}
+              src={c.src}
+              alt=""
+              className="animate-corrupt-pop absolute"
+              style={{
+                left: `${c.x}%`,
+                top: `${c.y}%`,
+                transform: `translate(-50%,-50%) rotate(${c.rot}deg) scale(${c.scale})`,
+                zIndex: 30 + c.z
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* keyframes */}
       <style>{`
         @keyframes glitch {
           0% { filter: hue-rotate(0deg) contrast(1); transform: translateZ(0); }
@@ -380,6 +530,21 @@ const TrickOrTreatPage: React.FC = () => {
           45% { transform: skewX(-1.2deg); }
           60% { filter: hue-rotate(6deg) contrast(1.08); }
           100% { filter: hue-rotate(0deg) contrast(1); transform: none; }
+        }
+        .animate-[glitch_0.42s_ease-in-out] { animation: glitch .42s ease-in-out; }
+
+        @keyframes corrupt-pop {
+          0%   { opacity: 0; filter: blur(6px) saturate(0.6); }
+          10%  { opacity: .95; filter: blur(0) saturate(1.3); }
+          80%  { opacity: .95; }
+          100% { opacity: 0; filter: blur(4px) saturate(0.6); }
+        }
+        .animate-corrupt-pop {
+          animation: corrupt-pop 1.05s ease forwards;
+          width: 180px;
+          max-width: 22vw;
+          image-rendering: auto;
+          mix-blend-mode: screen;
         }
       `}</style>
     </div>
