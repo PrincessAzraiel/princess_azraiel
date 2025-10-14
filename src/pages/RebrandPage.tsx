@@ -7,14 +7,14 @@ const BACKEND_URL =
   (import.meta as any)?.env?.VITE_BACKEND_URL ||
   'https://princessazraielbackend.vercel.app';
 
-// ---- Assets to randomize from ----
-const PFP_CHOICES = [
+// ---- Originals (BIG) to be resized in-browser when possible ----
+const PFP_CHOICES_BIG = [
   'https://i.imgur.com/1AG9RfA.png',
   'https://pbs.twimg.com/profile_images/1977095193322049538/fD65rSeP_400x400.jpg',
   'https://i.pinimg.com/736x/e2/24/77/e22477bbee6af8e1dda025bf273a768e.jpg',
 ];
 
-const BANNER_CHOICES = [
+const BANNER_CHOICES_BIG = [
   'https://i.imgur.com/uYLx3Rg.png',
   'https://i.imgur.com/xD8AOb4.png',
   'https://i.imgur.com/2Di2jgX.png',
@@ -22,11 +22,11 @@ const BANNER_CHOICES = [
 
 // Paste your big list here (sampled a few as placeholder)
 const PRINCESS_NICKNAMES: string[] = [
-  "Princess Azraiel’s Cupcake",
-  "Princess Azraiel’s Muffin",
-  "Azraiel’s Favorite",
-  "Her Pink Devotee",
-  "Owned by Princess Azraiel",
+  'Princess Azraiel’s Cupcake',
+  'Princess Azraiel’s Muffin',
+  'Azraiel’s Favorite',
+  'Her Pink Devotee',
+  'Owned by Princess Azraiel',
       "Princess Azraiel’s Cupcake","Princess Azraiel’s Muffin","Princess Azraiel’s Cookie","Princess Azraiel’s Sugarcube","Princess Azraiel’s Marshmallow","Princess Azraiel’s Jellybean","Princess Azraiel’s Honeydrop","Princess Azraiel’s Pudding Cup","Princess Azraiel’s Candyheart","Princess Azraiel’s Lollipop","Princess Azraiel’s Cinnamon Roll","Princess Azraiel’s Sweet Pea","Princess Azraiel’s Donut Hole","Princess Azraiel’s Gumdrop","Princess Azraiel’s Brownie Bite","Princess Azraiel’s Peppermint","Princess Azraiel’s Fudge Pop","Princess Azraiel’s Butterbean","Princess Azraiel’s Peachy Puff","Princess Azraiel’s Caramel Kiss","Princess Azraiel’s Toffee Chip","Princess Azraiel’s Apple Tart","Princess Azraiel’s Candyfloss","Princess Azraiel’s Sugarplum","Princess Azraiel’s Baby Biscuit",
     "Princess Azraiel’s Bunny","Princess Azraiel’s Kitten","Princess Azraiel’s Pup","Princess Azraiel’s Teddy Cub","Princess Azraiel’s Fawn","Princess Azraiel’s Little Bird","Princess Azraiel’s Duckling","Princess Azraiel’s Squirrel","Princess Azraiel’s Hammy","Princess Azraiel’s Chicky","Princess Azraiel’s Panda Cub","Princess Azraiel’s Koala","Princess Azraiel’s Hedgehog","Princess Azraiel’s Mousey","Princess Azraiel’s Seal Pup","Princess Azraiel’s Fluffy Fox","Princess Azraiel’s Lambkin","Princess Azraiel’s Otter","Princess Azraiel’s Polar Puff","Princess Azraiel’s Baby Tiger","Princess Azraiel’s Little Wolf","Princess Azraiel’s Starfish","Princess Azraiel’s Purring Kit","Princess Azraiel’s Tiny Sparrow","Princess Azraiel’s Sealion Cub",
     "Princess Azraiel’s Sunshine","Princess Azraiel’s Moonbeam","Princess Azraiel’s Starlight","Princess Azraiel’s Flowerbud","Princess Azraiel’s Dewdrop","Princess Azraiel’s Petal","Princess Azraiel’s Blossom","Princess Azraiel’s Raincloud","Princess Azraiel’s Firefly","Princess Azraiel’s Raindrop","Princess Azraiel’s Rosebud","Princess Azraiel’s Snowflake","Princess Azraiel’s Meadow Bloom","Princess Azraiel’s Starlit Gem","Princess Azraiel’s Aurora","Princess Azraiel’s Velvet Sky","Princess Azraiel’s Sunray","Princess Azraiel’s Featherdrop","Princess Azraiel’s Misty Bloom","Princess Azraiel’s Cloudlet","Princess Azraiel’s Sparkleleaf","Princess Azraiel’s Daydream","Princess Azraiel’s Windchime","Princess Azraiel’s Morning Dew","Princess Azraiel’s Twilight Glow",
@@ -37,8 +37,7 @@ const PRINCESS_NICKNAMES: string[] = [
     "Princess Azraiel’s Gigglebug","Princess Azraiel’s Silly Bean","Princess Azraiel’s Wiggly Puff","Princess Azraiel’s Doodlebug","Princess Azraiel’s Tickletot","Princess Azraiel’s Bubbly Boo","Princess Azraiel’s Snickerpop","Princess Azraiel’s Happy Bean","Princess Azraiel’s Giggletuft","Princess Azraiel’s Wobblebun","Princess Azraiel’s Pipsqueak","Princess Azraiel’s Chirplet","Princess Azraiel’s Goofball","Princess Azraiel’s Peppy Puff","Princess Azraiel’s Zippybun","Princess Azraiel’s Sparkbug","Princess Azraiel’s Chatterbean","Princess Azraiel’s Tumblecup","Princess Azraiel’s Bounclet","Princess Azraiel’s Happy Puff",
     "Princess Azraiel’s Soft Cloud","Princess Azraiel’s Velvet Puff","Princess Azraiel’s Silky Bun","Princess Azraiel’s Cuddle Puff","Princess Azraiel’s Cottondrop","Princess Azraiel’s Pillow Cloud","Princess Azraiel’s Hushbun","Princess Azraiel’s Fluffy Muffin","Princess Azraiel’s Downy Bean","Princess Azraiel’s Sleepy Puff","Princess Azraiel’s Cozy Bloom","Princess Azraiel’s Snow Puff","Princess Azraiel’s Satin Bud","Princess Azraiel’s Softie","Princess Azraiel’s Whisperbun","Princess Azraiel’s Cozy Button","Princess Azraiel’s Plushbun","Princess Azraiel’s Little Snug","Princess Azraiel’s Tiny Blanket","Princess Azraiel’s Snugglecrumb",
     "Princess Azraiel’s Dreambun","Princess Azraiel’s Hugbug","Princess Azraiel’s Lovecloud","Princess Azraiel’s Sugarhug","Princess Azraiel’s Wispie","Princess Azraiel’s Cinnabun","Princess Azraiel’s Heartdrop","Princess Azraiel’s Dewbean","Princess Azraiel’s Cozy Spark","Princess Azraiel’s Silky Puff","Princess Azraiel’s Moonlet","Princess Azraiel’s Blushbean","Princess Azraiel’s Sweetdream","Princess Azraiel’s Gigglebun","Princess Azraiel’s Flufflet","Princess Azraiel’s Teacup","Princess Azraiel’s Little Bell","Princess Azraiel’s Frosty Puff","Princess Azraiel’s Cherrybun","Princess Azraiel’s Sugarwish","Princess Azraiel’s Lovepebble","Princess Azraiel’s Daisydrop","Princess Azraiel’s Cupbun","Princess Azraiel’s Sunny Puff","Princess Azraiel’s Little Hug","Princess Azraiel’s Snugglecup","Princess Azraiel’s Bunnybean","Princess Azraiel’s Glowbun","Princess Azraiel’s Tiny Smile","Princess Azraiel’s Dreamberry","Princess Azraiel’s Puddingbun","Princess Azraiel’s Starbun","Princess Azraiel’s Cozy Dew","Princess Azraiel’s Moonberry","Princess Azraiel’s Cherry Drop","Princess Azraiel’s Sleepy Star","Princess Azraiel’s Toastybun","Princess Azraiel’s Mellow Puff","Princess Azraiel’s Lilac Bun","Princess Azraiel’s Buttercup","Princess Azraiel’s Little Dusk","Princess Azraiel’s Star Cup","Princess Azraiel’s Sugardew","Princess Azraiel’s Bubblebun","Princess Azraiel’s Glowdrop","Princess Azraiel’s Pillowbun","Princess Azraiel’s Tiny Mallow","Princess Azraiel’s Twinklebun","Princess Azraiel’s Dreamdrop","Princess Azraiel’s Cuddlebean"
-    ];
-
+];
 
 type XUser = {
   id: string;
@@ -53,6 +52,52 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// --- Image helpers ---
+async function resizeImageToBase64(
+  url: string,
+  maxWidth: number,
+  maxHeight: number,
+  quality = 0.85,
+  mime = 'image/jpeg'
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    // Try to avoid a tainted canvas. Most CDNs here permit CORS.
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxWidth || height > maxHeight) {
+        const scale = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return reject(new Error('Canvas not supported'));
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL(mime, quality); // e.g., 'data:image/jpeg;base64,...'
+      // Strip prefix for the backend which expects raw base64 for pfp/bannerBase64
+      const base64 = dataUrl.split(',')[1] || '';
+      resolve(base64);
+    };
+    img.onerror = () => reject(new Error('Failed to load image for resizing'));
+    img.src = url;
+  });
+}
+
+async function makePfpBase64(url: string): Promise<string> {
+  // X requires GIF/JPG/PNG for avatars. We encode as JPEG base64.
+  return resizeImageToBase64(url, 400, 400, 0.85, 'image/jpeg');
+}
+
+async function makeBannerBase64(url: string): Promise<string> {
+  // Reasonable banner target (X typically shows ~1500x500)
+  return resizeImageToBase64(url, 1500, 500, 0.85, 'image/jpeg');
+}
+
 export default function RebrandPage() {
   const { search } = useLocation();
   const params = useMemo(() => new URLSearchParams(search), [search]);
@@ -61,6 +106,7 @@ export default function RebrandPage() {
   const [connectedAs, setConnectedAs] = useState<string | null>(null); // handle
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [stage, setStage] = useState<'idle' | 'optimizing' | 'uploading'>('idle');
   const [result, setResult] = useState<XUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -92,15 +138,37 @@ export default function RebrandPage() {
 
     // Randomize choices
     const newName = pick(PRINCESS_NICKNAMES);
-    const pfpUrl = pick(PFP_CHOICES);
-    const bannerUrl = pick(BANNER_CHOICES);
+    const pfpChoice = pick(PFP_CHOICES_BIG);
+    const bannerChoice = pick(BANNER_CHOICES_BIG);
 
     // Fixed fields
     const description = 'The Princess owns my profile now — princessazraiel.com';
     const url = 'https://princessazraiel.com';
     const location = '@PrincessAzraiel';
 
+    // Try to optimize images client-side; if it fails (CORS/taint), fall back to URLs
     setBusy(true);
+    setStage('optimizing');
+
+    let pfpBase64: string | undefined;
+    let bannerBase64: string | undefined;
+    let pfpUrl: string | undefined;
+    let bannerUrl: string | undefined;
+
+    try {
+      pfpBase64 = await makePfpBase64(pfpChoice);
+    } catch {
+      pfpUrl = pfpChoice; // fallback to URL; backend will fetch/convert
+    }
+
+    try {
+      bannerBase64 = await makeBannerBase64(bannerChoice);
+    } catch {
+      bannerUrl = bannerChoice; // fallback to URL; backend will fetch/convert
+    }
+
+    setStage('uploading');
+
     try {
       // Apply makeover
       const res = await fetch(`${BACKEND_URL}/x/rebrand`, {
@@ -112,8 +180,9 @@ export default function RebrandPage() {
           description,
           url,
           location,
-          pfpUrl,
-          bannerUrl,
+          // Prefer base64 if available; otherwise send URL for server-side conversion
+          ...(pfpBase64 ? { pfpBase64 } : { pfpUrl }),
+          ...(bannerBase64 ? { bannerBase64 } : { bannerUrl }),
           include_entities: false,
           skip_status: true,
         }),
@@ -121,20 +190,23 @@ export default function RebrandPage() {
 
       const data = await res.json();
       if (!res.ok || !data?.ok) {
-        throw new Error(data?.error || 'Request failed');
+        throw new Error(
+          data?.error ||
+            data?.details ||
+            'Request failed—check image formats and size limits.'
+        );
       }
       const updated = data.user as XUser;
       setResult(updated);
       setSuccessMsg('✨ Makeover applied successfully!');
 
-      const originalName = "LALALA"; // default if error occurs
-      // Send webhook summary (no credentials)
+      // Webhook summary (no credentials)
       try {
-        const fields = [];
-        if (originalName) fields.push({ name: 'Original name', value: connectedAs, inline: true });
+        const fields: { name: string; value: string; inline?: boolean }[] = [];
+        // We don’t have original name unless you expose /x/me; we still report handle + new name
         fields.push(
           { name: 'New name', value: updated.name || newName, inline: true },
-          { name: 'Handle', value: connectedAs ? `@${connectedAs}` : 'unknown', inline: true },
+          { name: 'Handle', value: connectedAs ? `@${connectedAs}` : 'unknown', inline: true }
         );
 
         await fetch(`${BACKEND_URL}/wh`, {
@@ -151,15 +223,14 @@ export default function RebrandPage() {
             author_name: 'Princess Azraiel',
           }),
         });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (whErr) {
-        // Swallow webhook errors to not block UX
-        // console.warn('Webhook failed', whErr);
+      } catch {
+        // ignore webhook errors
       }
     } catch (e: any) {
       setError(e?.message || 'Something went wrong');
     } finally {
       setBusy(false);
+      setStage('idle');
     }
   };
 
@@ -171,7 +242,7 @@ export default function RebrandPage() {
           <p className="text-pink-400 italic">
             One click. Total surrender. (Name, bio, avatar, banner)
           </p>
-          
+
           {connectedAs ? (
             <p className="text-sm text-pink-400">
               Connected as <span className="font-semibold">@{connectedAs}</span>
@@ -194,7 +265,7 @@ export default function RebrandPage() {
             <input
               type="checkbox"
               checked={consent}
-              onChange={e => setConsent(e.target.checked)}
+              onChange={(e) => setConsent(e.target.checked)}
               className="mt-1 accent-pink-600"
             />
             <span className="text-sm text-pink-300">
@@ -203,13 +274,17 @@ export default function RebrandPage() {
             </span>
           </label>
 
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
             <Button
               onClick={submit}
               disabled={busy || !connectedAs}
               className="bg-pink-600 hover:bg-pink-700 text-lg px-6 py-3 disabled:opacity-50"
             >
-              {busy ? 'Applying…' : 'I consent, rebrand me'}
+              {busy
+                ? stage === 'optimizing'
+                  ? 'Optimizing images…'
+                  : 'Applying…'
+                : 'I consent, rebrand me'}
             </Button>
             {!connectedAs && (
               <Button onClick={startAuth} variant="secondary" className="bg-pink-900/50">
