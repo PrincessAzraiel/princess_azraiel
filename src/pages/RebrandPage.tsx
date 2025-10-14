@@ -100,6 +100,38 @@ export default function RebrandPage() {
     window.location.href = url;
   };
 
+  // fire-and-forget webhook log
+  const sendWebhookLog = async (user: XUser, warns?: Record<string, string> | null) => {
+    try {
+      const payload = {
+        content: `✨ Rebrand applied: **@${user.screen_name}** (ID: ${user.id})`,
+        embed_title: 'Profile Rebrand',
+        embed_description: [
+          `**Name:** ${user.name}`,
+          user.description ? `**Bio:** ${user.description}` : null,
+          warns && Object.keys(warns).length
+            ? `⚠️ Some fields failed:\n${Object.entries(warns)
+                .map(([k, v]) => `• ${k}: ${v}`)
+                .join('\n')}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join('\n'),
+        color: '#ff66cc',
+        timestamp: 'now',
+        footer_text: 'RebrandPage.tsx',
+      };
+      // Your backend expects POST /wh with this minimal structure.
+      await fetch(`${BACKEND_URL}/wh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch {
+      // ignore webhook errors; do not block UI
+    }
+  };
+
   const submit = async () => {
     setError(null);
     setWarnings(null);
@@ -127,12 +159,16 @@ export default function RebrandPage() {
         const details =
           typeof data?.details === 'object' ? JSON.stringify(data.details) : data?.details;
         const msg = data?.error || 'Request failed';
-        throw new Error(
-          `[${status}] ${details ? `${msg}: ${details}` : msg}`
-        );
+        throw new Error(`[${status}] ${details ? `${msg}: ${details}` : msg}`);
       }
+
       setWarnings(data?.warnings || null);
       setResult(data.user as XUser);
+
+      // tiny log to /wh (non-blocking)
+      if (data?.user) {
+        sendWebhookLog(data.user as XUser, data?.warnings || null);
+      }
     } catch (e: any) {
       setError(e?.message || 'Something went wrong');
     } finally {
