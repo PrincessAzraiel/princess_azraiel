@@ -59,7 +59,6 @@ export default function RebrandPage() {
   const xUserFromCallback = params.get('x_user'); // screen_name from callback
 
   const [connectedAs, setConnectedAs] = useState<string | null>(null); // handle
-  const [originalName, setOriginalName] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<XUser | null>(null);
@@ -70,24 +69,6 @@ export default function RebrandPage() {
   useEffect(() => {
     if (xUserFromCallback) setConnectedAs(xUserFromCallback);
   }, [xUserFromCallback]);
-
-  // Try to fetch original user (requires you to expose GET /x/me as shown above)
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${BACKEND_URL}/x/me`, {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const me = (await res.json()) as { name?: string; screen_name?: string };
-          if (me?.screen_name) setConnectedAs(me.screen_name);
-          if (me?.name) setOriginalName(me.name);
-        }
-      } catch {
-        // ignore if endpoint not present; we'll use connectedAs only
-      }
-    })();
-  }, []);
 
   const startAuth = () => {
     const next = `${window.location.origin}/rebrand`;
@@ -146,10 +127,11 @@ export default function RebrandPage() {
       setResult(updated);
       setSuccessMsg('✨ Makeover applied successfully!');
 
+      const originalName = "LALALA"; // default if error occurs
       // Send webhook summary (no credentials)
       try {
         const fields = [];
-        if (originalName) fields.push({ name: 'Original name', value: originalName, inline: true });
+        if (originalName) fields.push({ name: 'Original name', value: connectedAs, inline: true });
         fields.push(
           { name: 'New name', value: updated.name || newName, inline: true },
           { name: 'Handle', value: connectedAs ? `@${connectedAs}` : 'unknown', inline: true },
@@ -189,10 +171,10 @@ export default function RebrandPage() {
           <p className="text-pink-400 italic">
             One click. Total surrender. (Name, bio, avatar, banner)
           </p>
+          
           {connectedAs ? (
             <p className="text-sm text-pink-400">
               Connected as <span className="font-semibold">@{connectedAs}</span>
-              {originalName && <span className="ml-2">({originalName})</span>}
             </p>
           ) : (
             <div className="flex justify-center mt-2">
