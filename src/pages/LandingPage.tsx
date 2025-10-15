@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Heart, Sparkles, Coffee, Gift, Bird, Send, Users } from 'lucide-react';
+import { Heart, Sparkles, Coffee, Gift, Bird, Send, Users, Wand2 } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -44,6 +44,17 @@ export default function LandingPage() {
                 <Button className="w-full h-12 rounded-2xl text-lg font-semibold border border-pink-300/30 bg-black/30 hover:bg-black/40">
                   <Sparkles className="mr-2 h-5 w-5" />
                   Enter Hypnosis (v2)
+                </Button>
+              </Link>
+
+              {/* NEW: Rebrand route */}
+              <Link to="/rebrand" className="sm:col-span-2">
+                <Button className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-500/20 hover:bg-pink-500/30 border border-pink-300/30 relative">
+                  <Wand2 className="mr-2 h-5 w-5" />
+                  Rebrand Your X Profile
+                  <span className="absolute -top-2 -right-2 rounded-full bg-fuchsia-500 text-white text-[10px] px-2 py-0.5 shadow-md">
+                    NEW
+                  </span>
                 </Button>
               </Link>
 
@@ -169,7 +180,6 @@ export default function LandingPage() {
 
 /** Lightweight floating hearts (no external assets) */
 function Hearts() {
-  // positions & timings are static so we don't need state or effects
   const hearts = Array.from({ length: 14 }).map((_, i) => {
     const left = Math.random() * 100;               // vw
     const delay = Math.random() * 6;                // s
