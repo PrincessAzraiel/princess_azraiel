@@ -1,7 +1,6 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-empty */ 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 
 type Outcome = {
   kind: "trick" | "treat";
@@ -161,15 +160,6 @@ const TrickOrTreatPage: React.FC = () => {
 
   const score = history.filter(h => h.kind === "treat").length;
   const finished = round > 3;
-
-  const DOOR_FACES = ["/corrupt/1.png", "/corrupt/2.png", "/corrupt/3.png"];
-
-  /** one random image per door, stable across re-renders */
-  const doorImgs = useMemo(
-    () => Array.from({ length: 3 }, () => DOOR_FACES[Math.floor(Math.random() * DOOR_FACES.length)]),
-    []
-  );
-
   // Treat list (some with links)
   const TREAT_POOL: Array<Omit<Outcome, "kind" | "title" | "code"> & { code?: boolean }> = [
     { body: "You chose wisely. The Princess smiles upon you." },
@@ -181,10 +171,10 @@ const TrickOrTreatPage: React.FC = () => {
     },
     {
       body: "A melody hums from the void—follow it if you dare.",
-      link: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", label: "Listen" } // fun one
+      link: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", label: "Listen" }
     },
     {
-      body: "Your devotion is noted. Enjoy a tiny perk.",
+      body: "Your devotion is noted. You have won a submissive Tier from the infection protocol, dm the Princess to claim it.",
       code: true
     }
   ];
@@ -308,7 +298,7 @@ const TrickOrTreatPage: React.FC = () => {
         body: JSON.stringify(payload)
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      setSent("✅ Offered to the shrine (Discord)!");
+      setSent("✅ Sent to the Princess (Discord)!");
     } catch (e: any) {
       setSent(`❌ ${e?.message || e}`);
     } finally {
@@ -362,15 +352,6 @@ const TrickOrTreatPage: React.FC = () => {
                    shadow-2xl overflow-hidden group"
       >
         {/* shadowy figure behind the door */}
-        <img
-          src={doorImgs[idx]}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-70
-                     transition-opacity duration-300"
-          style={{ filter: "blur(1px) saturate(0.9) brightness(0.9)" }}
-        />
-
         {/* a vertical sliver “door gap” that brightens on hover */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent
                         opacity-0 group-hover:opacity-100 translate-x-[-10%] group-hover:translate-x-0
