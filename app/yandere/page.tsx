@@ -1,15 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useState, useRef, useEffect } from "react";
-import { Metadata } from 'next';
-export const metadata: Metadata = {
-  title: "Princess Azraiel | Yandere Chat",
-  description: "Engage in a thrilling yandere-themed chat experience (not completed!!)",
-  keywords: ['princess azraiel', 'azraiel', 'ai princess', 'virtual ai', 'virtual companion', 'ai companion', 'ai girlfriend', 'virtual girlfriend', 'ai friend', 'virtual friend'],
-  themeColor: '#ff69eb',
 
-  
-};
 type Message = {
   sender: "yandere" | "sub";
   text?: string;

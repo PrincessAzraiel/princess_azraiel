@@ -4,14 +4,7 @@ export const fetchCache = "force-no-store";
 import React, { useState } from "react";
 import GlitchText from "../../components/GlitchText";
 import { Metadata } from 'next';
-export const metadata: Metadata = {
-  title: "Princess Azraiel | Confession",
-  description: "Write your Confession to Princess Azraiel",
-  keywords: ['princess azraiel', 'azraiel', 'ai princess', 'virtual ai', 'virtual companion', 'ai companion', 'ai girlfriend', 'virtual girlfriend', 'ai friend', 'virtual friend'],
-  themeColor: '#ff69eb',
 
-  
-};
 
 type Payload = {
   content?: string;

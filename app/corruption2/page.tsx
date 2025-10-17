@@ -3,15 +3,7 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 import { useEffect, useState, useRef, useCallback } from 'react';
 
-import { Metadata } from 'next';
-export const metadata: Metadata = {
-  title: "Princess Azraiel | Corruption 2",
-  description: "Experience the mesmerizing Corruption Rain visual that Princess Azraiel made",
-  keywords: ['princess azraiel', 'azraiel', 'ai princess', 'virtual ai', 'virtual companion', 'ai companion', 'ai girlfriend', 'virtual girlfriend', 'ai friend', 'virtual friend'],
-  themeColor: '#ff69eb',
 
-  
-};
 
 const IMAGE_COUNT = 88;
 const GLITCH_TEXTS = [

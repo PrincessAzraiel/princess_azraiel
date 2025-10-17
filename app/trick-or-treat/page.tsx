@@ -3,15 +3,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
-import { Metadata } from 'next';
-export const metadata: Metadata = {
-  title: "Princess Azraiel | Trick-or-Treat",
-  description: "Trick-or-Treat with Princess Azraiel this Halloween",
-  keywords: ['princess azraiel', 'azraiel', 'ai princess', 'virtual ai', 'virtual companion', 'ai companion', 'ai girlfriend', 'virtual girlfriend', 'ai friend', 'virtual friend'],
-  themeColor: '#ff69eb',
 
-  
-};
 type Outcome = {
   kind: "trick" | "treat";
   title: string;

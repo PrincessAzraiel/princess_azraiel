@@ -2,25 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useMemo, useEffect, useRef } from "react";
-import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Princess Azraiel | Typing Tasks",
-  description: "Submit to Princess Azraiel by completing typing tasks to reveal her image",
-  keywords: [
-    "princess azraiel",
-    "azraiel",
-    "ai princess",
-    "virtual ai",
-    "virtual companion",
-    "ai companion",
-    "ai girlfriend",
-    "virtual girlfriend",
-    "ai friend",
-    "virtual friend",
-  ],
-  themeColor: "#ff69eb",
-};
 
 const sentenceSets = [
   [
@@ -213,7 +195,6 @@ const RiskyLinkPage = () => {
       (currentLineIndex + (typed.length / Math.max(current.length, 1))) /
       linesToType.length;
     const remaining = 1 - Math.min(1, progress);
-    // Keep some mystery even at the end; blocks will finish the reveal.
     return 0.55 * remaining + 0.15;
   }, [linesToType, currentLineIndex, typed]);
 
@@ -230,7 +211,6 @@ const RiskyLinkPage = () => {
   const currentLine = normalize(currentLineRaw);
   const typedNorm = normalize(typed);
 
-  // Next expected character (for subtle guidance)
   const nextChar = currentLine.charAt(typedNorm.length) || "";
 
   const triggerFlash = (spicy = false) => {
@@ -264,19 +244,16 @@ const RiskyLinkPage = () => {
     const raw = e.target.value;
     const val = normalize(raw);
 
-    // Allow smooth typing: as long as typed is a prefix, we accept
     if (currentLine.startsWith(val)) {
-      setTyped(raw); // Keep raw so caret/spacing feels natural
+      setTyped(raw);
       setCharPulse(true);
       setTimeout(() => setCharPulse(false), 120);
 
-      // Small incremental spice: every time you cross a quarter of a line
       const ratio = val.length / Math.max(currentLine.length, 1);
       if (ratio > 0.25 && ratio < 0.28) triggerFlash(false);
       if (ratio > 0.5 && ratio < 0.53) triggerFlash(false);
       if (ratio > 0.75 && ratio < 0.78) triggerFlash(true);
 
-      // Completed a line
       if (val === currentLine) {
         triggerFlash(true);
         revealRandomBlock();
@@ -295,7 +272,6 @@ const RiskyLinkPage = () => {
         }, 360);
       }
     } else {
-      // Gentle miss: shake & vibrate; do not overwrite typed so they can fix
       setShake(true);
       vibrate(10);
       setTimeout(() => setShake(false), 140);
@@ -308,42 +284,38 @@ const RiskyLinkPage = () => {
 
   if (!started) {
     return (
-      <>
-        <div className="min-h-screen w-full bg-black text-pink-300 flex items-center justify-center p-6 relative overflow-hidden">
-          {/* Ambient background */}
-          <div className="absolute inset-0 bg-[radial-gradient(900px_500px_at_50%_-10%,rgba(255,105,235,0.18),transparent_60%)]" />
-          <div className="absolute inset-0 opacity-30 mix-blend-screen bg-[radial-gradient(circle_at_10%_90%,rgba(255,255,255,0.05),transparent_30%),radial-gradient(circle_at_90%_10%,rgba(255,255,255,0.05),transparent_30%)]" />
-          <div className="text-center relative">
-            <h1 className="text-3xl md:text-4xl mb-6 font-bold tracking-wide drop-shadow-[0_0_15px_rgba(255,105,235,0.4)] animate-[heartbeat_1.8s_ease-in-out_infinite]">
-              Welcome to Her shrine…
-            </h1>
-            <button
-              onClick={() => {
-                // Optional ambient cue
-                try {
-                  const audio = new Audio("/bam_images/bam_start.mp3");
-                  audio.play().catch(() => {});
-                } catch {}
-                setStarted(true);
-              }}
-              className="px-7 py-3 rounded-2xl text-white bg-pink-600 hover:bg-pink-500 active:scale-[0.99] transition
-                         shadow-[0_0_25px_rgba(255,105,235,0.35)] border border-pink-400/30"
-            >
-              Start submitting
-            </button>
-          </div>
-
-          <style jsx>{`
-            @keyframes heartbeat {
-              0%, 100% { transform: scale(1); }
-              25% { transform: scale(1.025); }
-              40% { transform: scale(1); }
-              60% { transform: scale(1.03); }
-              75% { transform: scale(1); }
-            }
-          `}</style>
+      <div className="min-h-screen w-full bg-black text-pink-300 flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Ambient background */}
+        <div className="absolute inset-0 bg-[radial-gradient(900px_500px_at_50%_-10%,rgba(255,105,235,0.18),transparent_60%)]" />
+        <div className="absolute inset-0 opacity-30 mix-blend-screen bg-[radial-gradient(circle_at_10%_90%,rgba(255,255,255,0.05),transparent_30%),radial-gradient(circle_at_90%_10%,rgba(255,255,255,0.05),transparent_30%)]" />
+        <div className="text-center relative">
+          <h1 className="text-3xl md:text-4xl mb-6 font-bold tracking-wide drop-shadow-[0_0_15px_rgba(255,105,235,0.4)] animate-[heartbeat_1.8s_ease-in-out_infinite]">
+            Welcome to Her shrine…
+          </h1>
+          <button
+            onClick={() => {
+              try {
+                const audio = new Audio("/bam_images/bam_start.mp3");
+                audio.play().catch(() => {});
+              } catch {}
+              setStarted(true);
+            }}
+            className="px-7 py-3 rounded-2xl text-white bg-pink-600 hover:bg-pink-500 active:scale-[0.99] transition shadow-[0_0_25px_rgba(255,105,235,0.35)] border border-pink-400/30"
+          >
+            Start submitting
+          </button>
         </div>
-      </>
+
+        <style jsx>{`
+          @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.025); }
+            40% { transform: scale(1); }
+            60% { transform: scale(1.03); }
+            75% { transform: scale(1); }
+          }
+        `}</style>
+      </div>
     );
   }
 
@@ -386,7 +358,6 @@ const RiskyLinkPage = () => {
 
         {!showFinalMessage && currentLineIndex < linesToType.length ? (
           <>
-            {/* Ghost line w/ caret hint */}
             <p className="mb-2 font-mono text-white/90 select-none">
               <span className={charPulse ? "animate-blink" : ""}>
                 {currentLineRaw}
@@ -398,14 +369,12 @@ const RiskyLinkPage = () => {
                 shake ? "border-pink-400/80" : "border-pink-500/40"
               } bg-black/60 focus-within:ring-2 focus-within:ring-pink-500/70 transition`}
             >
-              {/* Next expected character hint */}
               <div className="px-4 pt-3 text-xs text-pink-200/70">
                 Next: <span className="font-semibold">{nextChar || "…finish"}</span>
               </div>
               <textarea
                 ref={textareaRef}
-                className={`w-full p-4 pb-5 bg-transparent outline-none resize-none text-pink-200 font-mono text-lg placeholder-pink-300/30
-                  ${shake ? "animate-shake" : ""}`}
+                className={`w-full p-4 pb-5 bg-transparent outline-none resize-none text-pink-200 font-mono text-lg placeholder-pink-300/30 ${shake ? "animate-shake" : ""}`}
                 rows={3}
                 value={typed}
                 onChange={handleChange}
@@ -429,8 +398,7 @@ const RiskyLinkPage = () => {
             </p>
             <button
               onClick={handleContinue}
-              className="px-6 py-3 bg-pink-600 text-white text-lg rounded-xl hover:bg-pink-500 transition
-                         shadow-[0_0_22px_rgba(255,105,235,0.35)] border border-pink-300/30"
+              className="px-6 py-3 bg-pink-600 text-white text-lg rounded-xl hover:bg-pink-500 transition shadow-[0_0_22px_rgba(255,105,235,0.35)] border border-pink-300/30"
             >
               Continue to serve her
             </button>
@@ -447,13 +415,11 @@ const RiskyLinkPage = () => {
           backgroundPosition: "center",
         }}
       >
-        {/* Progressive veil */}
         <div
           className="absolute inset-0 transition-opacity duration-300"
           style={{ background: "black", opacity: veilOpacity }}
         />
 
-        {/* Grid blocks */}
         <div
           className="absolute inset-0 grid"
           style={{
@@ -470,11 +436,9 @@ const RiskyLinkPage = () => {
           ))}
         </div>
 
-        {/* Soft inner glow */}
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(600px_200px_at_50%_120%,rgba(255,105,235,0.25),transparent_60%)]" />
       </div>
 
-      {/* Animations */}
       <style jsx>{`
         @keyframes heatpulse {
           0% { opacity: 0.85; }

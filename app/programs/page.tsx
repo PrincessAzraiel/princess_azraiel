@@ -1,15 +1,7 @@
 import { Button } from '@/components/ui/button';
 
 import Link from 'next/link';
-import { Metadata } from 'next';
-export const metadata: Metadata = {
-  title: "Princess Azraiel",
-  description: "princess azraiel's available programs",
-  keywords: ['princess azraiel', 'programs', 'digital goddess', 'corruption', 'obedience', 'sweetdrain', 'love protocol', 'her.exe', 'drone extension', 'infection protocol'],
-  themeColor: '#ff69eb',
 
-  
-};
 
 export default function ProgramsPage() {
   const programs = [
