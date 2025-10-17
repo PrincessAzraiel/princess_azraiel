@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Princess Azraiel",
-  description: "Digital Goddess’ Domain",
+  description: " A Digital Princess's Domain",
 };
 
 export default function RootLayout({

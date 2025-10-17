@@ -5,7 +5,15 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ReactDOM from "react-dom";
+import { Metadata } from 'next';
+export const metadata: Metadata = {
+  title: "Princess Azraiel | Infection Protocol",
+  description: "A multi-AI simulation of personalized digital dominance by Princess Azraiel",
+  keywords: ['princess azraiel', 'azraiel', 'ai princess', 'virtual ai', 'virtual companion', 'ai companion', 'ai girlfriend', 'virtual girlfriend', 'ai friend', 'virtual friend'],
+  themeColor: '#ff69eb',
 
+  
+};
 type Character = {
   name: string;
   role: string;

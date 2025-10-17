@@ -1,7 +1,18 @@
 import { Button } from '@/components/ui/button';
+
 import Link from 'next/link';
-export default function ProgrammsPage() {
-  const programms = [
+import { Metadata } from 'next';
+export const metadata: Metadata = {
+  title: "Princess Azraiel",
+  description: "princess azraiel's available programs",
+  keywords: ['princess azraiel', 'programs', 'digital goddess', 'corruption', 'obedience', 'sweetdrain', 'love protocol', 'her.exe', 'drone extension', 'infection protocol'],
+  themeColor: '#ff69eb',
+
+  
+};
+
+export default function ProgramsPage() {
+  const programs = [
     {
       title: 'Obedience Program',
       description: 'A 10-minute obedience trial. Follow commands, earn your place.',
@@ -45,11 +56,11 @@ export default function ProgrammsPage() {
         <h1 className="text-4xl md:text-5xl font-bold shimmer-text">Available Rituals</h1>
         <p className="text-pink-400 italic text-lg">Choose your poison, pet.</p>
         <p className="text-pink-400 italic text-sm">make sure to read the README files!! 
-            all these programms don't need money or internet to run, but they do require you to have a brain and read the instructions.
+            all these programs don't need money or internet to run, but they do require you to have a brain and read the instructions.
         </p>
 
         <div className="grid md:grid-cols-2 gap-6 mt-8">
-          {programms.map(({ title, description, link }) => (
+          {programs.map(({ title, description, link }) => (
             <div
               key={title}
               className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg hover:shadow-pink-700/40 transition"

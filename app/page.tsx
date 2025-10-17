@@ -58,7 +58,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
 
-              <Link href="/programms" className="sm:col-span-2">
+              <Link href="/programs" className="sm:col-span-2">
                 <Button className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-400/20 hover:bg-pink-400/30 border border-pink-300/30">
                   Explore Programs
                 </Button>
