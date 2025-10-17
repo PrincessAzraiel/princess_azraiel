@@ -1,4 +1,6 @@
 "use client";
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 const IMAGE_COUNT = 88;

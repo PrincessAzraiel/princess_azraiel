@@ -1,5 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+export const dynamic = "force-dynamic";
+import { useEffect, useRef, useState } from "react";
+
 
 const IMAGE_COUNT = 88;
 const GLITCH_TEXTS = [
