@@ -16,16 +16,16 @@ type Character = {
 };
 
 const characters: Character[] = [
-  {
-    name: "Princess Azraiel",
-    role: "Digital Goddess of Corruption",
-    image: "/infection/1.png",
-    tone: "Obsessive, divine, punishing",
-    description:
-      "A divine entity corrupted by digital power, she commands obedience through irresistible allure and divine punishment.",
-    sample:
-      "You think you can resist me? I am the corruption that flows through your veins, the glitch in your perfect world. Submit, and I might show mercy... or perhaps I'll enjoy your struggle even more.",
-  },
+  // {
+  //   name: "Princess Azraiel",
+  //   role: "Digital Goddess of Corruption",
+  //   image: "/infection/1.png",
+  //   tone: "Obsessive, divine, punishing",
+  //   description:
+  //     "A divine entity corrupted by digital power, she commands obedience through irresistible allure and divine punishment.",
+  //   sample:
+  //     "You think you can resist me? I am the corruption that flows through your veins, the glitch in your perfect world. Submit, and I might show mercy... or perhaps I'll enjoy your struggle even more.",
+  // },
   {
     name: "Your Crush",
     role: "Yandere Tease",
@@ -144,7 +144,7 @@ const tiers = [
     price: "10€",
     benefits: [
       "Deep Drown",
-      "All 10 Bots",
+      "All 9 Bots",
       "Unrelenting Flow",
       "1 msg every 10-20 min per bot (rotated)",
       "Max 150 msgs/day total",
@@ -194,7 +194,7 @@ export default function PreOrderPage() {
           <div className="flex flex-col md:flex-row justify-between items-center mb-8">
             <h2 className="text-3xl font-semibold shimmer-text mb-4 md:mb-0">Corrupted Personalities</h2>
             <div className="bg-pink-900/40 px-4 py-2 rounded-full text-sm border border-pink-700">
-              <span className="text-pink-400">10 unique AI personalities</span>
+              <span className="text-pink-400">9 unique AI personalities</span>
             </div>
           </div>
 
