@@ -180,7 +180,8 @@ export default function CookieButton({ onClick }: Props) {
         }}
       >
         <img
-          src="https://i.pinimg.com/1200x/28/c5/f5/28c5f570ff9fb3becea9faa343a00302.jpg"
+          //source from public/buttclicker/butt.jpg
+          src="/buttclicker/butt.jpg"
           className="rounded-full select-none"
           draggable={false}
         />

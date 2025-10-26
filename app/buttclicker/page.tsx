@@ -6,11 +6,14 @@ import { useGameLogic } from './hooks/useGameLogic'
 import CookieCounter from './components/counter'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import HalloweenFX, { HalloweenFXHandle } from './components/HalloweenFx'
 
 const FAILURE_PULSE_KEY = 99999
 
 export default function HomePage() {
   const effectsCanvas = useRef<HTMLCanvasElement | null>(null)
+  const fxRef = useRef<HalloweenFXHandle | null>(null)
+
   const {
     displayCount,
     upgrades,
@@ -20,7 +23,10 @@ export default function HomePage() {
     buyGenerator,
     handleCookieClick,
     gameState,
-    saveGame
+    saveGame,
+    hasSpookyPopups,
+    hasGhostlyVideo,
+    hasHauntedAudio,
   } = useGameLogic()
 
   const [menuOpen, setMenuOpen] = useState(false)
@@ -29,6 +35,13 @@ export default function HomePage() {
   useEffect(() => {
     if (effectsCanvas.current) MouseClickEffect.init(effectsCanvas.current)
   }, [])
+
+  // Wrap cookie click to also trigger FX
+  const onCookieClick = (e?: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    handleCookieClick()
+    if (hasHauntedAudio) fxRef.current?.primeAudio()
+    if (hasSpookyPopups && e) fxRef.current?.burst(e.clientX, e.clientY)
+  }
 
   const handleUpgradeBuy = (index: number, e: React.MouseEvent<HTMLButtonElement>) => {
     const transactionSuccessful = buyUpgrade(index)
@@ -92,6 +105,13 @@ export default function HomePage() {
         className="fixed left-0 top-0 w-full h-full pointer-events-none z-50"
       />
 
+      {/* Visual-only layer: video overlay + popup images + audio loop */}
+      <HalloweenFX
+        ref={fxRef}
+        videoEnabled={hasGhostlyVideo}
+        audioEnabled={hasHauntedAudio}
+      />
+
       <button
         onClick={() => setMenuOpen((m) => !m)}
         className="absolute top-4 left-4 z-50 lg:hidden text-white bg-white/10 p-2 rounded-md backdrop-blur-sm hover:bg-white/20 transition"
@@ -149,14 +169,15 @@ export default function HomePage() {
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
         <div className="text-center">
           <h1 className="text-3xl md:text-5xl font-semibold bg-gradient-to-r from-white via-pink-200 to-purple-400 bg-clip-text text-transparent drop-shadow-lg">
-            Cookie Energy Factory
+            Butt Energy Factory
           </h1>
           <p className="text-gray-400 text-sm md:text-base mt-2">
-            Click the <span className="text-pink-300 font-semibold">Cookie</span> to generate energy!
+            Click the <span className="text-pink-300 font-semibold">Butt</span> to generate energy!
           </p>
         </div>
 
-        <CookieButton onClick={handleCookieClick} />
+        {/* Use the wrapper so FX triggers alongside game logic */}
+        <CookieButton onClick={onCookieClick} />
 
         <div className="absolute bottom-10 flex flex-col items-center text-center">
           <CookieCounter value={displayCount} feedback={clickFeedback} />
