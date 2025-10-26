@@ -8,8 +8,8 @@ import { useEffect, useRef, useState } from "react";
  *  (change sources here)
  *  ========================= */
 const ASSETS = {
-  IMAGE_COUNT: 88,                                // total corrupt images available
-  IMAGE_PATH_PREFIX: "/corrupt",                  // base dir for images
+  IMAGE_COUNT: 20,                                // total corrupt images available
+  IMAGE_PATH_PREFIX: "/halloween",                  // base dir for images
   SPIRAL_VIDEO_SRC: "/spirlas2.mp4",               // spiral video (unchanged)
   AMBIENT_AUDIO_SRC: "/bam_images/bam_start.mp3", // looped audio (unchanged)
 };
@@ -41,7 +41,7 @@ const HALLOWEEN = {
   flashlightRadiusVmin: 18,     // radius of the circular spotlight
   beamWidthVmin: 22,            // width of the elongated beam
   beamLengthVmin: 60,           // length of the elongated beam
-  beamOpacity: 0.25,            // 0..1
+  beamOpacity: 0.80,            // 0..1
 };
 
 // Desktop breakpoint
@@ -129,7 +129,7 @@ export default function CorruptionRainPage() {
     while (picks.size < PRELOAD_COUNT) {
       picks.add(Math.floor(Math.random() * ASSETS.IMAGE_COUNT) + 1);
     }
-    return Array.from(picks).map((n) => `${ASSETS.IMAGE_PATH_PREFIX}/${n}.png`);
+    return Array.from(picks).map((n) => `${ASSETS.IMAGE_PATH_PREFIX}/${n}.webp`);
   });
 
   useEffect(() => {
