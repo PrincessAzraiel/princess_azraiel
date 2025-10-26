@@ -1,15 +1,21 @@
 'use client'
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, MouseEvent } from 'react'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { Cookie } from 'lucide-react'
 
-export default function CookieButton({ onClick }) {
-  const [particles, setParticles] = useState([])
-  const cookieRef = useRef(null)
+interface CookieButtonProps {
+  onClick?: (e?: MouseEvent<HTMLDivElement>) => void
+}
+
+export default function CookieButton({ onClick }: CookieButtonProps) {
+  const [particles, setParticles] = useState<
+    { id: number; x: number; y: number; dx: number; dy: number; color: string; shadow: string }[]
+  >([])
+  const cookieRef = useRef<HTMLDivElement | null>(null)
   const controls = useAnimation()
   const baseRotation = useRef(0)
 
-  const handleClick = e => {
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     if (!cookieRef.current) return
     const rect = cookieRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
@@ -35,15 +41,17 @@ export default function CookieButton({ onClick }) {
     const extraTilt = (Math.random() - 0.5) * 25
     const extraScale = [1, 1.2, 0.9, 1]
 
-    controls.start({
-      rotate: baseRotation.current + extraTilt,
-      scale: extraScale,
-      transition: { duration: 0.35, ease: 'easeOut' }
-    }).then(() => {
-      baseRotation.current += extraTilt
-    })
+    controls
+      .start({
+        rotate: baseRotation.current + extraTilt,
+        scale: extraScale,
+        transition: { duration: 0.35, ease: 'easeOut' }
+      })
+      .then(() => {
+        baseRotation.current += extraTilt
+      })
 
-    onClick && onClick()
+    onClick?.(e)
   }
 
   return (
