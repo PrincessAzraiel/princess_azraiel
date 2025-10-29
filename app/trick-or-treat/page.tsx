@@ -528,7 +528,7 @@ const TrickOrTreatPage: React.FC = () => {
           max-width: 22vw;
           image-rendering: auto;
           mix-blend-mode: screen;
-        }
+        } 
       `}</style>
     </div>
   );
