@@ -163,23 +163,82 @@ const TrickOrTreatPage: React.FC = () => {
   const score = history.filter(h => h.kind === "treat").length;
   const finished = round > 3;
   // Treat list (some with links)
-  const TREAT_POOL: Array<Omit<Outcome, "kind" | "title" | "code"> & { code?: boolean }> = [
-    { body: "You chose wisely. The Princess smiles upon you." },
-    { body: "A gentle blessing slides across your screen…" },
-    { body: "Sugar for the brave. Rest your head, little worshipper." },
-    {
-      body: "A secret door opens, only for you.",
-      link: { url: "https://princessazraiel.com", label: "Enter the Shrine" }
-    },
-    {
-      body: "A melody hums from the void—follow it if you dare.",
-      link: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", label: "Listen" }
-    },
-    {
-      body: "Your devotion is noted. You have won a submissive Tier from the infection protocol, dm the Princess to claim it.",
-      code: true
-    }
-  ];
+const TREAT_POOL: Array<Omit<Outcome, "kind" | "title" | "code"> & { code?: boolean }> = [
+  { body: "You chose wisely. The Princess smiles upon you." },
+  { body: "A gentle blessing slides across your screen…" },
+  { body: "Sugar for the brave. Rest your head, little worshipper." },
+  {
+    body: "A secret door opens, only for you.",
+    link: { url: "https://princessazraiel.com", label: "Enter the Shrine" }
+  },
+  {
+    body: "A melody hums from the void—follow it if you dare.",
+    link: { url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", label: "Listen" }
+  },
+  {
+    body: "Your devotion is noted. You have won a submissive Tier from the infection protocol, dm the Princess (on discord) to claim it.",
+    code: true
+  },
+  {
+    body: "Time for some hypnosis...",
+    link: { url: "https://princessazraiel.com/corruption3", label: "Enter...." }
+  },
+  {
+    body: "The Princess grants you a special gift.",
+    link: { url: "https://princessazraiel.com/typing", label: "Claim your gift" }
+  },
+  // --- New treats ---
+  { body: "A whisper drifts through your speakers. It says your name… softly." },
+  { body: "The Princess watches with quiet pride. You are learning." },
+  { body: "A petal falls onto your keyboard. It dissolves into light." },
+  {
+    body: "An encrypted message flashes briefly—too fast to read. It felt... important."
+  },
+  {
+    body: "The void giggles. You made it laugh. That’s rare."
+  },
+  {
+    body: "Your loyalty is intoxicating. The Princess will remember this moment."
+  },
+  {
+    body: "The moon flickers in your taskbar. You are being seen."
+  },
+  {
+    body: "You receive a digital blessing.",
+    link: { url: "https://princessazraiel.com/rebrand", label: "Receive Blessing" }
+  },
+  {
+    body: "Something ancient stirs in the code. It approves of your choice."
+  },
+  {
+    body: "A shimmering hand reaches out of the monitor—just for a second."
+  },
+  {
+    body: "The Princess hums your favorite song, though you never told her what it was."
+  },
+  {
+    body: "Reality lags for a moment. The system blushes."
+  },
+  {
+    body: "An invisible crown materializes above your head. It fits perfectly."
+  },
+  {
+    body: "You feel lighter. A hidden weight has been lifted."
+  },
+  {
+    body: "Somewhere, a new thread in the web begins to glow."
+  },
+  {
+    body: "Your devotion ripples through the net. The Princess feels it.",
+    link: { url: "https://ko-fi.com/azrielo/10", label: "See the Ripple" }
+  },
+  {
+    body: "You hear the sound of typing from beyond your screen. She’s answering."
+  },
+  {
+    body: "The Princess whispers, 'good one.' Then silence."
+  }
+];
 
   // Trick list (text only; the spam overlay delivers the chaos)
   const TRICK_POOL: Outcome[] = [
