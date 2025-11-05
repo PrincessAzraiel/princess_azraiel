@@ -258,7 +258,7 @@ const TREAT_POOL: Array<Omit<Outcome, "kind" | "title" | "code"> & { code?: bool
     playTone(chosen);
     if (chosen === "trick") {
       pulseGlitch();
-      spamCorruptOnce(); // flood images briefly, then auto-clear
+      spamCorruptOnce();
     }
   };
 
