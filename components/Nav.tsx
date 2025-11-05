@@ -18,7 +18,7 @@ export default function Nav() {
     { href: "/corruption", label: "Corruption" },
     { href: "/links", label: "Links" },
     { href: "/programs", label: "Programs" },
-    { href: "/infection-protocol", label: "Infection Protocol" },
+    { href: "/infection", label: "Infection Protocol" },
   ];
 
   return (
