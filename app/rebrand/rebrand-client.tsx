@@ -6,16 +6,18 @@ import { useSearchParams } from "next/navigation";
 
 const BACKEND_URL =
   (import.meta as any)?.env?.VITE_BACKEND_URL ||
-  "https://princessazraielbackend.vercel.app";
+  "http://localhost:3001";
+
+  //lets update that we get the images from public folder, not here
 
 const PFP_CHOICES = [
-  "https://pbs.twimg.com/profile_images/1944903528004132864/DpKHXpYb_400x400.jpg",
-  "https://pbs.twimg.com/profile_images/1977095193322049538/fD65rSeP_400x400.jpg",
+  "/images/pfp1.jpg",
+  "/images/pfp2.jpg",
 ];
 const BANNER_CHOICES = [
-  "https://pbs.twimg.com/profile_banners/1915474894407467008/1752536120/1500x500",
-  "https://pbs.twimg.com/profile_banners/1865403918726873089/1760200768/1500x500",
-  "https://pbs.twimg.com/profile_banners/1859605133795131395/1752870698/1500x500",
+  "/images/banner1.jpg",
+  "/images/banner2.jpg",
+  "/images/banner3.jpg",
 ];
 const PRINCESS_NICKNAMES: string[] = [
   "Princess Azraiel’s Cupcake",
