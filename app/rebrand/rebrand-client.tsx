@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 
 const BACKEND_URL =
   (import.meta as any)?.env?.VITE_BACKEND_URL ||
-  "https://princessazraiel-backend.vercel.app";
+  "https://princessazraielbackend.vercel.app/";
 
 
 
