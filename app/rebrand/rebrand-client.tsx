@@ -8,17 +8,17 @@ const BACKEND_URL =
   (import.meta as any)?.env?.VITE_BACKEND_URL ||
   "https://princessazraielbackend.vercel.app";
 
-
-
 const PFP_CHOICES = [
   "/images/pfp1.jpg",
   "/images/pfp2.jpg",
 ];
+
 const BANNER_CHOICES = [
   "/images/banner1.jpg",
   "/images/banner2.jpg",
   "/images/banner3.jpg",
 ];
+
 const PRINCESS_NICKNAMES: string[] = [
   "Princess Azraiel’s Cupcake",
   "Princess Azraiel’s Muffin",
@@ -59,6 +59,8 @@ export default function RebrandClient() {
   const [description, setDescription] = useState("I consented to the makeover 💗");
   const [url, setUrl] = useState("https://princessazraiel.com");
   const [location, setLocation] = useState("🌐");
+
+  // still keep these for random choice + preview + sending to backend
   const [pfpUrl, setPfpUrl] = useState<string>("");
   const [bannerUrl, setBannerUrl] = useState<string>("");
 
@@ -73,13 +75,13 @@ export default function RebrandClient() {
     setPfpUrl(
       pickRandom(
         PFP_CHOICES,
-        "https://pbs.twimg.com/profile_images/1944903528004132864/DpKHXpYb_400x400.jpg"
+        "/images/pfp1.jpg"
       )
     );
     setBannerUrl(
       pickRandom(
         BANNER_CHOICES,
-        "https://pbs.twimg.com/profile_banners/1915474894407467008/1752536120/1500x500"
+        "/images/banner1.jpg"
       )
     );
   }, []);
@@ -138,12 +140,13 @@ export default function RebrandClient() {
           description: description?.trim(),
           url: url?.trim(),
           location: location?.trim(),
+          // still send these so backend knows which curated assets to use
           pfpUrl: pfpUrl?.trim(),
           bannerUrl: bannerUrl?.trim(),
         }),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({} as any));
       if (!res.ok || !data?.ok) {
         const status = res.status;
         const details =
@@ -188,6 +191,7 @@ export default function RebrandClient() {
 
         {/* Form */}
         <div className="grid md:grid-cols-2 gap-6">
+          {/* Text side */}
           <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg">
             <h2 className="text-xl font-semibold mb-4 shimmer-text">Profile Text</h2>
 
@@ -232,39 +236,34 @@ export default function RebrandClient() {
             </div>
           </div>
 
+          {/* Images side – preview only, no editing */}
           <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg">
             <h2 className="text-xl font-semibold mb-4 shimmer-text">Images</h2>
 
-            <label className="block text-sm mb-1 text-pink-400">Avatar (URL)</label>
-            <input
-              value={pfpUrl}
-              onChange={(e) => setPfpUrl(e.target.value)}
-              className="w-full mb-3 rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
-              placeholder="https://pbs.twimg.com/profile_images/1944903528004132864/DpKHXpYb_400x400.jpg"
-            />
+            <p className="text-xs text-pink-400 mb-3">
+              Avatar and banner are chosen automatically from Princess-approved presets.
+            </p>
+
+            {/* Avatar preview */}
+            <label className="block text-sm mb-1 text-pink-400">Avatar preview</label>
             <div className="flex items-center gap-3 mb-5">
               <img
                 src={pfpUrl}
-                onError={(e: any) => (e.currentTarget.src = 'about:blank')}
-                alt="pfp preview"
+                onError={(e: any) => (e.currentTarget.src = "about:blank")}
+                alt="avatar preview"
                 className="w-16 h-16 rounded-full border border-pink-800 object-cover"
               />
               <span className="text-xs text-pink-400">
-                Tip: &lt;= 700 KB (PNG/JPG/GIF). Animated GIF becomes static.
+                This avatar will be applied as part of your makeover.
               </span>
             </div>
 
-            <label className="block text-sm mb-1 text-pink-400">Banner (URL)</label>
-            <input
-              value={bannerUrl}
-              onChange={(e) => setBannerUrl(e.target.value)}
-              className="w-full mb-3 rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
-              placeholder="https://pbs.twimg.com/profile_banners/1915474894407467008/1752536120/1500x500"
-            />
+            {/* Banner preview */}
+            <label className="block text-sm mb-1 text-pink-400">Banner preview</label>
             <div className="relative w-full h-24 rounded-xl overflow-hidden border border-pink-800">
               <img
                 src={bannerUrl}
-                onError={(e: any) => (e.currentTarget.src = 'about:blank')}
+                onError={(e: any) => (e.currentTarget.src = "about:blank")}
                 alt="banner preview"
                 className="w-full h-full object-cover opacity-80"
               />
@@ -279,9 +278,9 @@ export default function RebrandClient() {
               onClick={submit}
               disabled={busy || !connectedAs}
               className="bg-pink-600 hover:bg-pink-700 text-lg px-6 py-3 disabled:opacity-50"
-              title={!connectedAs ? 'Connect X first' : 'Apply changes'}
+              title={!connectedAs ? "Connect X first" : "Apply changes"}
             >
-              {busy ? 'Applying…' : 'I consent — Update Profile'}
+              {busy ? "Applying…" : "I consent — Update Profile"}
             </Button>
             {!connectedAs && (
               <Button onClick={startAuth} variant="secondary" className="bg-pink-900/50">
@@ -298,7 +297,9 @@ export default function RebrandClient() {
 
           {warnings && (
             <div className="text-sm text-yellow-200/90 border border-yellow-600/40 bg-yellow-900/20 rounded-xl p-3 whitespace-pre-wrap">
-              Some fields could not be updated:\n{JSON.stringify(warnings, null, 2)}
+              Some fields could not be updated:
+              {"\n"}
+              {JSON.stringify(warnings, null, 2)}
             </div>
           )}
 
