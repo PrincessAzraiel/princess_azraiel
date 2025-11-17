@@ -6,9 +6,9 @@ import { useSearchParams } from "next/navigation";
 
 const BACKEND_URL =
   (import.meta as any)?.env?.VITE_BACKEND_URL ||
-  "http://localhost:3001";
+  "https://princessazraiel-backend.vercel.app";
 
-  //lets update that we get the images from public folder, not here
+
 
 const PFP_CHOICES = [
   "/images/pfp1.jpg",
