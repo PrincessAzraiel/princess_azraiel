@@ -5,7 +5,7 @@ import { Heart, Sparkles, Coffee, Gift, Bird, Send, Users, Wand2 } from "lucide-
 import Link from "next/link";
 
 export default function LandingPage() {
-  // reuseable class for the social buttons so they don't look disabled
+  // reusable class for the social buttons so they don't look disabled
   const socialBtn =
     "w-full h-11 rounded-2xl justify-start bg-black/30 hover:bg-black/40 border border-white/10 " +
     "text-pink-100 hover:text-pink-50 outline-none focus-visible:ring-2 focus-visible:ring-pink-300/40";
@@ -64,7 +64,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
 
-              {/* NEW: Rebrand route */}
+              {/* Rebrand route */}
               <Link href="/rebrand" className="sm:col-span-2">
                 <Button
                   className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-500/20 hover:bg-pink-500/30 border border-pink-300/30 relative outline-none focus-visible:ring-2 focus-visible:ring-pink-400/50"
@@ -78,10 +78,22 @@ export default function LandingPage() {
                 </Button>
               </Link>
 
-              <Link href="/programs" className="sm:col-span-2">
+              {/* THE 25TH highlight */}
+              <Link href="/the25" className="sm:col-span-2">
                 <Button
-                  className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-400/20 hover:bg-pink-400/30 border border-pink-300/30 outline-none focus-visible:ring-2 focus-visible:ring-pink-300/50"
+                  className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-600/30 hover:bg-pink-600/40 border border-pink-300/40 shadow-md shadow-pink-500/40 relative outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
+                  aria-label="Open THE 25TH Program"
                 >
+                  <Gift className="mr-2 h-5 w-5" />
+                  THE 25TH — Advent Program
+                  <span className="ml-2 rounded-full bg-black/40 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em]">
+                    25-Day EXE
+                  </span>
+                </Button>
+              </Link>
+
+              <Link href="/programs" className="sm:col-span-2">
+                <Button className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-400/20 hover:bg-pink-400/30 border border-pink-300/30 outline-none focus-visible:ring-2 focus-visible:ring-pink-300/50">
                   Explore Programs
                 </Button>
               </Link>
@@ -237,7 +249,14 @@ function Hearts() {
             filter: `drop-shadow(0 6px 18px rgba(255,105,235,0.35)) ${hueRotate}`,
           }}
         >
-          <svg width={size} height={size} viewBox="0 0 24 24" className="opacity-80" fill="url(#g)" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            className="opacity-80"
+            fill="url(#g)"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
               <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#ff7ad6" />

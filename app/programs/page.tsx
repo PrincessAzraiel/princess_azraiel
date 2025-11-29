@@ -38,7 +38,17 @@ export default function ProgramsPage() {
     {
       title: 'Infection Protocol',
       description: 'A new protocol, with 500 different links to click and over 5000 new images',
-      link: '/pre-order', 
+      link: '/infection', 
+    },
+    {
+      title: 'THE 25TH',
+      description: 'Unlock 25 days of yandere tech-dominance with this Windows program.',
+      link: '/the25',
+    },
+    {
+      title:'Heartbreak.exe',
+      description: 'New Version of the LoveProtocol.exe',
+      link: 'https://gofile.io/d/r0YYKc',
     }
   ];
 
