@@ -1,269 +1,277 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Heart, Sparkles, Coffee, Gift, Bird, Send, Users, Wand2 } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { 
+  Heart, Sparkles, Coffee, Gift, Bird, Send, 
+  Users, Wand2, ArrowRight, ExternalLink 
+} from "lucide-react";
 
 export default function LandingPage() {
-  // reusable class for the social buttons so they don't look disabled
-  const socialBtn =
-    "w-full h-11 rounded-2xl justify-start bg-black/30 hover:bg-black/40 border border-white/10 " +
-    "text-pink-100 hover:text-pink-50 outline-none focus-visible:ring-2 focus-visible:ring-pink-300/40";
-
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-pink-100 bg-black">
-      {/* Soft animated gradient backdrop (kept beneath content) */}
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(1200px_600px_at_10%_10%,#ff7ad6,transparent_60%),radial-gradient(900px_500px_at_90%_20%,#9b5cff,transparent_55%),radial-gradient(800px_600px_at_50%_100%,#2dd4bf,transparent_60%)] opacity-40" />
-      <div className="absolute inset-0 z-0 backdrop-blur-[2px]" />
+    <div className="relative min-h-screen w-full overflow-hidden bg-[#050505] text-pink-50 selection:bg-pink-500 selection:text-black">
+      
+      {/* --- GLOBAL STYLES --- */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@300;400;600&family=Syncopate:wght@400;700&display=swap');
 
-      {/* Subtle vignette + grain (explicitly under content) */}
-      <div className="pointer-events-none absolute inset-0 z-0 [background:radial-gradient(120%_80%_at_50%_120%,rgba(0,0,0,.6),transparent_40%)]" />
-      <div className="pointer-events-none absolute inset-0 z-0 opacity-[.07] mix-blend-soft-light [background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.2)_0,rgba(255,255,255,.2)_1px,transparent_1px,transparent_2px),repeating-linear-gradient(90deg,rgba(255,255,255,.2)_0,rgba(255,255,255,.2)_1px,transparent_1px,transparent_2px)]" />
+        .font-italiana { font-family: 'Italiana', serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .font-syncopate { font-family: 'Syncopate', sans-serif; }
 
-      {/* Floating hearts */}
-      <Hearts />
-
-      {/* Content */}
-      <main className="relative z-10 flex min-h-screen items-center justify-center px-6 py-14">
-        <section className="w-full max-w-3xl">
-          {/* Header card */}
-          <div className="rounded-3xl border border-pink-400/20 bg-black/40 shadow-[0_0_70px_-15px_rgba(255,105,235,0.65)] backdrop-blur-xl p-8 md:p-12 ring-1 ring-white/5 hover:ring-white/10 transition-[box-shadow,ring] duration-300">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-pink-300/20 bg-pink-300/10 px-4 py-1 text-sm">
-              <Sparkles className="h-4 w-4" />
-              <span className="tracking-wide">A Digital Goddess Experience</span>
-            </div>
-
-            <h1 className="text-center text-4xl md:text-6xl font-extrabold leading-tight">
-              <span className="bg-gradient-to-r from-pink-300 via-white to-pink-300 bg-clip-text text-transparent [background-size:200%_auto] animate-[shine_6s_linear_infinite] drop-shadow-[0_2px_16px_rgba(255,105,235,0.25)]">
-                Princess Azraiel&apos;s Corruption Hub
-              </span>
-            </h1>
-            <p className="mt-4 text-center text-lg md:text-xl italic text-pink-200/90">
-              Submit. Suffer. Smile.
-            </p>
-
-            {/* Primary CTAs */}
-            <div className="mt-10 grid gap-3 sm:grid-cols-2">
-              <Link href="/corruption">
-                <Button
-                  className="w-full h-12 rounded-2xl text-lg font-semibold shadow-lg shadow-pink-500/30 transition hover:shadow-pink-400/50 bg-gradient-to-r from-pink-600 to-fuchsia-600 hover:from-pink-500 hover:to-fuchsia-500 outline-none focus-visible:ring-2 focus-visible:ring-pink-400/60"
-                  aria-label="Begin Your Corruption"
-                >
-                  <Heart className="mr-2 h-5 w-5" />
-                  Begin Your Corruption
-                </Button>
-              </Link>
-
-              <Link href="/corruption2">
-                <Button
-                  className="w-full h-12 rounded-2xl text-lg font-semibold border border-pink-300/30 bg-black/30 hover:bg-black/40 outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/50"
-                  aria-label="Enter Hypnosis v2"
-                >
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Enter Hypnosis (v2)
-                </Button>
-              </Link>
-
-              {/* Rebrand route */}
-              <Link href="/rebrand" className="sm:col-span-2">
-                <Button
-                  className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-500/20 hover:bg-pink-500/30 border border-pink-300/30 relative outline-none focus-visible:ring-2 focus-visible:ring-pink-400/50"
-                  aria-label="Rebrand Your X Profile"
-                >
-                  <Wand2 className="mr-2 h-5 w-5" />
-                  Rebrand Your X Profile
-                  <span className="absolute -top-2 -right-2 rounded-full bg-fuchsia-500 text-white text-[10px] px-2 py-0.5 shadow-md">
-                    NEW
-                  </span>
-                </Button>
-              </Link>
-
-              {/* THE 25TH highlight */}
-              <Link href="/the25" className="sm:col-span-2">
-                <Button
-                  className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-600/30 hover:bg-pink-600/40 border border-pink-300/40 shadow-md shadow-pink-500/40 relative outline-none focus-visible:ring-2 focus-visible:ring-pink-300/70"
-                  aria-label="Open THE 25TH Program"
-                >
-                  <Gift className="mr-2 h-5 w-5" />
-                  THE 25TH — Advent Program
-                  <span className="ml-2 rounded-full bg-black/40 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em]">
-                    25-Day EXE
-                  </span>
-                </Button>
-              </Link>
-
-              <Link href="/programs" className="sm:col-span-2">
-                <Button className="w-full h-12 rounded-2xl text-lg font-semibold bg-pink-400/20 hover:bg-pink-400/30 border border-pink-300/30 outline-none focus-visible:ring-2 focus-visible:ring-pink-300/50">
-                  Explore Programs
-                </Button>
-              </Link>
-            </div>
-
-            {/* Social / External */}
-            <div className="mt-8">
-              <p className="mb-3 text-center text-sm tracking-wide text-pink-200/80">
-                Connect, support, and worship:
-              </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <a
-                  href="https://x.com/PrincessAzraiel"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Open X (Twitter)"
-                >
-                  <Button variant="secondary" className={socialBtn}>
-                    <Send className="mr-2 h-5 w-5 opacity-90" />
-                    X (Twitter)
-                  </Button>
-                </a>
-
-                <a
-                  href="https://bsky.app/profile/princess-azraiel.bsky.social"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Open Bluesky"
-                >
-                  <Button variant="secondary" className={socialBtn}>
-                    <Bird className="mr-2 h-5 w-5 opacity-90" />
-                    Bluesky
-                  </Button>
-                </a>
-
-                <a
-                  href="https://throne.com/princessazraiel"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Send a Gift on Throne"
-                >
-                  <Button variant="secondary" className={socialBtn}>
-                    <Gift className="mr-2 h-5 w-5 opacity-90" />
-                    Send a Gift (Throne)
-                  </Button>
-                </a>
-
-                <a
-                  href="https://ko-fi.com/azraielo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Buy Me a Coffee on Ko-fi"
-                >
-                  <Button variant="secondary" className={socialBtn}>
-                    <Coffee className="mr-2 h-5 w-5 opacity-90" />
-                    Buy Me a Coffee
-                  </Button>
-                </a>
-
-                <a
-                  href="https://discord.gg/e3uzBK2VJS"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="sm:col-span-2"
-                  aria-label="Join the Discord"
-                >
-                  <Button className="w-full h-11 rounded-2xl justify-center bg-indigo-500/30 hover:bg-indigo-500/40 border border-indigo-300/30 text-pink-100 hover:text-pink-50 outline-none focus-visible:ring-2 focus-visible:ring-indigo-300/50">
-                    <Users className="mr-2 h-5 w-5 opacity-90" />
-                    Join the Discord
-                  </Button>
-                </a>
-              </div>
-            </div>
-
-            {/* Tiny footnote */}
-            <p className="mt-8 text-center text-xs text-pink-200/70">
-              Consent is sacred. Take breaks, hydrate, and enjoy responsibly. ♡
-            </p>
-          </div>
-        </section>
-      </main>
-
-      {/* Local styles for shimmer + hearts */}
-      <style>{`
-        @keyframes shine {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        .scanlines {
+          background: linear-gradient(to bottom, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%);
+          background-size: 100% 4px;
+          position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: 0.15;
         }
-        .heart {
-          position: absolute;
-          filter: drop-shadow(0 6px 18px rgba(255, 105, 235, 0.35));
-          opacity: 0.9;
-          user-select: none;
-          pointer-events: none;
-          animation: floatUp linear infinite, sway ease-in-out infinite;
-          will-change: transform, opacity;
-        }
+        
         @keyframes floatUp {
-          0% { transform: translateY(0) scale(1); opacity: .0; }
-          10% { opacity: .9; }
-          100% { transform: translateY(-110vh) scale(1.05); opacity: 0; }
+          0% { transform: translateY(0) scale(0.8); opacity: 0; }
+          20% { opacity: 0.6; }
+          100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
         }
-        @keyframes sway {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(12px); }
-        }
-        /* Respect reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-          .heart { animation: none !important; }
-        }
+        
+        .animate-float { animation: floatUp linear infinite; }
       `}</style>
+
+      {/* --- ATMOSPHERE --- */}
+      <div className="scanlines" />
+      <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-10 brightness-150 contrast-150" />
+      
+      {/* Deep Glows */}
+      <div className="fixed top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-fuchsia-900/10 blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-pink-900/10 blur-[100px] pointer-events-none" />
+
+      {/* Floating Elements */}
+      <FloatingHearts />
+
+      {/* --- CONTENT --- */}
+      <main className="relative z-20 min-h-screen flex flex-col items-center justify-center px-6 py-12 md:py-20">
+        
+        <div className="w-full max-w-2xl mx-auto space-y-12">
+          
+          {/* HEADER */}
+          <header className="text-center space-y-6 relative">
+            <div className="inline-flex items-center gap-3 border border-pink-500/30 bg-pink-500/5 px-4 py-1.5 backdrop-blur-md">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
+              </span>
+              <span className="font-syncopate text-[9px] uppercase tracking-[0.25em] text-pink-200">
+                System Online
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="font-italiana text-5xl md:text-7xl lg:text-8xl leading-[0.85] text-transparent bg-clip-text bg-gradient-to-b from-white via-pink-100 to-pink-900/50 drop-shadow-[0_0_30px_rgba(255,100,200,0.2)]">
+                Princess <br/> Azraiel
+              </h1>
+              <p className="font-syncopate text-[10px] md:text-xs uppercase tracking-[0.4em] text-pink-500/80 font-bold">
+                Corruption Hub // Version 4.0
+              </p>
+            </div>
+
+            <p className="font-manrope text-white/60 text-sm md:text-base italic max-w-md mx-auto leading-relaxed border-t border-b border-white/5 py-4">
+              "Submit. Suffer. Smile. Your digital devotion is required."
+            </p>
+          </header>
+
+          {/* MAIN LINKS - "COMMAND STRIPS" */}
+          <nav className="grid gap-4 w-full">
+            
+            
+            {/* Primary Action */}
+            <LinkCard 
+              href="/corruption" 
+              label="Initiate Corruption" 
+              sub="The Standard Protocol"
+              icon={<Heart className="w-5 h-5" />}
+              variant="primary"
+            />
+
+            {/* Special Feature */}
+            <LinkCard 
+              href="/corruption2" 
+              label="Enter Hypnosis V2" 
+              sub="Deep Trance State"
+              icon={<Sparkles className="w-5 h-5" />}
+              variant="default"
+            />
+
+            {/* New Feature */}
+            <LinkCard 
+              href="/rebrand" 
+              label="Rebrand Your Profile" 
+              sub="Identity Overwrite"
+              icon={<Wand2 className="w-5 h-5" />}
+              tag="NEW"
+              variant="glow"
+            />
+
+            {/* Event */}
+            <LinkCard 
+              href="/the25" 
+              label="The 25th" 
+              sub="Advent Program · 25 Day EXE"
+              icon={<Gift className="w-5 h-5" />}
+              variant="default"
+            />
+
+            {/* General */}
+            <LinkCard 
+              href="/programs" 
+              label="Browse All Programs" 
+              sub="Full Archive Access"
+              icon={<ArrowRight className="w-5 h-5" />}
+              variant="ghost"
+            />
+
+          </nav>
+
+          {/* SOCIAL ARRAY */}
+          <footer className="space-y-6 pt-8 border-t border-white/10">
+            <p className="text-center font-syncopate text-[9px] uppercase tracking-[0.2em] text-white/30">
+              External Communication Channels
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-3">
+              <SocialBtn href="https://x.com/PrincessAzraiel" label="Twitter / X" icon={<Send className="w-4 h-4" />} />
+              <SocialBtn href="https://bsky.app/profile/princess-azraiel.bsky.social" label="Bluesky" icon={<Bird className="w-4 h-4" />} />
+              <SocialBtn href="https://discord.gg/e3uzBK2VJS" label="Discord" icon={<Users className="w-4 h-4" />} />
+              <SocialBtn href="https://throne.com/princessazraiel" label="Tribute" icon={<Gift className="w-4 h-4" />} />
+              <SocialBtn href="https://ko-fi.com/azraielo" label="Coffee" icon={<Coffee className="w-4 h-4" />} />
+            </div>
+
+            <p className="text-center font-manrope text-xs text-white/20 mt-12">
+              Consent is sacred. Optimize your obedience responsibly.
+            </p>
+          </footer>
+
+        </div>
+      </main>
     </div>
   );
 }
 
-/** Lightweight floating hearts (client-only randomness to avoid SSR mismatch) */
-function Hearts() {
-  const [hearts, setHearts] = useState<
-    Array<{ left: number; delay: number; duration: number; size: number; hueRotate: string; i: number }>
-  >([]);
+// --- SUBCOMPONENTS ---
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const count = window.innerWidth >= 1280 ? 18 : window.innerWidth >= 768 ? 16 : 12;
-
-    const arr = Array.from({ length: count }).map((_, i) => {
-      const left = Math.random() * 100; // vw
-      const delay = Math.random() * 6; // s
-      const duration = 12 + Math.random() * 10; // s
-      const size = 16 + Math.random() * 18; // px
-      const hueRotate = `hue-rotate(${Math.floor(Math.random() * 24) - 12}deg)`;
-      return { left, delay, duration, size, hueRotate, i };
-    });
-    setHearts(arr);
-  }, []);
-
-  if (!hearts.length) return null;
+function LinkCard({ 
+  href, 
+  label, 
+  sub, 
+  icon, 
+  tag,
+  variant = "default" 
+}: { 
+  href: string; 
+  label: string; 
+  sub?: string; 
+  icon: React.ReactNode; 
+  tag?: string;
+  variant?: "primary" | "default" | "glow" | "ghost"
+}) {
+  
+  const baseStyles = "group relative w-full flex items-center justify-between p-5 md:p-6 transition-all duration-500 border overflow-hidden";
+  
+  const variants = {
+    primary: "bg-pink-950/20 border-pink-500/30 hover:bg-pink-900/30 hover:border-pink-500 hover:shadow-[0_0_30px_rgba(236,72,153,0.3)]",
+    default: "bg-white/5 border-white/10 hover:bg-white/10 hover:border-pink-300/30",
+    glow: "bg-black border-white/20 hover:border-fuchsia-400 shadow-[0_0_15px_rgba(192,38,211,0.1)] hover:shadow-[0_0_25px_rgba(192,38,211,0.4)]",
+    ghost: "bg-transparent border-transparent hover:bg-white/5 border-b-white/10"
+  };
 
   return (
-    <div aria-hidden className="absolute inset-0">
-      {hearts.map(({ left, delay, duration, size, hueRotate, i }) => (
+    <Link href={href} className="block w-full">
+      <div className={`${baseStyles} ${variants[variant]}`}>
+        {/* Hover Highlight Line */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-pink-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+        
+        <div className="flex items-center gap-4 md:gap-6 z-10">
+          <div className={`p-3 rounded-sm ${variant === 'primary' ? 'bg-pink-500 text-black' : 'bg-white/5 text-pink-200 group-hover:text-white group-hover:bg-pink-500 group-hover:text-black'} transition-colors duration-300`}>
+            {icon}
+          </div>
+          <div className="text-left">
+            <h3 className="font-italiana text-2xl md:text-3xl leading-none mb-1 group-hover:text-pink-100 transition-colors">
+              {label}
+            </h3>
+            {sub && (
+              <p className="font-manrope text-xs text-white/40 uppercase tracking-wider group-hover:text-pink-300 transition-colors">
+                {sub}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 z-10">
+          {tag && (
+            <span className="font-syncopate text-[9px] font-bold bg-fuchsia-600 text-white px-2 py-1 uppercase tracking-wider animate-pulse">
+              {tag}
+            </span>
+          )}
+          <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-pink-400 transform group-hover:translate-x-1 transition-all duration-300" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function SocialBtn({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) {
+  return (
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="group flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/5 hover:border-pink-500/50 hover:bg-pink-500/10 transition-all duration-300"
+      aria-label={label}
+    >
+      <span className="text-white/60 group-hover:text-pink-400 transition-colors">{icon}</span>
+      <span className="hidden sm:inline font-manrope text-xs text-white/60 group-hover:text-white uppercase tracking-wider transition-colors">
+        {label}
+      </span>
+    </a>
+  );
+}
+
+// --- VISUAL EFFECTS ---
+
+function FloatingHearts() {
+  const [hearts, setHearts] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Reduce motion check
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // Generate hearts on client side
+    const count = 12;
+    const newHearts = Array.from({ length: count }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      duration: 15 + Math.random() * 20,
+      delay: Math.random() * 10,
+      size: 10 + Math.random() * 20,
+      opacity: 0.1 + Math.random() * 0.3
+    }));
+    setHearts(newHearts);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {hearts.map((h) => (
         <div
-          key={i}
-          className="heart"
+          key={h.id}
+          className="animate-float absolute bottom-[-10%]"
           style={{
-            left: `${left}vw`,
-            bottom: "-6vh",
-            animationDuration: `${duration}s, ${6 + (i % 5)}s`,
-            animationDelay: `${delay}s, ${delay / 2}s`,
-            filter: `drop-shadow(0 6px 18px rgba(255,105,235,0.35)) ${hueRotate}`,
+            left: `${h.left}%`,
+            width: `${h.size}px`,
+            height: `${h.size}px`,
+            opacity: h.opacity,
+            animationDuration: `${h.duration}s`,
+            animationDelay: `${h.delay}s`,
           }}
         >
-          <svg
-            width={size}
-            height={size}
-            viewBox="0 0 24 24"
-            className="opacity-80"
-            fill="url(#g)"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#ff7ad6" />
-                <stop offset="100%" stopColor="#ffd1ef" />
-              </linearGradient>
-            </defs>
-            <path d="M12 21s-6.716-4.494-9.293-7.07a6.571 6.571 0 0 1 9.293-9.293 6.571 6.571 0 0 1 9.293 9.293C18.716 16.506 12 21 12 21z" />
+          <svg viewBox="0 0 24 24" fill="currentColor" className="text-pink-500 w-full h-full drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         </div>
       ))}
