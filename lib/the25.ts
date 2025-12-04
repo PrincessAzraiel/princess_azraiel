@@ -202,7 +202,7 @@ export const THE25_READMES: The25Readme[] = [
         bullets: [
           "Hearts spawn from the top and fall at increasing speeds.",
           "Catching the right ones boosts score; the wrong ones reset streaks or cost lives.",
-          "After a short session you’ll see an ending message / summary from Her."
+          "the game ends when you decide to stop it, nothing really special about this one"
         ]
       },
       {
@@ -273,7 +273,7 @@ export const THE25_READMES: The25Readme[] = [
         heading: "What this day is",
         bullets: [
           "A sliding-tile puzzle hiding a small image or phrase from Her.",
-          "You rearrange tiles until the picture/message is correct.",
+          "You rearrange tiles until the picture is correct.",
           "When solved, the final reveal + message appears."
         ]
       },
@@ -290,7 +290,7 @@ export const THE25_READMES: The25Readme[] = [
         bullets: [
           "Left click — slide tile into the empty spot.",
           "ESC / close window — exit any time (you can always reopen later).",
-          "Some builds may also support arrow-key controls for accessibility."
+          // "Some builds may also support arrow-key controls for accessibility. "
         ]
       },
       {
