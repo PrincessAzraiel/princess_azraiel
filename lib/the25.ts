@@ -281,7 +281,7 @@ export const THE25_READMES: The25Readme[] = [
         heading: "How it works",
         bullets: [
           "One tile space is empty; click tiles adjacent to the empty spot to slide them.",
-          "The goal layout is shown briefly at the start or hinted through a guide.",
+          // "The goal layout is shown briefly at the start or hinted through a guide.",
           "Finishing triggers a short ending screen — then you can close the app."
         ]
       },
