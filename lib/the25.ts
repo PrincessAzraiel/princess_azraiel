@@ -329,7 +329,7 @@ export const THE25_READMES: The25Readme[] = [
         heading: "Controls",
         bullets: [
           "Left click — press the glowing pads in the correct order.",
-          "Optional number keys may mirror the pads (if enabled).",
+          // "Optional number keys may mirror the pads (if enabled).",
           "ESC / close window — exit instantly."
         ]
       },

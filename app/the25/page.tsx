@@ -11,9 +11,7 @@ const BUY_URL = "https://throne.com/princessazraiel/item/8cf2273f-baf4-4d04-838b
 
 export default function The25Page() {
   const now = new Date();
-  const month = now.getMonth(); // 0=Jan ... 11=Dec
-  const dayOfMonth = now.getDate();
-  const isDecember = month === 11;
+  const currentYear = now.getFullYear();
 
   return (
     <main className="min-h-screen bg-black text-zinc-50 px-4 py-12">
@@ -66,7 +64,9 @@ export default function The25Page() {
         {/* Advent Cards */}
         <section className="grid gap-4 md:grid-cols-2">
           {THE25_DAYS.map((day) => {
-            const unlocked = isDecember && dayOfMonth >= day.day;
+            // Unlocks once the December day is reached; stays unlocked afterward
+            const unlockDate = new Date(currentYear, 11, day.day); // month is 0-indexed
+            const unlocked = now >= unlockDate;
 
             return (
               <article
