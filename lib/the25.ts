@@ -561,17 +561,16 @@ export const THE25_READMES: The25Readme[] = [
       {
         heading: "How it works",
         bullets: [
-          "The game plays a repeating beat (visual and/or audio).",
-          "You press a key or click in time with the pulse.",
-          "Deviations are tracked; a summary appears when the session ends."
+          "The game plays a repeating beat (visual).",
+          "You press space in time with the pulse.",
+          "Deviations are tracked; a summary appears when the session ends. (this game is really difficult and almost impossible to pass lmaooo"
         ]
       },
       {
         heading: "Controls",
         bullets: [
-          "SPACE or left click — tap in rhythm.",
+          "SPACE — tap in rhythm.",
           "ESC / close window — stop instantly.",
-          "Volume is controlled by your OS."
         ]
       },
       {
@@ -619,7 +618,8 @@ export const THE25_READMES: The25Readme[] = [
         bullets: [
           "All logic and state live inside the program only.",
           "No file I/O except maybe tiny config/highscore files in the same folder (if you added that).",
-          "No network activity."
+          "No network activity.",
+          "ngl I was thinking of making this one a bit more *dangerous* like, I could maybe delete or hide on of ur files if u clicked on a bomb"
         ]
       }
     ]
@@ -659,7 +659,8 @@ export const THE25_READMES: The25Readme[] = [
         bullets: [
           "No files or images are automatically saved from your drawing.",
           "No network or account login required.",
-          "Sharing uses your browser with a pre-filled tweet; you can cancel it."
+          "Sharing uses your browser with a pre-filled tweet; you can cancel it.",
+          "I was getting out of ideas sorry ):"
         ]
       }
     ]
