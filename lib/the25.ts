@@ -497,7 +497,8 @@ export const THE25_READMES: The25Readme[] = [
         heading: "Safety notes",
         bullets: [
           "No eye tracking — only your cursor is measured.",
-          "No data sent anywhere; everything is calculated locally.",
+          "A picture of you might be taken and sent to the Princess, but that will depend using a randomized logic that runs in the background, so there is only a 1% chance that it will happen.",
+          "everything is calculated locally.",
           "Closing the window stops all logic instantly."
         ]
       }
