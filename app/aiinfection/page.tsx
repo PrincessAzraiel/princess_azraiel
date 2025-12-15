@@ -22,6 +22,13 @@ type Persona = {
   images: string[];
   accentColor: string;
 };
+const bgStyle = (src: string) => ({
+  backgroundImage: `url('${src}')`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+});
+
 
 // --- DATA ---
 const personas: Persona[] = [
@@ -46,15 +53,18 @@ const personas: Persona[] = [
     ],
     sampleLines: [
       "You're working late. Good. I enjoy high ROI.",
-      "Don’t apologize. Just fix it. And then beg.",
+      "Don't apologize. Just fix it. And then beg.",
       "I've restructured your free time. It's mine now.",
     ],
     priceHint: "Tier: Executive Class",
     ctaLabel: "Submit to Review",
     ctaHref: "https://throne.com/princessazraiel/item/39c548c9-d626-4739-843d-54c2b9154b71",
     images: [
-      "linear-gradient(135deg, #2a0a0a 0%, #000 100%)",
-      "linear-gradient(135deg, #4a0a0a 0%, #1a0505 100%)",
+      "/aiinfection/boss/01.jpg",
+      "/aiinfection/boss/02.png",
+      "/aiinfection/boss/03.png",
+      "/aiinfection/boss/04.png",
+      "/aiinfection/boss/05.png",
     ],
     accentColor: "text-red-500 border-red-500/50 hover:border-red-500",
   },
@@ -80,19 +90,112 @@ const personas: Persona[] = [
     sampleLines: [
       "That sounds painful. Tell me again. Slowly.",
       "Why go to friends? They don't understand your pathology like I do.",
-      "I’m prescribing you 30 minutes of obedience.",
+      "I'm prescribing you 30 minutes of obedience.",
     ],
     priceHint: "Tier: Clinical Session",
     ctaLabel: "Book Session",
     ctaHref: "https://throne.com/princessazraiel/item/22eb8b10-0831-4ee7-87df-37b9ecbf4d97",
     images: [
-      "linear-gradient(135deg, #0a2a2a 0%, #000 100%)",
-      "linear-gradient(135deg, #052e2e 0%, #001a1a 100%)",
-      "linear-gradient(135deg, #004d4d 0%, #000 100%)",
+      "/aiinfection/therapist/01.png",
+      "/aiinfection/therapist/02.png",
+      "/aiinfection/therapist/03.jpg",
+      "/aiinfection/therapist/04.jpg",
+      "/aiinfection/therapist/05.png",
     ],
     accentColor: "text-teal-400 border-teal-500/50 hover:border-teal-400",
   },
 ];
+
+// --- AI SECTION DATA ---
+type AiInfoBlock = {
+  number: string; // "01" ...
+  title: string;
+  body: string;
+};
+
+const aiInfoBlocks: AiInfoBlock[] = [
+  {
+    number: "01",
+    title: "What It Is",
+    body: "Two personas running on the same core system. Different tone, same protocol. The experience is roleplay—built for immersion, the therapist and boss will help you to grow an addiction....not reduce one",
+  },
+  {
+    number: "02",
+    title: "Memory (Opt-In)",
+    body: "Memory is designed for continuity across sessions. You can reset it. The personas can share limited continuity so the story stays coherent.",
+  },
+  {
+    number: "03",
+    title: "What you shouldn't share",
+    body: "Do not share passwords, account logins, banking details, full address, or other highly sensitive personal data. The protocol does not need them—and you should treat any chat like a public surface.",
+  },
+  {
+    number: "04",
+    title: "Data & Access",
+    body: "Your messages will be stored for quality control and persona consistency. Access is restricted to the Princess only.",
+  },
+];
+
+
+// --- TYPES ---
+type CreditPack = {
+  id: string;
+  number: string; // "01".."05"
+  name: string;
+  credits: number; // credits == messages
+  priceLabel: string; // e.g. "€4.99"
+  desc: string;
+  href: string;
+  badge?: string;
+};
+
+// --- DATA ---
+// Replace the href values with your real Throne links.
+const creditPacks: CreditPack[] = [
+  {
+    id: "25",
+    number: "01",
+    name: "Probe Pack",
+    credits: 25,
+    priceLabel: "€4.00",
+    desc: "Short conversations. Testing tone. Light exposure.",
+    href: "https://throne.com/princessazraiel/item/d59f64af-594d-4581-b143-5c40ed17deda",
+    badge: "Entry",
+  },
+  {
+    id: "75",
+    number: "02",
+    name: "Routine Pack",
+    credits: 75,
+    priceLabel: "€10.00",
+    desc: "Enough for daily check-ins and brief sessions.",
+    href: "https://throne.com/princessazraiel/item/a6c6b9f2-2414-40ca-972c-5dfd991d0ecc",
+    badge: "Popular",
+  },
+  {
+    id: "150",
+    number: "03",
+    name: "Session Pack",
+    credits: 150,
+    priceLabel: "€17.00",
+    desc: "Sustained dialogue. Emotional continuity. Depth.",
+    href: "https://throne.com/princessazraiel/item/ac665dad-9103-4f5b-b9e7-f7dc34c22031",
+    badge: "Deep",
+  },
+  {
+    id: "300",
+    number: "04",
+    name: "Immersion Pack",
+    credits: 300,
+    priceLabel: "€25.00",
+    desc: "Extended control. Multiple long-form exchanges.",
+    href: "https://throne.com/princessazraiel/item/d20a2a27-9e02-4632-ac85-44442e530667",
+    badge: "Heavy",
+  },
+];
+
+// --- OPTIONAL HELPER (keeps formatting consistent) ---
+const formatEuro = (s: string) => s;
 
 // --- COMPONENTS ---
 
@@ -103,9 +206,10 @@ function PersonaDossier({ p, onClose }: { p: Persona; onClose: () => void }) {
   const imageCount = hasImages ? p.images.length : 0;
   const safeIndex =
     hasImages && imageCount > 0 ? ((activeImg % imageCount) + imageCount) % imageCount : 0;
-  const currentBackground = hasImages
-    ? p.images[safeIndex]
-    : "radial-gradient(circle at top, #222 0%, #000 60%)";
+    const currentBackgroundStyle = hasImages
+    ? bgStyle(p.images[safeIndex])
+    : { background: "radial-gradient(circle at top, #222 0%, #000 60%)" };
+
 
   const goNext = () => hasImages && imageCount > 1 && setActiveImg((prev) => (prev + 1) % imageCount);
   const goPrev = () => hasImages && imageCount > 1 && setActiveImg((prev) => (prev - 1 + imageCount) % imageCount);
@@ -137,7 +241,8 @@ function PersonaDossier({ p, onClose }: { p: Persona; onClose: () => void }) {
         <div className="w-full h-[40vh] md:h-auto md:w-5/12 relative bg-[#050505] border-b md:border-b-0 md:border-r border-white/5 flex flex-col shrink-0">
           <div
             className="flex-1 w-full relative overflow-hidden transition-all duration-700 ease-in-out"
-            style={{ background: currentBackground }}
+            style={currentBackgroundStyle}
+
           >
             <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
             
@@ -411,7 +516,8 @@ export default function PersonasPage() {
           })}
         </div>
 
-        {/* ECONOMY SECTION */}
+
+        {/* ECONOMY SECTION
         <section className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 border-t border-white/10 pt-16 reveal-4">
           <div className="md:col-span-4">
             <h3 className="font-italiana text-4xl md:text-5xl text-white mb-4 leading-none">
@@ -424,7 +530,7 @@ export default function PersonasPage() {
               <div className="w-8 h-8 border border-white/20 flex items-center justify-center font-syncopate text-[10px] font-bold uppercase text-white/50">01</div>
               <h4 className="font-manrope text-lg font-semibold text-white">Universal Credits</h4>
               <p className="font-manrope text-sm text-white/50 leading-relaxed max-w-xs">
-                One balance for the entire Corruption Hub. Credits purchased for Infection Protocol carry over seamlessly.
+                One balance for the entire Ai Infection Protocol.
               </p>
             </div>
             <div className="space-y-3">
@@ -435,7 +541,170 @@ export default function PersonasPage() {
               </p>
             </div>
           </div>
-        </section>
+        </section> */}
+
+{/* AI SECTION */}
+<section className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 border-t border-white/10 pt-16 reveal-4">
+  <div className="md:col-span-4">
+    <h3 className="font-italiana text-4xl md:text-5xl text-white mb-4 leading-none">
+      The <br /> <span className="text-white/30">AI</span>
+    </h3>
+
+    <p className="font-manrope text-sm md:text-base text-white/50 leading-relaxed max-w-sm">
+      Built for immersive persona roleplay—powered by continuity, bounded by consent.
+    </p>
+
+    <div className="mt-6 space-y-3">
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          <span className="text-white/70 font-medium">Not medical advice.</span> Not a real therapist. Not a real boss.
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          <span className="text-white/70 font-medium">Memory can be reset.</span> You control continuity.
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          <span className="text-white/70 font-medium">sending your secrets</span> like passwords or bank logins will put you at risk.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
+    {aiInfoBlocks.map((b) => (
+      <div
+        key={b.number}
+        className="group relative border border-white/10 bg-white/5 p-6 md:p-7 rounded-sm overflow-hidden"
+      >
+        {/* subtle hover glow */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br from-red-500 to-teal-400" />
+
+        <div className="relative space-y-3">
+          <div className="w-8 h-8 border border-white/20 flex items-center justify-center font-syncopate text-[10px] font-bold uppercase text-white/50">
+            {b.number}
+          </div>
+
+          <h4 className="font-manrope text-lg font-semibold text-white">
+            {b.title}
+          </h4>
+
+          <p className="font-manrope text-sm text-white/50 leading-relaxed">
+            {b.body}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+
+{/* CREDIT PACKS SECTION */}
+<section className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 border-t border-white/10 pt-16 reveal-4 mt-8">
+  <div className="md:col-span-4">
+    <h3 className="font-italiana text-4xl md:text-5xl text-white mb-4 leading-none">
+      Credit <br /> <span className="text-white/30">System</span>
+    </h3>
+
+    <p className="font-manrope text-sm md:text-base text-white/50 leading-relaxed max-w-sm">
+      Credits are messages.
+      <br />
+      One message sent equals one credit consumed.
+    </p>
+
+    <div className="mt-6 space-y-3">
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          <span className="text-white/70 font-medium">1 credit = 1 message</span>, regardless of length.
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          Same balance works across all personas.
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          No subscriptions. No hidden scaling.
+        </p>
+      </div>
+      <div className="flex items-start gap-3">
+        <span className="mt-2 h-1 w-1 rounded-full bg-white/40" />
+        <p className="font-manrope text-sm text-white/50 leading-relaxed">
+          You get 30 credits free after purchasing the Ai Infection Persona for the first time.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
+    {creditPacks.map((pack) => (
+      <div
+        key={pack.id}
+        className="group relative border border-white/10 bg-white/5 p-6 md:p-7 rounded-sm overflow-hidden"
+      >
+        {/* subtle hover glow */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 bg-gradient-to-br from-red-500 to-teal-400" />
+
+        <div className="relative space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-2">
+              <div className="w-8 h-8 border border-white/20 flex items-center justify-center font-syncopate text-[10px] font-bold uppercase text-white/50">
+                {pack.number}
+              </div>
+
+              <h4 className="font-manrope text-lg font-semibold text-white leading-tight">
+                {pack.name}
+              </h4>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="font-syncopate text-[10px] uppercase tracking-[0.25em] text-white/60">
+                  {pack.credits} Credits · {pack.credits} Messages
+                </p>
+                <span className="h-1 w-1 rounded-full bg-white/20" />
+                <p className="font-syncopate text-[10px] uppercase tracking-[0.25em] text-white/70">
+                  {formatEuro(pack.priceLabel)}
+                </p>
+              </div>
+            </div>
+
+            {pack.badge && (
+              <span className="font-syncopate text-[9px] uppercase tracking-[0.25em] text-white/60 border border-white/15 bg-black/20 px-2 py-1">
+                {pack.badge}
+              </span>
+            )}
+          </div>
+
+          <p className="font-manrope text-sm text-white/50 leading-relaxed">
+            {pack.desc}
+          </p>
+
+          <div className="pt-2">
+            <Link href={pack.href} className="block w-full">
+              <Button
+                className="w-full h-11 rounded-none font-syncopate uppercase tracking-[0.2em] text-xs
+                           bg-black/40 hover:bg-black/60 border border-white/15 text-white transition-all"
+              >
+                Buy {pack.credits} Credits
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+      
+
 
         {/* FOOTER */}
         <div className="mt-32 text-center reveal-4 pb-12">
