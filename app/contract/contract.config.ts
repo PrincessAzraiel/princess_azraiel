@@ -18,8 +18,8 @@ I acknowledge that failure to provide the agreed-upon tribute may result in cons
 
 export const SURVEILANCE_TEXT = `
 I, {{name}}, consent to being recorded by {{title}} through the camera that I will set up in my room for her. I understand that these recordings may include video, audio, and photographic content.
-I acknowledge that the purpose of these recordings is for {{title}}'s personal use and enjoyment. I understand that {{title}} may choose to share these recordings with others at her discretion, she will let me know before sharing, or sharing them could be because of consequences.
-I am aware that I can withdraw my consent for recording at any time by informing {{title}}. Upon withdrawal of consent, I understand that {{title}} will erase all the recordings immediately.
+I acknowledge that the purpose of these recordings is for {{title}}'s personal use and enjoyment. I understand that {{title}} may choose to share these recordings with others at her discretion, she will let me know before sharing them. 
+I am aware that I can withdraw my consent for the recordings at any time by informing {{title}}. Upon withdrawal of consent, I understand that {{title}} will erase all the recordings immediately.
 `;
 
 export const FINAL_CONFIRMATION = `
