@@ -1,373 +1,377 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Send, Sparkles } from "lucide-react";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { ArrowLeft, Sparkles, Heart, Lock, Eye } from "lucide-react";
+import { JSX } from "react/jsx-runtime";
 
-const STORAGE_KEY = "azraiel_send_total_usd_v1";
+// --- CONFIG ---
+const STORAGE_KEY = "azraiel_total_tribute_v3";
 const INCREMENT = 8;
 
-function formatUSD(n: number) {
-  return `$${n.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-}
+// The duality of a Yandere: Sweet vs. Obsessive
+const SWEET_PHRASES = ["Good Pet", "My Toy", "So Sweet", "Good Boy", "Good Girl", "More~", "Hehe <3", "Perfect"];
+const YANDERE_PHRASES = ["MINE", "FOREVER", "NO ESCAPE", "ONLY ME", "DON'T LEAVE", "I SEE YOU", "LOCKED IN", "OBEY"];
 
-export default function SendPage() {
-  const reduceMotion = useReducedMotion();
+// --- UTILS ---
+const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+const pickRandom = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
 
-  const [total, setTotal] = useState<number>(0);
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastId, setToastId] = useState(0);
+export default function YandereSendPage() {
+  const [balance, setBalance] = useState(0);
+  const [clicks, setClicks] = useState<number>(0);
+  
+  // Visual State
+  const controls = useAnimation(); 
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number; content: React.ReactNode; scale: number; type: 'money' | 'text' | 'heart' }[]>([]);
 
-  // tiny burst particles
-  const [bursts, setBursts] = useState<
-    { id: number; x: number; y: number; dx: number; dy: number; s: number; r: number }[]
-  >([]);
-
+  // Load Balance
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const parsed = raw ? Number(raw) : 0;
-      if (!Number.isNaN(parsed) && parsed >= 0) setTotal(parsed);
-    } catch {
-      // ignore
-    }
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) setBalance(parseInt(stored));
   }, []);
 
+  // Save Balance
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, String(total));
-    } catch {
-      // ignore
+    localStorage.setItem(STORAGE_KEY, balance.toString());
+  }, [balance]);
+
+  // --- THE OBSESSION TRIGGER ---
+  const handleSend = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    
+    // 1. Update Stats
+    setBalance((prev) => prev + INCREMENT);
+    setClicks((prev) => prev + 1);
+    
+    // 10% chance to trigger "Yandere Mode" (screen shake + scary text)
+    const isPsychotic = Math.random() < 0.15; 
+    const isCrit = (clicks + 1) % 10 === 0;
+
+    // 2. Haptic Feedback
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(isPsychotic ? [50, 50, 50] : 10);
     }
-  }, [total]);
 
-  const nextTotal = useMemo(() => total + INCREMENT, [total]);
-
-  function triggerBurst() {
-    if (reduceMotion) return;
-
-    const idBase = Date.now();
-    const count = 18;
-    const next = Array.from({ length: count }).map((_, i) => {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 40 + Math.random() * 90;
-      return {
-        id: idBase + i,
-        x: 50 + (Math.random() * 8 - 4),
-        y: 58 + (Math.random() * 8 - 4),
-        dx: Math.cos(angle) * speed,
-        dy: Math.sin(angle) * speed - 40,
-        s: 2 + Math.random() * 3.5,
-        r: Math.random() * 360,
-      };
+    // 3. Screen Shake (More violent if psychotic)
+    controls.start({
+      x: isPsychotic ? [-5, 5, -5, 5, 0] : [0, -2, 2, 0],
+      y: isPsychotic ? [-5, 5, -5, 5, 0] : [0, -1, 1, 0],
+      transition: { duration: isPsychotic ? 0.4 : 0.2 }
     });
-    setBursts(next);
 
-    // clear after animation
-    window.setTimeout(() => setBursts([]), 900);
-  }
+    // 4. Spawn Particles
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
 
-  function onSend() {
-    setTotal((t) => t + INCREMENT);
+    const newParticles: { id: number; x: number; y: number; content: string | JSX.Element; scale: number; type: "text" | "money" | "heart"; }[] = [];
 
-    setToastId((x) => x + 1);
-    setToastOpen(true);
-    triggerBurst();
+    // Particle 1: The Money (Always appears)
+    newParticles.push({ 
+      id: id, 
+      x, 
+      y, 
+      content: `+$${INCREMENT}`, 
+      scale: 1, 
+      type: 'money' as const 
+    });
 
-    window.setTimeout(() => setToastOpen(false), reduceMotion ? 900 : 1400);
-  }
+    // Particle 2: The Affirmation (Sweet or Scary)
+    const phrase = isPsychotic ? pickRandom(YANDERE_PHRASES) : pickRandom(SWEET_PHRASES);
+    newParticles.push({ 
+      id: id + 1, 
+      x: x + randomInt(-30, 30), 
+      y: y + randomInt(-20, 20), 
+      content: phrase, 
+      scale: isPsychotic ? 1.5 : 0.9, 
+      type: 'text' as const 
+    });
 
-  function onReset() {
-    setTotal(0);
-    try {
-      localStorage.setItem(STORAGE_KEY, "0");
-    } catch {
-      // ignore
-    }
-  }
+    // Particle 3: Floating Hearts
+    newParticles.push({
+      id: id + 2,
+      x: x + randomInt(-40, 40),
+      y: y,
+      content: <Heart className={`w-full h-full ${isPsychotic ? 'fill-red-600 text-red-600' : 'fill-pink-400 text-pink-400'}`} />,
+      scale: randomInt(15, 25) / 10, // Using scale for size logic in render
+      type: 'heart' as const
+    });
+
+    setParticles((prev) => [...prev, ...newParticles]);
+
+    // Cleanup
+    setTimeout(() => {
+      setParticles((prev) => prev.filter((p) => p.id !== id && p.id !== id + 1 && p.id !== id + 2));
+    }, 1200);
+  };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[#050505] text-pink-50 selection:bg-pink-500 selection:text-black">
-      {/* --- GLOBAL STYLES --- */}
+    <motion.div 
+      animate={controls}
+      className="relative min-h-screen w-full overflow-hidden bg-[#050005] text-pink-50 selection:bg-pink-500 selection:text-black"
+    >
+      
+      {/* --- STYLES --- */}
       <style jsx global>{`
-        @import url("https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@300;400;600&family=Syncopate:wght@400;700&display=swap");
-
-        .font-italiana {
-          font-family: "Italiana", serif;
-        }
-        .font-manrope {
-          font-family: "Manrope", sans-serif;
-        }
-        .font-syncopate {
-          font-family: "Syncopate", sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@300;400;600&family=Syncopate:wght@400;700&display=swap');
+        .font-italiana { font-family: 'Italiana', serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .font-syncopate { font-family: 'Syncopate', sans-serif; }
 
         .scanlines {
-          background: linear-gradient(
-            to bottom,
-            rgba(255, 255, 255, 0) 50%,
-            rgba(0, 0, 0, 0.2) 50%
-          );
+          background: linear-gradient(to bottom, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%);
           background-size: 100% 4px;
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 50;
-          opacity: 0.15;
+          position: fixed; inset: 0; pointer-events: none; z-index: 50; opacity: 0.15;
         }
 
-        @keyframes floatUp {
-          0% {
-            transform: translateY(0) scale(0.8);
-            opacity: 0;
-          }
-          20% {
-            opacity: 0.55;
-          }
-          100% {
-            transform: translateY(-120vh) scale(1.2);
-            opacity: 0;
-          }
+        @keyframes heartbeat {
+          0% { transform: scale(1); opacity: 0.3; }
+          15% { transform: scale(1.05); opacity: 0.4; }
+          30% { transform: scale(1); opacity: 0.3; }
+          45% { transform: scale(1.05); opacity: 0.45; }
+          60% { transform: scale(1); opacity: 0.3; }
+          100% { transform: scale(1); opacity: 0.3; }
+        }
+        
+        .animate-heartbeat {
+          animation: heartbeat 3s infinite ease-in-out;
         }
 
-        .animate-float {
-          animation: floatUp linear infinite;
+        .glitch-text {
+           text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
         }
       `}</style>
 
       {/* --- ATMOSPHERE --- */}
       <div className="scanlines" />
       <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-10 brightness-150 contrast-150" />
-      <div className="fixed top-[-20%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-fuchsia-900/10 blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-pink-900/10 blur-[100px] pointer-events-none" />
+      
+      {/* Heartbeat Background Glow */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+        <div className="w-[80vw] h-[80vw] bg-pink-900/10 rounded-full blur-[100px] animate-heartbeat" />
+      </div>
 
+      {/* Floating Background Hearts */}
       <FloatingHearts />
 
-      {/* --- CONTENT --- */}
-      <main className="relative z-20 min-h-screen flex flex-col items-center justify-center px-6 py-12 md:py-20">
-        <div className="w-full max-w-xl mx-auto space-y-10">
-          {/* TOP BAR */}
-          <div className="flex items-center justify-between">
-            <Link
-              href="/"
-              className="group inline-flex items-center gap-2 text-white/60 hover:text-pink-200 transition-colors font-manrope text-sm"
-            >
-              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-              Back
-            </Link>
+      {/* --- NAVIGATION --- */}
+      <div className="absolute top-8 left-8 z-50">
+        <Link href="/" className="group flex items-center gap-2 text-white/40 hover:text-pink-400 transition-colors">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-syncopate text-[10px] uppercase tracking-widest">Run Away</span>
+        </Link>
+      </div>
 
-            <div className="inline-flex items-center gap-3 border border-pink-500/30 bg-pink-500/5 px-4 py-1.5 backdrop-blur-md">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
-              </span>
-              <span className="font-syncopate text-[9px] uppercase tracking-[0.25em] text-pink-200">
-                Transfer Console
+      {/* --- CONTENT --- */}
+      <main className="relative z-20 min-h-screen flex flex-col items-center justify-center px-6">
+        
+        <div className="w-full max-w-xl mx-auto space-y-12 text-center">
+
+          {/* HEADER */}
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 border border-pink-500/30 bg-pink-950/30 px-4 py-1.5 rounded-full mb-4 backdrop-blur-md shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+              <div className="relative">
+                <Heart className="w-3 h-3 text-pink-500 fill-pink-500 animate-pulse" />
+                <span className="absolute inset-0 bg-pink-500 blur-sm opacity-50 animate-pulse" />
+              </div>
+              <span className="font-syncopate text-[9px] uppercase tracking-[0.2em] text-pink-200">
+                Heartbeat Synced
               </span>
             </div>
+            
+            <h1 className="font-italiana text-3xl text-white/80">
+                Do you love me?
+            </h1>
           </div>
 
-          {/* TITLE */}
-          <header className="text-center space-y-4">
-            <h1 className="font-italiana text-4xl md:text-5xl leading-[0.95] text-transparent bg-clip-text bg-gradient-to-b from-white via-pink-100 to-pink-900/50 drop-shadow-[0_0_30px_rgba(255,100,200,0.18)]">
-              Send Protocol
-            </h1>
-            <p className="font-manrope text-white/55 text-sm md:text-base">
-              Click. Confirm. Collect the spike.
+          {/* THE BIG NUMBER */}
+          <div className="relative py-8 group cursor-default select-none">
+             {/* Spinning Eyes Ring */}
+             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[320px] h-[320px] rounded-full border border-pink-500/5 animate-[spin_20s_linear_infinite] opacity-50 pointer-events-none">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2"><Eye className="w-4 h-4 text-pink-900" /></div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-2"><Eye className="w-4 h-4 text-pink-900" /></div>
+             </div>
+
+            <p className="font-syncopate text-[10px] text-pink-400/70 uppercase tracking-[0.5em] mb-4">
+              Proof of Devotion
             </p>
-          </header>
+            
+            <motion.div 
+              key={balance} 
+              initial={{ scale: 1.15, textShadow: "0 0 20px rgba(236,72,153,0.8)" }}
+              animate={{ scale: 1, textShadow: "0 0 0px rgba(236,72,153,0)" }}
+              className="font-italiana text-7xl md:text-9xl text-transparent bg-clip-text bg-gradient-to-b from-white via-pink-100 to-pink-300 drop-shadow-[0_0_30px_rgba(236,72,153,0.3)]"
+            >
+              <span className="text-pink-500 text-5xl align-top mr-2">$</span>
+              {balance.toLocaleString()}
+            </motion.div>
+          </div>
 
-          {/* PANEL */}
-          <section className="relative border border-white/10 bg-white/5 backdrop-blur-md p-6 md:p-7 overflow-hidden">
-            {/* subtle left rail */}
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-pink-500/60" />
+          {/* THE BUTTON */}
+          <div className="relative w-full max-w-xs mx-auto h-20">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSend}
+              className="group relative w-full h-full overflow-hidden rounded-2xl bg-gradient-to-r from-pink-950/80 to-black border border-pink-500/50 hover:border-pink-400 transition-all duration-300 shadow-[0_0_20px_rgba(236,72,153,0.15)] hover:shadow-[0_0_30px_rgba(236,72,153,0.4)]"
+            >
+              {/* Animated Background Gradient */}
+              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-[gradient_3s_linear_infinite]" />
+              
+              <div className="relative z-10 flex items-center justify-center gap-3">
+                <div className="p-2 bg-pink-500 rounded-full text-black shadow-lg group-hover:scale-110 transition-transform">
+                    <Heart className="w-5 h-5 fill-current" />
+                </div>
+                <div className="text-left flex flex-col">
+                  <span className="font-syncopate text-sm md:text-base font-bold text-white tracking-wider group-hover:text-pink-200">
+                    OFFER DEVOTION
+                  </span>
+                  <span className="font-manrope text-[10px] text-pink-400/80 uppercase tracking-widest">
+                    Cost: Soul + $8.00
+                  </span>
+                </div>
+              </div>
 
-            {/* Burst particles */}
-            <div className="absolute inset-0 pointer-events-none">
+              {/* Progress Bar / Blood fill effect */}
+              <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-pink-600 to-red-600 w-full transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out origin-left opacity-70" />
+
+              {/* PARTICLE RENDERER (Inside button context) */}
               <AnimatePresence>
-                {bursts.map((b) => (
-                  <motion.span
-                    key={b.id}
-                    initial={{
-                      opacity: 0.9,
-                      x: `${b.x}%`,
-                      y: `${b.y}%`,
-                      rotate: b.r,
-                      scale: 1,
-                    }}
-                    animate={{
-                      opacity: 0,
-                      x: `calc(${b.x}% + ${b.dx}px)`,
-                      y: `calc(${b.y}% + ${b.dy}px)`,
-                      rotate: b.r + 120,
-                      scale: 0.2,
-                    }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.85, ease: "easeOut" }}
-                    className="absolute block rounded-sm bg-pink-400"
-                    style={{ width: b.s, height: b.s }}
-                  />
+                {particles.map((p) => (
+                  <FloatingParticle key={p.id} data={p} />
                 ))}
               </AnimatePresence>
-            </div>
 
-            <div className="space-y-6 relative z-10">
-              {/* TOTAL */}
-              <div className="text-center space-y-2">
-                <p className="font-syncopate text-[9px] uppercase tracking-[0.35em] text-white/35">
-                  Total Sent
-                </p>
+            </motion.button>
+          </div>
 
-                <motion.div
-                  key={total} // re-trigger pop per change
-                  initial={reduceMotion ? false : { scale: 0.98, opacity: 0.7 }}
-                  animate={reduceMotion ? undefined : { scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                  className="font-syncopate text-3xl md:text-4xl tracking-wide text-pink-100 drop-shadow-[0_0_22px_rgba(236,72,153,0.25)]"
-                >
-                  {formatUSD(total)}
-                </motion.div>
+          {/* RECENT STATUS - YANDERE DIALOGUE */}
+          <div className="h-10 flex items-center justify-center">
+            <AnimatePresence mode="wait">
+               {clicks > 0 && (
+                 <motion.div
+                    key={clicks}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-pink-500/20 backdrop-blur-sm"
+                 >
+                    {Math.random() > 0.8 ? (
+                         <Lock className="w-3 h-3 text-red-500" />
+                    ) : (
+                         <Sparkles className="w-3 h-3 text-pink-400" />
+                    )}
+                    <span className={`font-manrope text-xs tracking-wider ${Math.random() > 0.8 ? 'text-red-300 font-bold glitch-text' : 'text-pink-200'}`}>
+                       {Math.random() > 0.8 ? "YOU CAN NEVER LEAVE." : "Good puppy. She loves it."}
+                    </span>
+                 </motion.div>
+               )}
+            </AnimatePresence>
+          </div>
 
-                <p className="font-manrope text-xs text-white/35">
-                  Next click adds <span className="text-pink-200">{formatUSD(INCREMENT)}</span> (→{" "}
-                  <span className="text-white/60">{formatUSD(nextTotal)}</span>)
-                </p>
-              </div>
-
-              {/* SEND BUTTON */}
-              <div className="flex flex-col items-center gap-4">
-                <button
-                  onClick={onSend}
-                  className="group relative w-full max-w-sm flex items-center justify-center gap-3 px-6 py-4 border border-pink-500/30 bg-pink-950/20 hover:bg-pink-900/30 hover:border-pink-500 transition-all duration-300"
-                  aria-label={`Send ${INCREMENT} dollars to Princess Azraiel`}
-                >
-                  {/* hover line */}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-pink-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                  <span className="inline-flex items-center justify-center p-2 bg-pink-500 text-black">
-                    <Send className="w-5 h-5" />
-                  </span>
-                  <span className="font-syncopate text-xs uppercase tracking-[0.28em] text-pink-100">
-                    Send
-                  </span>
-                </button>
-
-                {/* controls */}
-                {/* <div className="flex items-center justify-center gap-3">
-                  <button
-                    onClick={onReset}
-                    className="px-4 py-2 font-manrope text-xs uppercase tracking-wider text-white/55 border border-white/10 bg-transparent hover:bg-white/5 transition-colors"
-                    aria-label="Reset total"
-                  >
-                    Reset
-                  </button>
-                  <span className="font-manrope text-xs text-white/25">Local-only (saved in this browser)</span>
-                </div> */}
-              </div>
-
-              {/* tiny lore line */}
-              {/* <div className="pt-2 border-t border-white/10">
-                <p className="font-manrope text-xs text-white/30">
-                  Confirmation feed is simulated for clicker effect — connect this later to a real payment flow if you
-                  want.
-                </p>
-              </div> */}
-            </div>
-          </section>
         </div>
       </main>
-
-      {/* SUCCESS TOAST */}
-      <AnimatePresence>
-        {toastOpen && (
-          <motion.div
-            key={toastId}
-            initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 12, filter: "blur(6px)" }}
-            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10, filter: "blur(6px)" }}
-            transition={{ duration: reduceMotion ? 0.12 : 0.22, ease: "easeOut" }}
-            className="fixed left-1/2 bottom-6 -translate-x-1/2 z-[60] w-[92vw] max-w-md border border-pink-500/30 bg-[#070707]/90 backdrop-blur-md"
-            role="status"
-            aria-live="polite"
-          >
-            <div className="p-4 flex items-start gap-3">
-              <div className="mt-0.5 inline-flex items-center justify-center p-2 bg-pink-500 text-black">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <p className="font-manrope text-sm text-pink-50">
-                  <span className="text-pink-200">{formatUSD(INCREMENT)}</span> sent to{" "}
-                  <span className="font-italiana text-lg leading-none">Princess Azraiel</span> successfully.
-                </p>
-                <p className="font-manrope text-xs text-white/35 mt-1">
-                  Total is now <span className="text-pink-200">{formatUSD(total)}</span>.
-                </p>
-              </div>
-            </div>
-            <div className="h-1 bg-pink-500/40">
-              {!reduceMotion && (
-                <motion.div
-                  className="h-1 bg-pink-500"
-                  initial={{ width: "100%" }}
-                  animate={{ width: "0%" }}
-                  transition={{ duration: 1.35, ease: "linear" }}
-                />
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
 
-// --- VISUAL EFFECTS ---
+// --- SUBCOMPONENTS ---
 
-function FloatingHearts() {
-  const [hearts, setHearts] = useState<
-    { id: number; left: number; duration: number; delay: number; size: number; opacity: number }[]
-  >([]);
+function FloatingParticle({ data }: { data: { id: number; x: number; y: number; content: React.ReactNode; scale: number; type: 'money' | 'text' | 'heart' } }) {
+  
+  const isText = data.type === 'text';
+  const isHeart = data.type === 'heart';
+  const isMoney = data.type === 'money';
+  
+  // Scary text moves differently
+  const isScary = isText && typeof data.content === 'string' && YANDERE_PHRASES.includes(data.content);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const count = 10;
-    const newHearts = Array.from({ length: count }).map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      duration: 16 + Math.random() * 18,
-      delay: Math.random() * 10,
-      size: 10 + Math.random() * 18,
-      opacity: 0.09 + Math.random() * 0.22,
-    }));
-    setHearts(newHearts);
-  }, []);
+  const initialY = data.y;
+  const targetY = initialY - (isHeart ? 150 : 100);
+  const rotateEnd = isText ? (Math.random() * 20 - 10) : 0;
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-      {hearts.map((h) => (
-        <div
-          key={h.id}
-          className="animate-float absolute bottom-[-10%]"
-          style={{
-            left: `${h.left}%`,
-            width: `${h.size}px`,
-            height: `${h.size}px`,
-            opacity: h.opacity,
-            animationDuration: `${h.duration}s`,
-            animationDelay: `${h.delay}s`,
-          }}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="text-pink-500 w-full h-full drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]"
-          >
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-        </div>
-      ))}
-    </div>
+    <motion.div
+      initial={{ 
+        opacity: 0, 
+        x: data.x, 
+        y: initialY, 
+        scale: 0,
+        rotate: 0 
+      }}
+      animate={{ 
+        opacity: [0, 1, 0], // fade in then out
+        y: targetY, 
+        scale: data.scale,
+        rotate: rotateEnd 
+      }}
+      transition={{ 
+        duration: isHeart ? 1.5 : 0.8, 
+        ease: "easeOut",
+        times: [0, 0.2, 1] 
+      }}
+      className={`absolute pointer-events-none whitespace-nowrap z-50 flex items-center justify-center ${
+        isScary 
+          ? "font-syncopate text-xl text-red-500 font-bold drop-shadow-[0_0_5px_rgba(255,0,0,0.8)] tracking-widest glitch-text" 
+          : isText 
+            ? "font-manrope text-sm text-pink-300 italic font-semibold"
+            : isMoney
+                ? "font-italiana text-2xl text-white drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]"
+                : "text-pink-500" // Fallback for hearts
+      }`}
+      style={{ 
+        left: 0, 
+        top: 0,
+        width: isHeart ? '20px' : 'auto', // Give hearts size
+        height: isHeart ? '20px' : 'auto'
+      }} 
+    >
+      {data.content}
+    </motion.div>
   );
 }
+
+function FloatingHearts() {
+    const [hearts, setHearts] = useState<any[]>([]);
+  
+    useEffect(() => {
+      const count = 15;
+      const newHearts = Array.from({ length: count }).map((_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        duration: 10 + Math.random() * 20,
+        delay: Math.random() * 5,
+        size: 10 + Math.random() * 30,
+        opacity: 0.05 + Math.random() * 0.15
+      }));
+      setHearts(newHearts);
+    }, []);
+  
+    return (
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {hearts.map((h) => (
+          <motion.div
+            key={h.id}
+            initial={{ y: "100vh", opacity: 0 }}
+            animate={{ y: "-10vh", opacity: h.opacity }}
+            transition={{ 
+                duration: h.duration, 
+                repeat: Infinity, 
+                delay: h.delay, 
+                ease: "linear" 
+            }}
+            className="absolute text-pink-600 blur-[1px]"
+            style={{
+              left: `${h.left}%`,
+              width: h.size,
+              height: h.size,
+            }}
+          >
+            <Heart className="w-full h-full fill-current" />
+          </motion.div>
+        ))}
+      </div>
+    );
+  }
