@@ -109,18 +109,18 @@ export const characters: Character[] = [
 ];
 
 export const tiers: Tier[] = [
-  {
-    title: "Tier I: Low Flood (Submissive)",
-    price: "3€",
-    benefits: ["Gentle Whisper", "1 Active Bot", "Very Light Drip", "1 msg/hr", "Max ~16 msgs/day"],
-    link: "https://throne.com/princessazraiel/item/c2c0c92a-ec0c-4905-9380-5b3f733bec31",
-  },
-  {
-    title: "Tier II: Medium Flood (Devoted)",
-    price: "5€",
-    benefits: ["Steady Stream", "3 Active Bots", "Moderate Intensity", "1 msg/45 min per bot", "Max ~72 msgs/day total"],
-    link: "https://throne.com/princessazraiel/item/caedc784-d904-4d25-937b-39ad1b1c0fc3",
-  },
+  // {
+  //   title: "Tier I: Low Flood (Submissive)",
+  //   price: "3€",
+  //   benefits: ["Gentle Whisper", "1 Active Bot", "Very Light Drip", "1 msg/hr", "Max ~16 msgs/day"],
+  //   link: "https://throne.com/princessazraiel/item/c2c0c92a-ec0c-4905-9380-5b3f733bec31",
+  // },
+  // {
+  //   title: "Tier II: Medium Flood (Devoted)",
+  //   price: "5€",
+  //   benefits: ["Steady Stream", "3 Active Bots", "Moderate Intensity", "1 msg/45 min per bot", "Max ~72 msgs/day total"],
+  //   link: "https://throne.com/princessazraiel/item/caedc784-d904-4d25-937b-39ad1b1c0fc3",
+  // },
   {
     title: "Tier III: High Flood (Possessed)",
     price: "10€",
@@ -132,7 +132,7 @@ export const tiers: Tier[] = [
       "Max 150 msgs/day total",
     ],
     popular: true,
-    link: "https://throne.com/princessazraiel/item/f8f93b82-54bd-4e4c-bd64-8b5cc06a5a8a",
+    link: "https://youpay.me/PrincessAzraiel/gift/1124128",
   },
 ];
 
