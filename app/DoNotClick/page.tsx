@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'JUST US',
     description: 'There is nobody else.',
-    images: ['/redroom/yandere_og.jpg'], // Ideally a corrupted heart image
+    images: ['/redroom/image.png'], // Ideally a corrupted heart image
   },
   other: {
     'darkreader-lock': 'true',
