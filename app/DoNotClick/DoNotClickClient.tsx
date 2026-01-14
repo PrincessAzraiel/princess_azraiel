@@ -54,7 +54,7 @@ export default function DoNotClickClient() {
     // Note: You would need a file like heartbeat.mp3 or static noise
     const playAudio = () => {
       if (!audioRef.current) {
-        audioRef.current = new Audio('/static.mp3'); // Ensure this file exists in public/
+        audioRef.current = new Audio('/audio/glitch.mp3'); // Ensure this file exists in public/
         audioRef.current.loop = true;
         audioRef.current.volume = 0.05;
         audioRef.current.play().catch(() => {});

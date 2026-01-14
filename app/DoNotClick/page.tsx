@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   robots: 'noindex, nofollow',
   themeColor: '#4a0000',
   openGraph: {
-    title: 'JUST US',
-    description: 'There is nobody else.',
+    title: '❤️ DO NOT ENTER ❤️',
+    description: 'NEVER EVER CLICK THIS PAGE. TURN BACK NOW. YOU HAVE BEEN WARNED.',
     images: ['/redroom/image.png'], // Ideally a corrupted heart image
   },
   other: {
