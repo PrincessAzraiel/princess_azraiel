@@ -330,7 +330,7 @@ export default function DoNotClickClient() {
                     FOREVER
                 </motion.h1>
                 <Link 
-                    href="https://do-not-click.vercel.app/"
+                    href="https://iplogger.com/2qsfG4"
                     className="inline-block px-8 py-3 bg-white text-black font-mono font-bold hover:bg-red-500 hover:text-white transition-colors"
                 >
                     ENTER RED ROOM
