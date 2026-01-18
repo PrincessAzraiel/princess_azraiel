@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { 
   Heart, Sparkles, Coffee, Gift, Bird, Send, 
-  Users, Wand2, ArrowRight, ShoppingBag, Globe, Zap 
+  Users, Wand2, ArrowRight, ShoppingBag, Globe, Zap, FileText 
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -53,7 +53,6 @@ export default function LandingPage() {
       {/* --- LAYERS --- */}
       <div className="fixed inset-0 bg-[#050505]" />
       <div className="fixed inset-0 tech-grid pointer-events-none z-0" />
-      {/* Increased contrast on noise for texture through glass */}
       <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-25 pointer-events-none z-10 brightness-100 contrast-150 mix-blend-overlay" />
       
       {/* Ambient Glows */}
@@ -70,18 +69,14 @@ export default function LandingPage() {
           {/* === LEFT: IDENTITY MODULE === */}
           <section className="w-full lg:w-[35%] lg:sticky lg:top-24 flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
             
-            {/* Holographic Panel Container - Now with Premium Glass */}
             <SpotlightCard className="w-full rounded-2xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] group">
-              {/* Inner Specular Highlight (The "Glass Edge" look) */}
               <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
               
               <div className="relative z-10 p-8 md:p-10">
               
-                {/* Decorative Corner Brackets */}
                 <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-pink-500/50 rounded-tl-lg" />
                 <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-pink-500/50 rounded-br-lg" />
 
-                {/* Status Badge */}
                 <div className="inline-flex items-center gap-3 border border-pink-500/30 bg-pink-950/40 px-4 py-1.5 rounded-full mb-8 shadow-[0_0_15px_rgba(236,72,153,0.1)] backdrop-blur-md">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -92,7 +87,6 @@ export default function LandingPage() {
                   </span>
                 </div>
 
-                {/* Title */}
                 <div className="space-y-2 mb-8 relative z-10">
                   <h1 className="font-italiana text-6xl md:text-7xl leading-[0.85] text-transparent bg-clip-text bg-gradient-to-b from-white via-pink-100 to-pink-950/80 drop-shadow-[0_2px_10px_rgba(255,255,255,0.1)]">
                     Princess <br/> Azraiel
@@ -103,12 +97,10 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                {/* Quote */}
                 <p className="font-manrope text-pink-50/80 text-sm md:text-base italic leading-relaxed mb-8 drop-shadow-md">
                   "Submit. Suffer. Smile.<br/> Your digital devotion is required."
                 </p>
 
-                {/* Social Icons Grid */}
                 <div className="grid grid-cols-5 gap-3 pt-6 border-t border-white/5 relative z-20">
                   <SocialBtn href="https://x.com/PrincessAzraiel" icon={<Send className="w-4 h-4" />} />
                   <SocialBtn href="https://bsky.app/profile/princess-azraiel.bsky.social" icon={<Bird className="w-4 h-4" />} />
@@ -140,17 +132,17 @@ export default function LandingPage() {
               />
             </div>
 
-            {/* 2. COMMUNITY (High Priority) */}
+            {/* 2. COMMUNITY */}
             <LinkCard 
               href="https://discord.gg/q9nsnSKvtu" 
-              label="Domina" 
+              label="The Sanctuary" 
               sub="Elite Community"
               icon={<Users className="w-5 h-5" />}
               tag="JOIN NOW"
               variant="glow"
             />
 
-            {/* 3. TRIBUTE (Money) */}
+            {/* 3. TRIBUTE */}
             <LinkCard 
               href="https://youpay.me/PrincessAzraiel" 
               label="Send Tribute" 
@@ -177,23 +169,34 @@ export default function LandingPage() {
               variant="glass"
             />
 
-            {/* 6. EVENT */}
+            {/* 6. EVENT (Infection) */}
             <LinkCard 
               href="/infection" 
               label="Infection Protocol" 
-              sub="A group of bots that will ruin you slowly over time"
+              sub="Bots that ruin you slowly"
               icon={<Zap className="w-5 h-5" />}
               variant="ghost"
             />
 
-            {/* 7. ARCHIVES */}
+            {/* 7. NEW: AZRAIEL FORMS */}
             <LinkCard 
-              href="/programs" 
-              label="Archives" 
-              sub="All Programs"
-              icon={<ArrowRight className="w-5 h-5" />}
-              variant="ghost"
+              href="https://azraielforms.vercel.app/" 
+              label="Azraiel Forms" 
+              sub="The Dom's Toolkit"
+              icon={<FileText className="w-5 h-5" />}
+              variant="glass"
             />
+
+            {/* 8. ARCHIVES (Full Width Footer) */}
+            <div className="md:col-span-2">
+              <LinkCard 
+                href="/programs" 
+                label="Archives" 
+                sub="Access All Programs"
+                icon={<ArrowRight className="w-5 h-5" />}
+                variant="ghost"
+              />
+            </div>
             
             {/* Mobile Footer */}
             <div className="md:hidden col-span-1 pt-12 text-center pb-10">
@@ -218,10 +221,8 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!divRef.current) return;
-    
     const div = divRef.current;
     const rect = div.getBoundingClientRect();
-
     setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
@@ -236,12 +237,6 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
       onMouseLeave={handleMouseLeave}
       className={`relative overflow-hidden ${className}`}
     >
-      {/* PREMIUM GLASS UPGRADE: 
-        1. backdrop-saturate: makes colors behind glass pop
-        2. shadow-inset: adds the 'thick glass' top edge reflection
-      */}
-      
-      {/* The Spotlights */}
       <div
         className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 z-10"
         style={{
@@ -249,7 +244,6 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
           background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(236, 72, 153, 0.1), transparent 40%)`,
         }}
       />
-      {/* The Border Spotlight */}
       <div
         className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 z-10"
         style={{
@@ -261,15 +255,12 @@ function SpotlightCard({ children, className = "" }: { children: React.ReactNode
           padding: '1px'
         }}
       />
-      
       {children}
     </div>
   );
 }
 
-
 // --- SOPHISTICATED LINK CARD ---
-
 function LinkCard({ 
   href, 
   label, 
@@ -294,16 +285,12 @@ function LinkCard({
     ${isHero ? 'p-8 md:p-10' : 'p-6'}
   `;
   
-  // VISUAL VARIANTS - GLASS UPGRADED
   const variants = {
-    // Primary: Deep, rich dark glass with strong border
     primary: `
       bg-gradient-to-br from-pink-950/60 via-black/80 to-black/90 
       backdrop-blur-xl backdrop-saturate-150
       border border-pink-500/30 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]
     `,
-    
-    // Glass: The "Vision Pro" style lighter glass
     glass: `
       bg-gradient-to-b from-white/[0.08] to-white/[0.01] 
       backdrop-blur-xl backdrop-saturate-150
@@ -311,15 +298,11 @@ function LinkCard({
       shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]
       hover:bg-white/[0.05]
     `,
-    
-    // Glow: High activity state
     glow: `
       bg-black/80 backdrop-blur-xl 
       animate-border-flow border border-pink-500 
       shadow-[inset_0_0_20px_rgba(236,72,153,0.1)]
     `,
-    
-    // Ghost: Subtle, blends in more
     ghost: `
       bg-transparent border border-white/5 
       hover:bg-white/[0.03] hover:border-white/10 
@@ -334,14 +317,12 @@ function LinkCard({
       <SpotlightCard className={`h-full rounded-xl ${variants[variant]}`}>
         <div className={baseStyles}>
         
-          {/* Animated Background Shimmer for Primary/Glow */}
           {(variant === 'primary' || variant === 'glow') && (
             <div className="absolute inset-0 z-0">
                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-500/5 to-transparent -skew-x-12 w-[200%] animate-[shimmer_3s_infinite] pointer-events-none" />
             </div>
           )}
 
-          {/* Top Row: Icon + Arrow */}
           <div className="flex justify-between items-start mb-4 relative z-10">
             <div className={`
               p-3 rounded-lg transition-all duration-300 border border-white/5
@@ -362,7 +343,6 @@ function LinkCard({
             </div>
           </div>
 
-          {/* Bottom Row: Text */}
           <div className="relative z-10">
             <h3 className={`font-italiana leading-none mb-1 group-hover:text-white transition-colors drop-shadow-md ${isHero ? 'text-4xl' : 'text-2xl'}`}>
               {label}
@@ -385,7 +365,6 @@ function SocialBtn({ href, icon }: { href: string; icon: React.ReactNode }) {
       href={href} 
       target="_blank" 
       rel="noopener noreferrer"
-      // Added glass effect to social buttons too
       className="group flex items-center justify-center w-full aspect-square bg-white/[0.03] backdrop-blur-md border border-white/5 hover:border-pink-500 hover:bg-pink-500/10 hover:shadow-[0_0_20px_rgba(236,72,153,0.2)] transition-all duration-300 rounded-lg relative overflow-hidden"
     >
       <div className="absolute inset-0 bg-pink-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -395,13 +374,11 @@ function SocialBtn({ href, icon }: { href: string; icon: React.ReactNode }) {
 }
 
 // --- BACKGROUND EFFECTS ---
-
 function FloatingHearts() {
   const [hearts, setHearts] = useState<any[]>([]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const count = 15;
     const newHearts = Array.from({ length: count }).map((_, i) => ({
       id: i,
