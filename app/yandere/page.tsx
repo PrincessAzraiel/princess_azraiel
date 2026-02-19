@@ -24,7 +24,9 @@ export default function YanderePage() {
   const [introPhase, setIntroPhase] = useState<0 | 1 | 2>(0); // 0: Title, 1: Button, 2: Chat
   const [isEnded, setIsEnded] = useState(false);
   const [popups, setPopups] = useState<Popup[]>([]);
+  
   const chatRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null); // Added Audio Reference
 
   // Cinematic Intro Sequence
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function YanderePage() {
       id: Date.now() + Math.random(),
       type,
       content,
-      top: `${Math.floor(Math.random() * 70) + 10}%`, // Keep roughly on screen
+      top: `${Math.floor(Math.random() * 70) + 10}%`, 
       left: `${Math.floor(Math.random() * 70) + 10}%`,
       scale: 0.8 + Math.random() * 0.7,
     };
@@ -88,12 +90,19 @@ export default function YanderePage() {
         spawnPopup("img", "/yandere/yandere.webp");
       }
       count++;
-    }, 400); // Spawn something every 400ms
+    }, 400); 
   };
   // ----------------------------
 
   const startStory = async () => {
     setIntroPhase(2);
+
+    // Trigger the background audio when they click "Accept"
+    if (audioRef.current) {
+      audioRef.current.volume = 0.4; // Set volume (0.0 to 1.0) so it's not deafening
+      audioRef.current.play().catch((err) => console.log("Audio play blocked:", err));
+    }
+
     setMessages([{ sender: "system", text: "CONNECTION ESTABLISHED. UNKNOWN ENTITY JOINED." }]);
     await sleep(2000);
 
@@ -149,7 +158,6 @@ export default function YanderePage() {
 
     await pushMessage({ sender: "yandere", text: "Hold still. Let me just check the lock on your door... ♥" }, 3500);
     
-    // Mini scare before geolocation
     spawnPopup("warning", "UNAUTHORIZED ACCESS ATTEMPT DETECTED");
     await pushMessage({ sender: "system", text: "WARNING: EXTERNAL ENTITY BYPASSING NETWORK SECURITY..." }, 800);
 
@@ -189,12 +197,11 @@ export default function YanderePage() {
     await pushMessage({ sender: "yandere", text: "Don't bother looking behind you. Just keep staring at me." }, 4000);
     await pushMessage({ sender: "yandere", image: "/yandere/yandere_2.webp" }, 3000);
     
-    // Love Bombing Sequence Begins
     await pushMessage({ sender: "yandere", text: "You're so perfect." }, 1500);
     await pushMessage({ sender: "yandere", text: "I've never felt this way about anyone else." }, 1500);
     await pushMessage({ sender: "yandere", text: "I want to give you everything. I want to consume you entirely." }, 2000);
     
-    triggerLoveBombingMadness(); // Start throwing popups on the screen
+    triggerLoveBombingMadness(); 
 
     await pushMessage({ sender: "yandere", text: "My chest hurts. I need to know you're really mine." }, 3500);
     await pushMessage({
@@ -211,7 +218,6 @@ export default function YanderePage() {
     setMessages((prev) => prev.map(m => ({ ...m, choices: undefined })));
     await pushMessage({ sender: "sub", text: "I'm yours." }, 0);
     
-    // Clear popups to focus their attention on the demand
     setPopups([]); 
     
     await pushMessage({ sender: "yandere", text: "Words are cheap. Anyone can type them on a screen." }, 3000);
@@ -230,14 +236,21 @@ export default function YanderePage() {
       ],
     }, 2000);
 
-    // Trigger the end screen overlay after a delay
     setTimeout(() => {
       setIsEnded(true);
+      // Optional: stop or fade out audio here if you want it to go dead silent at the end
+      if (audioRef.current) {
+         audioRef.current.pause();
+      }
     }, 6000);
   };
 
   return (
     <div className="fixed inset-0 bg-[#050002] text-pink-500 font-mono flex flex-col items-center overflow-hidden selection:bg-pink-900 selection:text-white">
+      
+      {/* Hidden Audio Player */}
+      <audio ref={audioRef} src="/yandere/bg-audio.mp3" loop />
+
       {/* Creepy vignette & scanline overlay */}
       <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.95)] z-40"></div>
       <div className="pointer-events-none absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 z-40 mix-blend-overlay"></div>
