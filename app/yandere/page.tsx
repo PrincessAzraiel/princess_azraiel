@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link"; // Imported Link for routing
 
 type Message = {
   sender: "yandere" | "sub" | "system";
@@ -26,7 +27,7 @@ export default function YanderePage() {
   const [popups, setPopups] = useState<Popup[]>([]);
   
   const chatRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null); // Added Audio Reference
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Cinematic Intro Sequence
   useEffect(() => {
@@ -99,7 +100,7 @@ export default function YanderePage() {
 
     // Trigger the background audio when they click "Accept"
     if (audioRef.current) {
-      audioRef.current.volume = 0.4; // Set volume (0.0 to 1.0) so it's not deafening
+      audioRef.current.volume = 0.4; 
       audioRef.current.play().catch((err) => console.log("Audio play blocked:", err));
     }
 
@@ -238,7 +239,6 @@ export default function YanderePage() {
 
     setTimeout(() => {
       setIsEnded(true);
-      // Optional: stop or fade out audio here if you want it to go dead silent at the end
       if (audioRef.current) {
          audioRef.current.pause();
       }
@@ -393,15 +393,18 @@ export default function YanderePage() {
         </div>
       </div>
 
-      {/* END SCREEN OVERLAY */}
+      {/* END SCREEN OVERLAY - UPDATED WITH LINK */}
       {isEnded && (
-        <div className="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center animate-fade-in backdrop-blur-md pointer-events-none">
+        <div className="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center animate-fade-in backdrop-blur-md pointer-events-auto">
           <h2 className="text-pink-600 tracking-[0.5em] text-xl md:text-3xl font-bold uppercase animate-pulse shadow-pink-500 drop-shadow-[0_0_20px_rgba(236,72,153,0.9)] text-center px-4">
             THIS IS THE END NOW.
           </h2>
-          <p className="mt-8 text-pink-900 tracking-[0.3em] uppercase text-xs md:text-sm animate-bounce opacity-80">
-            Chapter Two... coming soon.
-          </p>
+          <Link 
+            href="yandere/two"
+            className="mt-12 px-8 py-4 border border-pink-800/50 text-pink-500 hover:bg-pink-950/60 hover:text-pink-300 hover:border-pink-500 hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] transition-all duration-300 uppercase text-xs md:text-sm tracking-[0.3em] font-bold animate-fade-in-up"
+          >
+            PROCEED TO CHAPTER TWO
+          </Link>
         </div>
       )}
 
