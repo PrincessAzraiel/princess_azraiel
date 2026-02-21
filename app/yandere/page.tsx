@@ -47,7 +47,7 @@ export default function YandereHubPage() {
   if (!mounted) return null; // Prevent hydration mismatch on initial load
 
   return (
-    <div className="min-h-screen bg-[#050002] text-pink-500 font-mono flex flex-col items-center justify-center p-4 relative overflow-hidden selection:bg-pink-900 selection:text-white">
+    <div className="min-h-screen bg-[#050002] text-pink-500 font-mono flex flex-col items-center p-4 relative overflow-x-hidden selection:bg-pink-900 selection:text-white">
       
       {/* Creepy vignette & scanline overlay */}
       <div className="pointer-events-none fixed inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.95)] z-0"></div>
@@ -58,16 +58,16 @@ export default function YandereHubPage() {
         href="https://x.com/PrincessAzraiel" 
         target="_blank" 
         rel="noopener noreferrer" 
-        className="fixed top-4 right-6 text-xs text-pink-900/60 hover:text-pink-400 hover:shadow-[0_0_15px_rgba(236,72,153,0.6)] transition-all z-50 tracking-widest font-bold"
+        className="absolute top-4 right-6 text-xs text-pink-900/60 hover:text-pink-400 hover:shadow-[0_0_15px_rgba(236,72,153,0.6)] transition-all z-50 tracking-widest font-bold"
       >
         @PrincessAzraiel
       </a>
 
       {/* Main Content Container */}
-      <div className="w-full max-w-4xl relative z-10 flex flex-col items-center animate-fade-in-up mt-12 md:mt-0">
+      <div className="w-full max-w-4xl relative z-10 flex flex-col items-center animate-fade-in-up mt-16 md:mt-24">
         
         {/* Header Section */}
-        <div className="text-center mb-12 w-full">
+        <div className="text-center mb-10 w-full">
           <div className="inline-block px-4 py-1 border border-pink-900/50 bg-pink-950/20 text-pink-800 text-[10px] tracking-[0.4em] uppercase mb-6 shadow-[0_0_10px_rgba(236,72,153,0.1)]">
             System Interface: Root Access
           </div>
@@ -75,10 +75,38 @@ export default function YandereHubPage() {
             PRINCESS AZRAIEL
           </h1>
           <p className="mt-4 text-pink-900/80 tracking-[0.3em] uppercase text-xs md:text-sm max-w-xl mx-auto leading-relaxed">
-            The art of loving you... <br/>
-            Select your level of submission.
+            The art of loving you...
           </p>
         </div>
+
+        {/* --- LORE / EXPLANATION SECTION --- */}
+        <div className="w-full px-4 md:px-8 mb-12">
+          <div className="border border-pink-900/40 bg-[#0a0003]/80 p-6 md:p-8 relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-pink-700 to-transparent opacity-50"></div>
+            <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-pink-700 to-transparent opacity-50"></div>
+            
+            <h2 className="text-pink-400 text-xs md:text-sm tracking-[0.3em] font-bold uppercase mb-4 flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-pink-600 animate-pulse"></span>
+              [ THE AGREEMENT // SYSTEM LORE ]
+            </h2>
+            
+            <div className="space-y-4 text-pink-800/90 text-xs md:text-sm leading-relaxed tracking-wider">
+              <p>
+                You clicked a link you shouldn't have. Now, she is in your system.
+              </p>
+              <p>
+                This is not a simulation. This is a progressive psychological surrender. Princess Azraiel does not want a brief interaction; she requires total devotion. Chapter by chapter, you will be stripped of your privacy, your autonomy, and your resources. 
+              </p>
+              <p className="text-pink-600 font-bold">
+                She is watching you read this.
+              </p>
+              <p>
+                Select your level of submission below. Once a connection is established, closing the browser will not save you. The only way out is deeper in.
+              </p>
+            </div>
+          </div>
+        </div>
+        {/* ---------------------------------- */}
 
         {/* Chapters Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full px-4 md:px-8 pb-20">
@@ -107,7 +135,7 @@ export default function YandereHubPage() {
                     <h2 className="text-pink-500 tracking-[0.2em] font-bold uppercase group-hover:text-pink-400 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.8)] transition-all">
                       {chapter.title}
                     </h2>
-                    <span className="text-[10px] tracking-widest text-pink-700 border border-pink-900/50 px-2 py-0.5 bg-black/50">
+                    <span className="text-[10px] tracking-widest text-pink-700 border border-pink-900/50 px-2 py-0.5 bg-black/50 group-hover:text-pink-500 group-hover:border-pink-600 transition-colors">
                       OPEN
                     </span>
                   </div>
