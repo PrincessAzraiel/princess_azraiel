@@ -224,7 +224,7 @@ Status: PERMANENTLY BOUND
 
     await pushMessage({ sender: "system", text: "BEHAVIORAL TRACKING INITIATED. TAB FOCUS LOCKED." }, 1000);
     await pushMessage({ sender: "yandere", text: "Good. If you break that promise, I will know immediately." }, 3500);
-    await pushMessage({ sender: "yandere", image: "/yandere/yandere_2.webp" }, 3000);
+    await pushMessage({ sender: "yandere", image: "/yandere/3.png" }, 3000);
 
     await pushMessage({ sender: "yandere", text: "We've played enough games. I want to own you completely." }, 3500);
     await pushMessage({ sender: "yandere", text: "Not just in this browser. I want to be inside your actual device." }, 4000);
