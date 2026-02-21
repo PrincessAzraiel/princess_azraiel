@@ -1,5 +1,6 @@
 "use client";
 export const dynamic = "force-dynamic";
+import { Link } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 type Message = {
@@ -480,16 +481,18 @@ export default function ChapterTwoPage() {
       </div>
 
       {isEnded && (
-        <div className="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center animate-fade-in backdrop-blur-md pointer-events-none">
+        <div className="fixed inset-0 bg-black/95 z-[100] flex flex-col items-center justify-center animate-fade-in backdrop-blur-md pointer-events-auto">
           <h2 className="text-pink-600 tracking-[0.5em] text-xl md:text-3xl font-bold uppercase animate-pulse shadow-pink-500 drop-shadow-[0_0_20px_rgba(236,72,153,0.9)] text-center px-4">
-            GOOD PET.
+            GOOD PET. SEE YOU IN CHAPTER THREE...
           </h2>
-          <p className="mt-8 text-pink-900 tracking-[0.3em] uppercase text-xs md:text-sm animate-bounce opacity-80">
-            Chapter Three... coming soon.
-          </p>
+          <Link 
+            href="yandere/three"
+            className="mt-12 px-8 py-4 border border-pink-800/50 text-pink-500 hover:bg-pink-950/60 hover:text-pink-300 hover:border-pink-500 hover:shadow-[0_0_20px_rgba(236,72,153,0.6)] transition-all duration-300 uppercase text-xs md:text-sm tracking-[0.3em] font-bold animate-fade-in-up"
+          >
+            PROCEED TO CHAPTER THREE
+          </Link>
         </div>
       )}
-
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes fade-in-up {
           0% { opacity: 0; transform: translateY(15px); }
