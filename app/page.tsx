@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { 
   Heart, Sparkles, Coffee, Gift, Bird, Send, 
-  Users, Wand2, ArrowRight, ShoppingBag, Globe, Zap, FileText 
+  Users, Wand2, ArrowRight, Globe, Zap, FileText,
+  Eye, Crown
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -120,38 +121,48 @@ export default function LandingPage() {
           {/* === RIGHT: COMMAND GRID === */}
           <nav className="w-full lg:w-[65%] grid grid-cols-1 md:grid-cols-2 gap-5">
             
-            {/* 1. HERO LINK (Full Width) */}
+            {/* 1. HERO LINK: THE YANDERE EXPERIENCE (Full Width) */}
             <div className="md:col-span-2">
               <LinkCard 
-                href="/corruption" 
-                label="Initiate Corruption" 
-                sub="The Standard Protocol"
-                icon={<Heart className="w-6 h-6" />}
+                href="/yandere" 
+                label="The Yandere Experience" 
+                sub="Interactive Psychological Horror"
+                icon={<Eye className="w-6 h-6" />}
                 variant="primary"
                 isHero
+                tag="NEW"
               />
             </div>
 
-            {/* 2. COMMUNITY */}
+            {/* 2. VIP ACCESS / PATREON */}
+            <LinkCard 
+              href="https://www.patreon.com/cw/PrincessAzraiel" 
+              label="Unlock Early Access" 
+              sub="Patreon Exclusives & Chapters"
+              icon={<Crown className="w-5 h-5" />}
+              tag="VIP"
+              variant="glow"
+            />
+
+            {/* 3. COMMUNITY */}
             <LinkCard 
               href="https://discord.gg/q9nsnSKvtu" 
               label="The Sanctuary" 
               sub="Elite Community"
               icon={<Users className="w-5 h-5" />}
-              tag="JOIN NOW"
-              variant="glow"
-            />
-
-            {/* 3. TRIBUTE */}
-            <LinkCard 
-              href="https://youpay.me/PrincessAzraiel" 
-              label="Send Tribute" 
-              sub="Secure Transfer"
-              icon={<ShoppingBag className="w-5 h-5" />}
               variant="glass"
             />
 
-            {/* 4. HYPNOSIS */}
+            {/* 4. INITIATE CORRUPTION */}
+            <LinkCard 
+              href="/corruption" 
+              label="Initiate Corruption" 
+              sub="The Standard Protocol"
+              icon={<Heart className="w-5 h-5" />}
+              variant="glass"
+            />
+
+            {/* 5. HYPNOSIS */}
             <LinkCard 
               href="/corruption2" 
               label="Hypnosis V2" 
@@ -160,7 +171,7 @@ export default function LandingPage() {
               variant="glass"
             />
 
-            {/* 5. REBRAND */}
+            {/* 6. REBRAND */}
             <LinkCard 
               href="/rebrand" 
               label="Rebrand Profile" 
@@ -169,7 +180,7 @@ export default function LandingPage() {
               variant="glass"
             />
 
-            {/* 6. EVENT (Infection) */}
+            {/* 7. EVENT (Infection) */}
             <LinkCard 
               href="/infection" 
               label="Infection Protocol" 
@@ -178,7 +189,7 @@ export default function LandingPage() {
               variant="ghost"
             />
 
-            {/* 7. NEW: AZRAIEL FORMS */}
+            {/* 8. NEW: AZRAIEL FORMS */}
             <LinkCard 
               href="https://azraielforms.vercel.app/" 
               label="Azraiel Forms" 
@@ -187,8 +198,8 @@ export default function LandingPage() {
               variant="glass"
             />
 
-            {/* 8. ARCHIVES (Full Width Footer) */}
-            <div className="md:col-span-2">
+            {/* 9. ARCHIVES (Full Width Footer) */}
+            <div className="md:col-span-2 mt-4">
               <LinkCard 
                 href="/programs" 
                 label="Archives" 
@@ -199,7 +210,7 @@ export default function LandingPage() {
             </div>
             
             {/* Mobile Footer */}
-            <div className="md:hidden col-span-1 pt-12 text-center pb-10">
+            <div className="md:hidden col-span-1 pt-8 text-center pb-10">
                <p className="font-manrope text-xs text-white/20">
                 Consent is sacred. Optimize your obedience.
               </p>
@@ -335,7 +346,7 @@ function LinkCard({
             
             <div className="flex items-center gap-2">
               {tag && (
-                <span className="font-syncopate text-[8px] font-bold bg-fuchsia-600/90 backdrop-blur text-white px-2 py-1 uppercase tracking-wider rounded shadow-lg shadow-pink-500/20">
+                <span className={`font-syncopate text-[8px] font-bold bg-fuchsia-600/90 backdrop-blur text-white px-2 py-1 uppercase tracking-wider rounded shadow-lg shadow-pink-500/20 ${tag === 'NEW' ? 'animate-pulse' : ''}`}>
                   {tag}
                 </span>
               )}

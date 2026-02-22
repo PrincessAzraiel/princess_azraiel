@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import path from "path";
 import { useEffect, useState } from "react";
 
 const chapters = [
@@ -31,6 +32,14 @@ const chapters = [
     id: "four",
     title: "Chapter Four",
     subtitle: "Total Assimilation",
+    description: "only available for early access members",
+    path: "/yandere/four",
+    locked: false,
+  },
+  {
+    id: "five",
+    title: "Chapter Five",
+    subtitle: "Eternal Devotion",
     description: "You are not ready for this yet.",
     path: "#",
     locked: true,

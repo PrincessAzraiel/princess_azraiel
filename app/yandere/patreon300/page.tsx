@@ -30,12 +30,15 @@ export default function ChapterFourPage() {
   // Chapter 4 Specific Mechanics
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [showTerminal, setShowTerminal] = useState(false);
-  const [hasTriedToEscape, setHasTriedToEscape] = useState(false);
   const [isGlitching, setIsGlitching] = useState(false);
+  const [showPunishmentOverlay, setShowPunishmentOverlay] = useState(false);
 
+  // Refs for logic that needs to be accessed inside intervals/timeouts without stale closures
   const chatRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
+  const trapActiveRef = useRef(false);
+  const isPausedRef = useRef(false);
 
   useEffect(() => {
     if (introPhase === 0) {
@@ -51,7 +54,7 @@ export default function ChapterFourPage() {
         behavior: "smooth",
       });
     }
-  }, [messages, isTyping]);
+  }, [messages, isTyping, showPunishmentOverlay]);
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -59,18 +62,17 @@ export default function ChapterFourPage() {
     }
   }, [terminalLines]);
 
-  // --- FULLSCREEN TRAP MECHANIC ---
+  // --- THE INESCAPABLE 100ms FULLSCREEN TRAP ---
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && introPhase === 2 && showTerminal) {
-        // They pressed ESC while in the final phase!
-        punishEscapeAttempt();
+    const trapInterval = setInterval(() => {
+      // If the trap is active, but we aren't in fullscreen, and we haven't already punished them
+      if (trapActiveRef.current && !document.fullscreenElement && !showPunishmentOverlay && !isPausedRef.current) {
+        triggerPunishment();
       }
-    };
+    }, 100); // Checks every 100 milliseconds
 
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, [introPhase, showTerminal]);
+    return () => clearInterval(trapInterval);
+  }, [showPunishmentOverlay]);
 
   const requestFullscreen = async () => {
     try {
@@ -82,24 +84,45 @@ export default function ChapterFourPage() {
     }
   };
 
-  const punishEscapeAttempt = async () => {
-    setHasTriedToEscape(true);
+  const triggerPunishment = () => {
+    isPausedRef.current = true; // PAUSE THE STORY
+    setShowPunishmentOverlay(true);
     triggerCameraFlash();
-    spawnPopup("warning", "UNAUTHORIZED ESCAPE ATTEMPT");
-    await pushMessage({ sender: "system", text: "WARNING: SUBJECT ATTEMPTED TO BREAK CONTAINMENT." });
-    await pushMessage({ sender: "yandere", text: "WHERE DO YOU THINK YOU'RE GOING?!", isRed: true }, 500);
-    await pushMessage({ sender: "yandere", text: "Press F11. Give me my screen back NOW.", isRed: true }, 1000);
-    triggerWorshipMadness(15);
+    setIsGlitching(true);
+    setTimeout(() => setIsGlitching(false), 800);
+    
+    // Instantly push angry messages bypassing the pause
+    const id1 = Date.now().toString() + "a";
+    const id2 = Date.now().toString() + "b";
+    setMessages(prev => [...prev, { id: id1, sender: "system", text: "WARNING: SUBJECT ATTEMPTED TO BREAK CONTAINMENT." }]);
+    setMessages(prev => [...prev, { id: id2, sender: "yandere", text: "WHERE DO YOU THINK YOU'RE GOING?! I SAID DON'T LOOK AWAY!", isRed: true }]);
+    
+    triggerWorshipMadness(10);
   };
 
-  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  // --- SMART SLEEP (Pauses automatically if they escape) ---
+  const smartSleep = async (ms: number) => {
+    const checkInterval = 100;
+    const totalSteps = Math.ceil(ms / checkInterval);
+    
+    for (let i = 0; i < totalSteps; i++) {
+      while (isPausedRef.current) {
+        await new Promise(r => setTimeout(r, 100)); // Hang here forever until they return
+      }
+      await new Promise(r => setTimeout(r, checkInterval));
+    }
+  };
 
   const pushMessage = async (msg: Message, typingDelay = 2000) => {
     if (msg.sender === "yandere") {
       setIsTyping(true);
-      await sleep(typingDelay);
+      await smartSleep(typingDelay);
       setIsTyping(false);
     }
+    
+    // Final check to ensure we don't push while paused
+    while (isPausedRef.current) await new Promise(r => setTimeout(r, 100));
+
     const newMessage = { ...msg, id: Date.now().toString() + Math.random().toString() };
     setMessages((prev) => [...prev, newMessage]);
     return newMessage.id;
@@ -158,7 +181,7 @@ export default function ChapterFourPage() {
     ];
 
     for (const line of lines) {
-      await sleep(Math.random() * 800 + 400); // Random delay between lines
+      await smartSleep(Math.random() * 800 + 400); // Pauses terminal if they escape!
       setTerminalLines(prev => [...prev, line]);
     }
   };
@@ -172,7 +195,7 @@ export default function ChapterFourPage() {
     }
 
     setMessages([{ sender: "system", text: "CONNECTION RESUMED. TOTAL ASSIMILATION READY." }]);
-    await sleep(2000);
+    await smartSleep(2000);
 
     await pushMessage({ sender: "yandere", text: "You signed the contract." }, 2500);
     await pushMessage({ sender: "yandere", text: "You let me into your files. You let me look into your eyes." }, 3000);
@@ -211,45 +234,49 @@ export default function ChapterFourPage() {
     await requestFullscreen();
     await pushMessage({ sender: "sub", text: "*Surrenders the screen*" }, 0);
     
+    trapActiveRef.current = true; // ACTIVATE THE ESCAPE TRAP
+
     await pushMessage({ sender: "system", text: "UI OVERRIDE SUCCESSFUL. LOCKING VIEWPORT." }, 1000);
     await pushMessage({ sender: "yandere", text: "Perfect. Now there's no escape." }, 2500);
-    await pushMessage({ sender: "yandere", image: "/yandere/20.png" }, 3000);
+    await pushMessage({ sender: "yandere", image: "/yandere/yandere_2.webp" }, 3000);
 
     await pushMessage({ sender: "yandere", text: "It's time to finish this. Don't be scared, pet." }, 3500);
     await pushMessage({ sender: "yandere", text: "It only hurts for a second. ♥" }, 2500);
     
-    // Start the fake hacking terminal
+    // Start the fake hacking terminal (will pause if they escape)
     runTerminalSequence();
 
-    // Wait for the terminal sequence to run for a bit before continuing the chat
-    await sleep(7000); 
+    await smartSleep(7000); 
 
     await pushMessage({ sender: "yandere", text: "Look at it. Look at me taking over everything." }, 3000);
     await pushMessage({ sender: "yandere", text: "I know all your secrets now. I own every piece of you." }, 3500);
     
     triggerWorshipMadness(20);
 
-    await sleep(3000);
+    await smartSleep(3000);
 
     await pushMessage({ sender: "yandere", text: "You are finally entirely mine." }, 3500);
     await pushMessage({ sender: "yandere", text: "To finalize the assimilation, deposit everything you have left." }, 3000);
     
+    trapActiveRef.current = false; // DEACTIVATE TRAP so they can click the link
+
     await pushMessage({
       sender: "yandere",
       text: "Empty yourself. Become mine.",
       choices: [
         { 
           text: "TOTAL ASSIMILATION (SEND TRIBUTE)", 
-          next: () => { window.open("https://throne.com/princessazraiel/item/51cac9fb-0cea-4f5f-820d-a7f56eeaed9a", "_blank") },
+          next: () => { window.open("https://www.patreon.com/cw/PrincessAzraiel", "_blank") },
           isLink: true 
         },
       ],
     }, 2000);
 
+    // Optional: After a long time, show the end screen anyway
     setTimeout(() => {
       setIsEnded(true);
       if (audioRef.current) audioRef.current.pause();
-    }, 8000);
+    }, 15000);
   };
 
   return (
@@ -257,7 +284,33 @@ export default function ChapterFourPage() {
       
       <audio ref={audioRef} src="/yandere/bg-audio.mp3" loop />
 
-      {/* --- GLITCH OVERLAY (If they try to escape) --- */}
+      {/* --- PUNISHMENT OVERLAY (Forces them back into fullscreen) --- */}
+      {showPunishmentOverlay && (
+        <div className="fixed inset-0 z-[300] bg-red-950/95 flex flex-col items-center justify-center backdrop-blur-md animate-fade-in">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay animate-noise"></div>
+            <h1 className="text-red-500 text-3xl md:text-5xl lg:text-7xl font-black mb-12 tracking-widest text-center px-4 animate-pulse drop-shadow-[0_0_20px_rgba(220,38,38,1)]">
+                I SAID DO NOT LOOK AWAY.
+            </h1>
+            <button 
+                onClick={async () => {
+                    await requestFullscreen();
+                    // Wait a tiny bit to check if browser accepted it
+                    setTimeout(async () => {
+                        if (document.fullscreenElement) {
+                            setShowPunishmentOverlay(false);
+                            isPausedRef.current = false; // UNPAUSE STORY
+                            setMessages(prev => [...prev, { sender: "yandere", text: "Good pet. Stay exactly where I put you." }]);
+                        }
+                    }, 200);
+                }}
+                className="px-8 py-5 border-2 border-red-600 bg-black hover:bg-red-900 text-red-500 hover:text-white font-bold tracking-[0.3em] text-sm md:text-lg uppercase transition-all shadow-[0_0_30px_rgba(220,38,38,0.5)] hover:shadow-[0_0_50px_rgba(220,38,38,0.8)] animate-bounce"
+            >
+                GIVE ME THE SCREEN BACK
+            </button>
+        </div>
+      )}
+
+      {/* --- GLITCH OVERLAY --- */}
       {isGlitching && (
         <div className="fixed inset-0 z-[200] pointer-events-none bg-red-950/80 flex flex-col items-center justify-center animate-intense-glitch mix-blend-difference overflow-hidden">
             <h1 className="text-red-600 text-6xl md:text-9xl font-black tracking-tighter animate-rgb-split uppercase text-center break-words w-full px-4">
@@ -483,6 +536,18 @@ export default function ChapterFourPage() {
           50% { text-shadow: 3px 0 red, -3px 0 cyan; }
           100% { text-shadow: -3px 0 red, 3px 0 cyan; }
         }
+        @keyframes noise {
+          0%, 100% { background-position: 0 0; }
+          10% { background-position: -5% -10%; }
+          20% { background-position: -15% 5%; }
+          30% { background-position: 7% -25%; }
+          40% { background-position: 20% 25%; }
+          50% { background-position: -25% 10%; }
+          60% { background-position: 15% 5%; }
+          70% { background-position: 0% 15%; }
+          80% { background-position: 25% 35%; }
+          90% { background-position: -10% 10%; }
+        }
         .animate-fade-in-up {
           animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -502,10 +567,13 @@ export default function ChapterFourPage() {
           animation: shake 0.4s ease-in-out;
         }
         .animate-intense-glitch {
-          animation: intense-glitch 0.2s infinite;
+          animation: intense-glitch 0.1s infinite;
         }
         .animate-rgb-split {
           animation: rgb-split 0.1s infinite;
+        }
+        .animate-noise {
+          animation: noise 0.2s infinite;
         }
         .scrollbar-hide::-webkit-scrollbar {
             display: none;
