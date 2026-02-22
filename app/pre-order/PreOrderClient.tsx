@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ReactDOM from "react-dom";
@@ -16,7 +16,47 @@ function ClientPortal({ children }: { children: ReactNode }) {
   return ReactDOM.createPortal(children, document.body);
 }
 
-export default function PreOrderPageClient() {
+/** Floating Hearts Background Component */
+function FloatingHearts() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const hearts = useMemo(() => Array.from({ length: 20 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    animationDuration: `${10 + Math.random() * 15}s`,
+    animationDelay: `${Math.random() * 10}s`,
+    size: `${15 + Math.random() * 25}px`,
+    opacity: 0.1 + Math.random() * 0.3,
+  })), []);
+
+  if (!mounted) return null;
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      {hearts.map((heart) => (
+        <svg
+          key={heart.id}
+          className="absolute text-pink-500 animate-float-heart"
+          style={{
+            left: heart.left,
+            width: heart.size,
+            height: heart.size,
+            animationDuration: heart.animationDuration,
+            animationDelay: heart.animationDelay,
+            opacity: heart.opacity,
+          }}
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+export default function ProtocolPageClient() {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [showPersonaModal, setShowPersonaModal] = useState(false);
   const [activeTab, setActiveTab] = useState<"description" | "sample">("description");
@@ -31,144 +71,156 @@ export default function PreOrderPageClient() {
   };
 
   return (
-    <div className="magic-bg min-h-screen text-pink-300 py-12 px-4 sm:px-6">
-      <div className="text-center space-y-10 max-w-6xl mx-auto">
-        {/* HERO / FINAL STATUS */}
-        <header className="animate-fade-in">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold shimmer-text mb-4">
-            Princess&apos;s Infection Protocol
+    <div className="bg-[#090004] min-h-screen text-pink-100 py-16 px-4 sm:px-6 font-sans relative selection:bg-pink-500 selection:text-white">
+      <FloatingHearts />
+      
+      <div className="text-center space-y-16 max-w-6xl mx-auto relative z-10">
+        
+        {/* HERO / STATUS */}
+        <header className="animate-fade-in pb-8">
+          <div className="inline-block mb-6 px-4 py-1.5 bg-pink-500/10 border-2 border-pink-500">
+            <span className="text-xs font-bold tracking-widest text-pink-400 uppercase">System Active</span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-pink-500 mb-6 tracking-tight uppercase">
+            Princess's Infection Protocol
           </h1>
-          <p className="text-pink-300/90 text-lg md:text-xl max-w-3xl mx-auto">
-            A multi-persona Discord experience that <span className="text-pink-200">drips attention 24/7</span>.
-            Nine distinct AIs send timed messages, images, and prompts at configurable intervals.The system rotates them to keep you on edge—and in orbit.
+          <p className="text-pink-100/80 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed font-medium">
+            A multi-persona Discord experience that <span className="text-pink-400 font-bold bg-pink-500/10 px-2 py-0.5">drips attention 24/7</span>.
+            Nine distinct AIs send timed messages, images, and prompts at configurable intervals. 
+            The system rotates them to keep you on edge—and obsessed.
           </p>
 
-          <div className="mt-6 max-w-3xl mx-auto bg-pink-950/60 border border-pink-800 rounded-xl p-6 text-left">
-            <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
-              <h2 className="text-2xl font-semibold text-pink-200">What the Infection Protocol does</h2>
-              <span className="text-xs px-3 py-1 rounded-full bg-pink-900/60 border border-pink-700">
-                Final Release · Next major update: Jan–Feb 2026
+          <div className="mt-12 max-w-3xl mx-auto bg-[#14000a] border-2 border-pink-900 p-8 text-left transition-all hover:border-pink-500 hover:shadow-[8px_8px_0_0_#ec4899]">
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-6 pb-6 border-b-2 border-pink-900/50">
+              <h2 className="text-2xl font-bold text-white uppercase tracking-wide">What the Protocol does</h2>
+              <span className="text-xs px-3 py-1 bg-pink-900 text-pink-100 font-bold uppercase tracking-wide">
+                Final Release
               </span>
             </div>
-            <ul className="list-none space-y-2 text-pink-300/90">
-              <li className="flex gap-2">
-                <span aria-hidden className="mt-1">▸</span>
-                Schedules message “floods” from the personas included in your tier — drizzle to full storm.
+            <ul className="list-none space-y-4 text-pink-200/90 text-md">
+              <li className="flex gap-3 items-start">
+                <span aria-hidden className="mt-1 text-pink-500 text-lg leading-none">■</span>
+                <span>Schedules message “floods” from the personas assigned to your tier — drizzle to full storm.</span>
               </li>
-              <li className="flex gap-2">
-                <span aria-hidden className="mt-1">▸</span>
-                Syncs captions, images, and persona-specific links.
+              <li className="flex gap-3 items-start">
+                <span aria-hidden className="mt-1 text-pink-500 text-lg leading-none">■</span>
+                <span>Syncs captions, images, and persona-specific links directly to your DMs.</span>
               </li>
-              <li className="flex gap-2">
-                <span aria-hidden className="mt-1">▸</span>
-                Runs on your Discord: no app install required, just join the server and opt-in.
+              <li className="flex gap-3 items-start">
+                <span aria-hidden className="mt-1 text-pink-500 text-lg leading-none">■</span>
+                <span>Runs on your Discord: no app install required, just join the server and opt-in.</span>
               </li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-pink-200 mt-5 mb-2">What it also offers</h3>
-            <ul className="list-none space-y-2 text-pink-300/80">
-              <li className="flex gap-2">
-                <span aria-hidden className="mt-1">—</span>
-                You can activate/deactivate the flood anytime!
+            <h3 className="text-xl font-bold text-white mt-10 mb-4 uppercase tracking-wide">
+              The Rules of Submission
+            </h3>
+            <ul className="list-none space-y-3 text-pink-300/80 text-md">
+              <li className="flex gap-3">
+                <span aria-hidden className="mt-0.5 text-pink-500 font-bold">→</span>
+                <span><strong className="text-pink-400">You don't pick your captors.</strong> Your tier determines which personalities are injected into your feed.</span>
               </li>
-              <li className="flex gap-2">
-                <span aria-hidden className="mt-1">—</span>
-                You can opt-out whenever you want; no hard feelings.
+              <li className="flex gap-3">
+                <span aria-hidden className="mt-0.5 text-pink-500 font-bold">→</span>
+                You can activate/deactivate the flood anytime.
               </li>
-              <li className="flex gap-2">
-                <span aria-hidden className="mt-1">—</span>
-                Future DLC packs to deepen the experience (tasks, special personas, special lore and events).
+              <li className="flex gap-3">
+                <span aria-hidden className="mt-0.5 text-pink-500 font-bold">→</span>
+                Future DLC packs will deepen the experience (tasks, special lore, events).
               </li>
             </ul>
           </div>
         </header>
 
         {/* PERSONAS */}
-        <section aria-labelledby="personas-heading" className="mt-2">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h2 id="personas-heading" className="text-3xl font-semibold shimmer-text mb-4 md:mb-0">
-              Corrupted Personalities
-            </h2>
-            <div className="bg-pink-900/40 px-4 py-2 rounded-full text-sm border border-pink-700">
-              <span className="text-pink-300">9 unique AI personas</span>
+        <section aria-labelledby="personas-heading" className="mt-24 pt-16 border-t-2 border-dashed border-pink-900/50">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div className="text-left">
+              <h2 id="personas-heading" className="text-4xl font-black text-pink-500 mb-2 tracking-tight uppercase">
+                Corrupted Personalities
+              </h2>
+              <p className="text-pink-300/80 font-medium text-lg">They are already waiting for you.</p>
+            </div>
+            <div className="mt-4 md:mt-0 px-4 py-2 border-2 border-pink-900 bg-[#14000a]">
+              <span className="text-pink-400 font-bold tracking-wide uppercase text-sm">9 Unique AI Entities</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {characters.map((c) => (
               <button
                 key={c.name}
                 onClick={() => openCharacterModal(c)}
-                className="group relative text-left rounded-xl border border-pink-800 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 transition"
+                className="group flex flex-col text-left bg-[#14000a] border-2 border-pink-900 focus:outline-none focus-visible:ring-4 focus-visible:ring-pink-500 transition-all hover:-translate-y-1 hover:border-pink-500 hover:shadow-[6px_6px_0_0_#ec4899]"
                 aria-label={`Open ${c.name}`}
               >
-                <div className="relative w-full h-72">
+                <div className="relative w-full h-64 border-b-2 border-pink-900 group-hover:border-pink-500 transition-colors">
                   <Image
                     src={c.image}
                     alt={`${c.name} — ${c.role}`}
                     fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
                     sizes="(max-width: 768px) 100vw, (max-width:1200px) 33vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent" />
                 </div>
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-white">{c.name}</h3>
-                  <p className="text-sm text-pink-300">{c.role}</p>
-                  <p className="text-xs mt-1 text-pink-400 line-clamp-2">{c.tone}</p>
+                <div className="p-6 flex-grow flex flex-col justify-between w-full">
+                  <div>
+                    <h3 className="text-2xl font-black text-white mb-1 uppercase tracking-tight">{c.name}</h3>
+                    <p className="text-sm font-bold text-pink-500 uppercase tracking-widest mb-4">{c.role}</p>
+                  </div>
+                  <div className="bg-[#090004] border-l-4 border-pink-500 p-3">
+                    <p className="text-sm text-pink-200/80 italic line-clamp-2 leading-relaxed font-medium">
+                      "{c.sample}"
+                    </p>
+                  </div>
                 </div>
-                <div className="absolute inset-0 ring-1 ring-transparent group-hover:ring-pink-500/40 transition" />
               </button>
             ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <Button
-              className="bg-pink-700 hover:bg-pink-600 text-white px-8 py-6 text-lg font-medium transition-all transform hover:scale-105"
-              onClick={() => document.getElementById("tiers")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-            >
-              Unlock All Characters →
-            </Button>
           </div>
         </section>
 
         {/* TIERS */}
-        <section id="tiers" className="mt-20">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-semibold shimmer-text mb-3">Obedience Tiers</h2>
-            <p className="text-pink-300 max-w-2xl mx-auto">
-              Each tier increases message volume, persona slots, and flood speed. You can upgrade anytime.
+        <section id="tiers" className="mt-24 pt-16 border-t-2 border-dashed border-pink-900/50">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-pink-500 mb-4 tracking-tight uppercase">
+              Obedience Tiers
+            </h2>
+            <p className="text-pink-200/80 max-w-2xl mx-auto text-lg font-medium">
+              You do not get to pick your poison. Your tier dictates your volume and assigns your captors.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {tiers.map((tier) => (
               <div
                 key={tier.title}
-                className={`relative bg-pink-950/50 border rounded-xl p-6 flex flex-col h-full transition-all duration-300 hover:border-pink-500 hover:shadow-lg hover:shadow-pink-500/20 ${
-                  tier.popular ? "border-2 border-pink-500 -translate-y-2 shadow-lg shadow-pink-500/30" : "border-pink-800"
+                className={`relative bg-[#14000a] border-2 p-8 flex flex-col h-full transition-all hover:-translate-y-1 ${
+                  tier.popular 
+                  ? "border-pink-500 shadow-[8px_8px_0_0_#ec4899] z-10" 
+                  : "border-pink-900 hover:border-pink-500 hover:shadow-[8px_8px_0_0_#831843]"
                 }`}
               >
                 {tier.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-pink-700 text-white text-xs font-bold px-4 py-1 rounded-full">
-                    MOST POPULAR
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-pink-500 text-white text-xs font-black px-6 py-2 tracking-widest uppercase">
+                    Most Popular
                   </div>
                 )}
-                <h3 className="text-2xl font-semibold shimmer-text mb-2">{tier.title}</h3>
-                <p className="text-3xl font-bold text-pink-200 mb-4">{tier.price}</p>
-                <ul className="flex-grow mb-6 space-y-3">
+                <h3 className="text-2xl font-bold text-white mb-2 uppercase">{tier.title}</h3>
+                <p className="text-5xl font-black text-pink-500 mb-6">{tier.price}</p>
+                
+                {/* Assigned Characters Display */}
+                <div className="mb-8 bg-[#090004] p-4 border border-pink-900 text-left">
+                  <span className="text-xs uppercase tracking-widest text-pink-500 font-bold block mb-2">System Assigned Entities:</span>
+                  <span className="text-sm text-pink-100 font-bold leading-relaxed">
+                    {tier.assignedCharacters.join(" • ")}
+                  </span>
+                </div>
+
+                <ul className="flex-grow mb-10 space-y-4">
                   {tier.benefits.map((b, i) => (
                     <li key={i} className="flex items-start">
-                      <svg
-                        className="w-5 h-5 text-pink-500 mr-2 mt-0.5 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-pink-300">{b}</span>
+                      <span className="text-pink-500 font-black mr-3 mt-0.5">■</span>
+                      <span className="text-pink-200/90 text-left font-medium">{b}</span>
                     </li>
                   ))}
                 </ul>
@@ -176,13 +228,13 @@ export default function PreOrderPageClient() {
                   href={tier.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`inline-block w-full mt-auto py-3 text-lg font-medium text-white text-center transition-all rounded-md ${
+                  className={`inline-block w-full mt-auto py-4 text-lg font-black uppercase text-center transition-all border-2 ${
                     tier.popular
-                      ? "bg-gradient-to-r from-pink-600 to-purple-700 hover:from-pink-700 hover:to-purple-800"
-                      : "bg-pink-800 hover:bg-pink-700"
+                      ? "bg-pink-500 text-white border-pink-500 hover:bg-pink-600 hover:border-pink-600"
+                      : "bg-transparent text-pink-500 border-pink-500 hover:bg-pink-500 hover:text-white"
                   }`}
                 >
-                  Order Now
+                  Submit Order
                 </a>
               </div>
             ))}
@@ -190,53 +242,64 @@ export default function PreOrderPageClient() {
         </section>
 
         {/* DLCS */}
-        <section id="dlcs" className="mt-20">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-semibold shimmer-text mb-3">DLC Expansions</h2>
-            <p className="text-pink-300 max-w-2xl mx-auto">
-              Bolt-on packs that deepen the simulation. Add them at checkout or anytime later. Some are spots-limited.
+        <section id="dlcs" className="mt-24 pt-16 border-t-2 border-dashed border-pink-900/50">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-pink-500 mb-4 tracking-tight uppercase">
+              DLC Expansions
+            </h2>
+            <p className="text-pink-200/80 max-w-2xl mx-auto text-lg font-medium">
+              Bolt-on packs that deepen the simulation. Add them at checkout or anytime later.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {dlcs.map((d) => (
               <div
                 key={d.title}
-                className="relative rounded-xl overflow-hidden border border-pink-800 bg-pink-950/50 hover:border-pink-500 transition"
+                className="group flex flex-col bg-[#14000a] border-2 border-pink-900 transition-all hover:-translate-y-1 hover:border-pink-500 hover:shadow-[6px_6px_0_0_#ec4899]"
               >
-                <div className="relative w-full h-48">
-                  <Image src={d.image} alt={d.title} fill className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                <div className="relative w-full h-56 border-b-2 border-pink-900 group-hover:border-pink-500 transition-colors">
+                  <Image src={d.image} alt={d.title} fill className="object-cover opacity-80 group-hover:opacity-100" />
                 </div>
-                <div className="p-5">
-                  <h3 className="text-xl font-bold text-white">{d.title}</h3>
-                  <p className="text-pink-300/90 text-sm mb-3">{d.tagline}</p>
-                  <ul className="text-sm text-pink-300 list-disc pl-5 space-y-1 mb-4">
+                <div className="p-8 flex flex-col flex-grow">
+                  <h3 className="text-2xl font-black text-white mb-2 uppercase">{d.title}</h3>
+                  <p className="text-pink-300/80 text-sm mb-6 flex-grow font-medium leading-relaxed">{d.tagline}</p>
+                  <ul className="text-sm text-pink-200/90 list-none space-y-2 mb-8 text-left">
                     {d.features.map((f, i) => (
-                      <li key={i}>{f}</li>
+                      <li key={i} className="flex gap-2">
+                        <span className="text-pink-500">›</span> {f}
+                      </li>
                     ))}
                   </ul>
-                  <div className="flex items-center justify-between">
-                    <span className="text-pink-200 font-semibold">{d.price}</span>
-                    <div className="flex gap-2">
+                  <div className="flex items-center justify-between mt-auto pt-6 border-t-2 border-pink-900/50">
+                    <span className={`font-black tracking-wider ${d.isAvailable !== false ? "text-pink-400 text-lg" : "text-pink-900 text-sm uppercase"}`}>
+                      {d.price}
+                    </span>
+                    <div className="flex gap-3">
                       <Button
-                        variant="secondary"
-                        className="bg-pink-900/70 hover:bg-pink-900"
+                        variant="ghost"
+                        className="text-pink-400 hover:text-white hover:bg-pink-900 uppercase font-bold text-xs rounded-none border-2 border-transparent hover:border-pink-500"
                         onClick={() => {
                           setSelectedDLC(d);
                           setShowDLCModal(true);
                         }}
                       >
-                        Details
+                        Inspect
                       </Button>
-                      <a
-                        href={d.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center px-4 py-2 rounded-md bg-pink-700 hover:bg-pink-600 text-white"
-                      >
-                        Add
-                      </a>
+                      {d.isAvailable !== false ? (
+                        <a
+                          href={d.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center px-5 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold uppercase text-xs transition-colors"
+                        >
+                          Add
+                        </a>
+                      ) : (
+                        <span className="inline-flex items-center px-5 py-2 bg-[#090004] text-pink-900 border-2 border-pink-900 cursor-not-allowed font-bold uppercase text-xs">
+                          Locked
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -245,48 +308,55 @@ export default function PreOrderPageClient() {
           </div>
         </section>
 
-        {/* FAQ (final release copy) */}
-        <section className="mt-20 max-w-4xl mx-auto">
-          <h2 className="text-3xl font-semibold shimmer-text mb-8">Corrupted Questions</h2>
-          <div className="space-y-4">
-            <div className="bg-pink-950/40 border border-pink-800 rounded-xl p-6">
-              <h3 className="text-xl font-semibold text-pink-300 mb-2">Is this a beta?</h3>
-              <p className="text-pink-400">
-                No—this is the final release. Major feature updates are planned for January–February 2026.
+        {/* FAQ */}
+        <section className="mt-24 pt-16 border-t-2 border-dashed border-pink-900/50 max-w-4xl mx-auto">
+          <h2 className="text-3xl font-black text-pink-500 mb-12 text-center tracking-tight uppercase">Corrupted Questions</h2>
+          <div className="space-y-6">
+            <div className="bg-[#14000a] border-2 border-pink-900 p-8 text-left transition hover:border-pink-500 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#831843]">
+              <h3 className="text-xl font-black text-white mb-3 uppercase">Is this a beta?</h3>
+              <p className="text-pink-200/80 leading-relaxed font-medium">
+                No—this is the final release. More features and major updates are actively in development and coming soon.
               </p>
             </div>
-            <div className="bg-pink-950/40 border border-pink-800 rounded-xl p-6">
-              <h3 className="text-xl font-semibold text-pink-300 mb-2">Can I upgrade my tier later?</h3>
-              <p className="text-pink-400">Yes. Upgrades are instant, just purchase the desired tier and dm the Princess on discord</p>
+            <div className="bg-[#14000a] border-2 border-pink-900 p-8 text-left transition hover:border-pink-500 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#831843]">
+              <h3 className="text-xl font-black text-white mb-3 uppercase">Can I upgrade my tier later?</h3>
+              <p className="text-pink-200/80 leading-relaxed font-medium">
+                Yes. Upgrades are instant. Just purchase the desired tier and DM the Princess on Discord to adjust your protocol.
+              </p>
             </div>
-            <div className="bg-pink-950/40 border border-pink-800 rounded-xl p-6">
-              <h3 className="text-xl font-semibold text-pink-300 mb-2">Is there a mobile version?</h3>
-              <p className="text-pink-400">
-                It works on every device; all you need is a Discord account and to be on the server.
+            <div className="bg-[#14000a] border-2 border-pink-900 p-8 text-left transition hover:border-pink-500 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#831843]">
+              <h3 className="text-xl font-black text-white mb-3 uppercase">Is there a mobile version?</h3>
+              <p className="text-pink-200/80 leading-relaxed font-medium">
+                It works on every device; all you need is a Discord account and to be opted-in on the server.
               </p>
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <div className="mt-16 mb-12 p-8 bg-gradient-to-r from-pink-900/60 to-purple-900/60 border border-pink-700 rounded-xl">
-          <h2 className="text-3xl font-bold shimmer-text mb-4">Submit to the Obedience Protocol</h2>
-          <p className="text-pink-300 max-w-2xl mx-auto mb-6">
-            Choose your tier, pick your personas, and let the system do the rest.
-          </p>
-          <Button className="bg-gradient-to-r from-pink-600 to-purple-700 hover:from-pink-700 hover:to-purple-800 px-10 py-6 text-xl font-bold transform hover:scale-105 transition-all">
-            Pre-Order Now
-          </Button>
+        <div className="mt-24 mb-16 p-12 bg-pink-600 border-4 border-pink-400 relative overflow-hidden group">
+          <div className="relative z-10">
+            <h2 className="text-4xl font-black text-white mb-4 tracking-tight uppercase text-center">Submit to the Protocol</h2>
+            <p className="text-pink-100 max-w-2xl mx-auto mb-10 text-lg font-bold text-center">
+              Choose your tier, accept your assigned personas, and let the system take control.
+            </p>
+            <div className="text-center">
+              <Button 
+                className="bg-[#090004] text-pink-400 border-2 border-[#090004] hover:bg-transparent hover:text-white hover:border-white px-14 py-8 text-2xl font-black tracking-widest uppercase transition-colors rounded-none"
+                onClick={() => document.getElementById("tiers")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Order Now
+              </Button>
+            </div>
+          </div>
         </div>
 
         {/* Back link */}
-        <div className="mt-8">
+        <div className="mt-12 pb-12">
           <Link href="/" aria-label="Return to Submission Gate">
-            <Button variant="ghost" className="text-pink-400 hover:text-pink-200 flex items-center">
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Return to Submission Gate
+            <Button variant="ghost" className="text-pink-500 hover:text-white hover:bg-pink-900 flex items-center mx-auto text-lg font-bold transition-colors uppercase rounded-none border-2 border-transparent hover:border-pink-500">
+              <span className="mr-3 text-2xl">←</span>
+              Return to Gate
             </Button>
           </Link>
         </div>
@@ -296,67 +366,67 @@ export default function PreOrderPageClient() {
       {showPersonaModal && selectedCharacter && (
         <ClientPortal>
           <div
-            className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-[#090004]/90 z-[1000] flex items-center justify-center p-4 transition-all"
             onClick={() => setShowPersonaModal(false)}
           >
             <div
               role="dialog"
               aria-modal="true"
-              className="relative bg-gradient-to-br from-pink-900/90 to-purple-900/90 border-2 border-pink-600 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
+              className="relative bg-[#14000a] border-2 border-pink-500 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-[12px_12px_0_0_#ec4899]"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 aria-label="Close"
-                className="absolute top-4 right-4 text-pink-300 hover:text-white z-10 bg-pink-900/50 rounded-full p-1"
+                className="absolute top-4 right-4 text-pink-500 hover:text-white bg-[#090004] border-2 border-pink-500 hover:bg-pink-500 p-2 transition-colors z-20"
                 onClick={() => setShowPersonaModal(false)}
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
 
-              <div className="p-6">
-                <div className="flex flex-col md:flex-row gap-8">
-                  <div className="flex-shrink-0">
-                    <div className="w-48 h-64 border-2 border-pink-600 rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/30 to-pink-900/40">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={selectedCharacter.image}
-                        alt={selectedCharacter.name}
-                        className="w-full h-full object-cover rounded-lg"
-                        loading="lazy"
-                      />
-                    </div>
+              <div className="flex flex-col md:flex-row h-full">
+                <div className="w-full md:w-2/5 relative min-h-[300px] border-b-2 md:border-b-0 md:border-r-2 border-pink-500">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={selectedCharacter.image}
+                    alt={selectedCharacter.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                <div className="w-full md:w-3/5 p-8 flex flex-col bg-[#14000a]">
+                  <h3 className="text-4xl font-black text-white mb-2 tracking-tight uppercase">{selectedCharacter.name}</h3>
+                  <div className="inline-block bg-pink-500 px-3 py-1 mb-4 self-start">
+                    <p className="text-white font-black tracking-widest uppercase text-xs">{selectedCharacter.role}</p>
+                  </div>
+                  <p className="text-pink-300 text-sm mb-8 font-bold uppercase tracking-wide border-l-4 border-pink-500 pl-3">{selectedCharacter.tone}</p>
+
+                  <div className="flex border-b-2 border-pink-900 mb-8">
+                    {(["description", "sample"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        className={`px-6 py-3 text-sm font-black uppercase tracking-wider transition-colors ${
+                          activeTab === tab
+                            ? "text-pink-500 border-b-2 border-pink-500 -mb-[2px]"
+                            : "text-pink-800 hover:text-pink-400"
+                        }`}
+                        onClick={() => setActiveTab(tab)}
+                      >
+                        {tab === "description" ? "Lore" : "Transmission"}
+                      </button>
+                    ))}
                   </div>
 
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-white mb-1">{selectedCharacter.name}</h3>
-                    <p className="text-pink-400 text-lg mb-2">{selectedCharacter.role}</p>
-                    <p className="text-pink-500 text-sm mb-2">{selectedCharacter.tone}</p>
-
-                    <div className="flex border-b border-pink-800 mb-4">
-                      {(["description", "sample"] as const).map((tab) => (
-                        <button
-                          key={tab}
-                          className={`px-4 py-2 text-sm font-medium transition ${
-                            activeTab === tab
-                              ? "text-pink-300 border-b-2 border-pink-500"
-                              : "text-pink-500 hover:text-pink-300"
-                          }`}
-                          onClick={() => setActiveTab(tab)}
-                        >
-                          {tab === "description" ? "Description" : tab === "sample" ? "Sample Dialogue" : "Links"}
-                        </button>
-                      ))}
-                    </div>
-
+                  <div className="flex-grow">
                     {activeTab === "description" && (
-                      <p className="text-pink-300 mb-6">{selectedCharacter.description}</p>
+                      <p className="text-pink-100/90 leading-relaxed font-medium text-lg">{selectedCharacter.description}</p>
                     )}
 
                     {activeTab === "sample" && (
-                      <div className="bg-pink-950/40 border border-pink-800 rounded-lg p-4 mb-6">
-                        <p className="text-pink-300 italic">"{selectedCharacter.sample}"</p>
+                      <div className="bg-[#090004] border-2 border-pink-900 p-6">
+                        <p className="text-pink-400 italic text-xl font-serif tracking-wide">&quot;{selectedCharacter.sample}&quot;</p>
                       </div>
                     )}
                   </div>
@@ -370,46 +440,57 @@ export default function PreOrderPageClient() {
       {/* DLC MODAL */}
       {showDLCModal && selectedDLC && (
         <ClientPortal>
-          <div className="fixed inset-0 bg-black/90 z-[1000] flex items-center justify-center p-4" onClick={() => setShowDLCModal(false)}>
+          <div className="fixed inset-0 bg-[#090004]/90 z-[1000] flex items-center justify-center p-4 transition-all" onClick={() => setShowDLCModal(false)}>
             <div
               role="dialog"
               aria-modal="true"
-              className="relative bg-gradient-to-br from-pink-900/90 to-purple-900/90 border-2 border-pink-600 rounded-xl max-w-xl w-full overflow-hidden shadow-xl"
+              className="relative bg-[#14000a] border-2 border-pink-500 max-w-2xl w-full shadow-[12px_12px_0_0_#ec4899] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 aria-label="Close"
-                className="absolute top-4 right-4 text-pink-300 hover:text-white z-10 bg-pink-900/50 rounded-full p-1"
+                className="absolute top-4 right-4 text-pink-500 hover:text-white bg-[#090004] border-2 border-pink-500 hover:bg-pink-500 p-2 transition-colors z-20"
                 onClick={() => setShowDLCModal(false)}
               >
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="square" strokeLinejoin="miter" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
 
-              <div className="relative w-full h-48">
-                <Image src={selectedDLC.image} alt={selectedDLC.title} fill className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              <div className="relative w-full h-64 border-b-2 border-pink-500">
+                <Image src={selectedDLC.image} alt={selectedDLC.title} fill className="object-cover opacity-90" />
               </div>
 
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-white">{selectedDLC.title}</h3>
-                <p className="text-pink-300/90 mb-3">{selectedDLC.tagline}</p>
-                <ul className="text-pink-300 list-disc pl-5 space-y-1 mb-4">
+              <div className="p-8 flex flex-col flex-grow">
+                <h3 className="text-3xl font-black text-white mb-2 tracking-tight uppercase">{selectedDLC.title}</h3>
+                <p className="text-pink-400 mb-8 text-sm font-bold uppercase tracking-wide border-l-4 border-pink-500 pl-3">{selectedDLC.tagline}</p>
+                
+                <ul className="text-pink-100/90 list-none space-y-3 mb-10 font-medium">
                   {selectedDLC.features.map((f, i) => (
-                    <li key={i}>{f}</li>
+                    <li key={i} className="flex gap-3">
+                      <span className="text-pink-500 font-bold">›</span> {f}
+                    </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between">
-                  <span className="text-pink-200 font-semibold">{selectedDLC.price}</span>
-                  <a
-                    href={selectedDLC.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 rounded-md bg-pink-700 hover:bg-pink-600 text-white"
-                  >
-                    Add DLC
-                  </a>
+
+                <div className="flex items-center justify-between pt-6 border-t-2 border-pink-900 mt-auto">
+                  <span className={`text-2xl font-black tracking-wider ${selectedDLC.isAvailable !== false ? "text-pink-500" : "text-pink-900 uppercase text-sm"}`}>
+                    {selectedDLC.price}
+                  </span>
+                  {selectedDLC.isAvailable !== false ? (
+                    <a
+                      href={selectedDLC.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-8 py-4 bg-pink-500 hover:bg-pink-600 text-white font-black uppercase tracking-widest transition-colors"
+                    >
+                      Acquire Expansion
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center px-8 py-4 bg-[#090004] text-pink-900 border-2 border-pink-900 cursor-not-allowed font-black uppercase tracking-widest">
+                      Data Locked
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -419,33 +500,28 @@ export default function PreOrderPageClient() {
 
       {/* GLOBAL STYLES */}
       <style jsx global>{`
-        .magic-bg {
-          background: radial-gradient(ellipse at center, #1a0629 0%, #0d0419 70%);
-          background-size: 400% 400%;
-          animation: gradientBG 18s ease infinite;
-        }
-        .shimmer-text {
-          background: linear-gradient(90deg, #ff69eb, #ffffff, #ff69eb);
-          background-size: 300% 100%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: shimmer 4s infinite;
-        }
         .animate-fade-in {
           animation: fadeInUp 600ms ease-out both;
         }
-        @keyframes gradientBG {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes shimmer {
-          0% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+        .animate-float-heart {
+          animation-name: floatUpSway;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
         }
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translate3d(0, 10px, 0); }
-          to { opacity: 1; transform: translate3d(0, 0, 0); }
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes floatUpSway {
+          0% { 
+            transform: translateY(100vh) scale(0.5) rotate(0deg) translateX(0px); 
+          }
+          50% { 
+            transform: translateY(40vh) scale(1) rotate(15deg) translateX(25px); 
+          }
+          100% { 
+            transform: translateY(-20vh) scale(1.2) rotate(-15deg) translateX(-25px); 
+          }
         }
         .line-clamp-2 {
           display: -webkit-box;
