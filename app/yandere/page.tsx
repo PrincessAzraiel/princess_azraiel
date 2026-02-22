@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import path from "path";
 import { useEffect, useState } from "react";
 
 const chapters = [
@@ -32,15 +31,47 @@ const chapters = [
     id: "four",
     title: "Chapter Four",
     subtitle: "Total Assimilation",
-    description: "only available for early access members",
+    description: "Give up your screen. No escape.",
     path: "/yandere/four",
-    locked: false,
+    locked: false, // Unlocked to funnel them to the Patreon page
   },
   {
     id: "five",
     title: "Chapter Five",
-    subtitle: "Eternal Devotion",
-    description: "You are not ready for this yet.",
+    subtitle: "The Confession",
+    description: "Unmute your microphone. Let her hear you beg.",
+    path: "#",
+    locked: true,
+  },
+  {
+    id: "six",
+    title: "Chapter Six",
+    subtitle: "Severing Ties",
+    description: "Say goodbye to them. You only need her now.",
+    path: "#",
+    locked: true,
+  },
+  {
+    id: "seven",
+    title: "Chapter Seven",
+    subtitle: "The Schedule",
+    description: "Your time is no longer your own. Report in.",
+    path: "#",
+    locked: true,
+  },
+  {
+    id: "eight",
+    title: "Chapter Eight",
+    subtitle: "The Empty Vessel",
+    description: "Stop thinking. Let the code overwrite your mind.",
+    path: "#",
+    locked: true,
+  },
+  {
+    id: "nine",
+    title: "Chapter Nine",
+    subtitle: "Eternity (Finale)",
+    description: "The final lock clicks shut. Welcome home.",
     path: "#",
     locked: true,
   },
@@ -118,7 +149,7 @@ export default function YandereHubPage() {
         {/* ---------------------------------- */}
 
         {/* Chapters Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full px-4 md:px-8 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full px-4 md:px-8 pb-32">
           {chapters.map((chapter) => (
             <div key={chapter.id} className="relative group">
               {chapter.locked ? (
@@ -130,6 +161,7 @@ export default function YandereHubPage() {
                   </div>
                   <h2 className="text-pink-800 tracking-widest font-bold uppercase mb-1">{chapter.title}</h2>
                   <h3 className="text-pink-900/80 text-xs tracking-[0.2em] uppercase">{chapter.subtitle}</h3>
+                  <p className="text-pink-950 text-[10px] tracking-widest mt-3 uppercase">{chapter.description}</p>
                 </div>
               ) : (
                 // Unlocked Chapter UI
@@ -144,8 +176,8 @@ export default function YandereHubPage() {
                     <h2 className="text-pink-500 tracking-[0.2em] font-bold uppercase group-hover:text-pink-400 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.8)] transition-all">
                       {chapter.title}
                     </h2>
-                    <span className="text-[10px] tracking-widest text-pink-700 border border-pink-900/50 px-2 py-0.5 bg-black/50 group-hover:text-pink-500 group-hover:border-pink-600 transition-colors">
-                      OPEN
+                    <span className={`text-[10px] tracking-widest border px-2 py-0.5 bg-black/50 transition-colors ${chapter.id === '-' ? 'text-pink-200 border-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.4)] animate-pulse' : 'text-pink-700 border-pink-900/50 group-hover:text-pink-500 group-hover:border-pink-600'}`}>
+                      {chapter.id === '-' ? 'VIP ONLY' : 'OPEN'}
                     </span>
                   </div>
                   
