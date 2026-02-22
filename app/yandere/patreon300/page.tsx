@@ -266,7 +266,7 @@ export default function ChapterFourPage() {
       choices: [
         { 
           text: "TOTAL ASSIMILATION (SEND TRIBUTE)", 
-          next: () => { window.open("https://www.patreon.com/cw/PrincessAzraiel", "_blank") },
+          next: () => { window.open("https://throne.com/princessazraiel/item/51cac9fb-0cea-4f5f-820d-a7f56eeaed9a", "_blank") },
           isLink: true 
         },
       ],
