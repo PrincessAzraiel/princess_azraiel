@@ -33,14 +33,14 @@ const chapters = [
     subtitle: "Total Assimilation",
     description: "Give up your screen. No escape.",
     path: "/yandere/four",
-    locked: false, // Unlocked to funnel them to the Patreon page
+    locked: false, // Officially released!
   },
   {
     id: "five",
     title: "Chapter Five",
     subtitle: "The Confession",
     description: "Unmute your microphone. Let her hear you beg.",
-    path: "#",
+    path: "https://www.patreon.com/cw/PrincessAzraiel",
     locked: true,
   },
   {
@@ -48,7 +48,7 @@ const chapters = [
     title: "Chapter Six",
     subtitle: "Severing Ties",
     description: "Say goodbye to them. You only need her now.",
-    path: "#",
+    path: "https://www.patreon.com/cw/PrincessAzraiel",
     locked: true,
   },
   {
@@ -56,7 +56,7 @@ const chapters = [
     title: "Chapter Seven",
     subtitle: "The Schedule",
     description: "Your time is no longer your own. Report in.",
-    path: "#",
+    path: "https://www.patreon.com/cw/PrincessAzraiel",
     locked: true,
   },
   {
@@ -64,7 +64,7 @@ const chapters = [
     title: "Chapter Eight",
     subtitle: "The Empty Vessel",
     description: "Stop thinking. Let the code overwrite your mind.",
-    path: "#",
+    path: "https://www.patreon.com/cw/PrincessAzraiel",
     locked: true,
   },
   {
@@ -72,7 +72,7 @@ const chapters = [
     title: "Chapter Nine",
     subtitle: "Eternity (Finale)",
     description: "The final lock clicks shut. Welcome home.",
-    path: "#",
+    path: "https://www.patreon.com/cw/PrincessAzraiel",
     locked: true,
   },
 ];
@@ -84,7 +84,7 @@ export default function YandereHubPage() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // Prevent hydration mismatch on initial load
+  if (!mounted) return null; 
 
   return (
     <div className="min-h-screen bg-[#050002] text-pink-500 font-mono flex flex-col items-center p-4 relative overflow-x-hidden selection:bg-pink-900 selection:text-white">
@@ -153,18 +153,39 @@ export default function YandereHubPage() {
           {chapters.map((chapter) => (
             <div key={chapter.id} className="relative group">
               {chapter.locked ? (
-                // Locked Chapter UI
-                <div className="h-full p-6 border border-pink-950/40 bg-[#0a0003] flex flex-col items-center justify-center text-center opacity-60 cursor-not-allowed overflow-hidden">
-                  <div className="absolute inset-0 bg-pink-950/10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-20 mix-blend-overlay"></div>
-                  <div className="text-pink-900/50 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                // VIP EARLY ACCESS FUNNEL (LINKS TO PATREON)
+                <a 
+                  href={chapter.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block h-full p-6 border border-pink-950/60 bg-[#0a0003] hover:bg-[#0f0005] hover:border-pink-700 transition-all duration-500 group-hover:shadow-[0_0_25px_rgba(236,72,153,0.15)] relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-pink-950/5 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-10 mix-blend-overlay"></div>
+                  
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <h2 className="text-pink-800 tracking-[0.2em] font-bold uppercase group-hover:text-pink-500 transition-all">
+                      {chapter.title}
+                    </h2>
+                    <span className="text-[9px] tracking-widest border border-pink-700 text-pink-300 px-2 py-0.5 bg-pink-950/40 shadow-[0_0_10px_rgba(236,72,153,0.3)] animate-pulse">
+                      VIP EARLY ACCESS
+                    </span>
                   </div>
-                  <h2 className="text-pink-800 tracking-widest font-bold uppercase mb-1">{chapter.title}</h2>
-                  <h3 className="text-pink-900/80 text-xs tracking-[0.2em] uppercase">{chapter.subtitle}</h3>
-                  <p className="text-pink-950 text-[10px] tracking-widest mt-3 uppercase">{chapter.description}</p>
-                </div>
+                  
+                  <h3 className="text-pink-900 text-sm tracking-widest uppercase mb-3 group-hover:text-pink-400 transition-colors relative z-10">
+                    {chapter.subtitle}
+                  </h3>
+                  
+                  <p className="text-pink-950 text-xs md:text-sm tracking-wider leading-relaxed group-hover:text-pink-700 transition-colors relative z-10">
+                    {chapter.description}
+                  </p>
+
+                  <div className="mt-5 pt-4 border-t border-pink-950/50 flex items-center gap-2 text-[10px] text-pink-800 tracking-widest uppercase font-bold group-hover:text-pink-400 transition-colors relative z-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    Unlock on Patreon
+                  </div>
+                </a>
               ) : (
-                // Unlocked Chapter UI
+                // UNLOCKED CHAPTER UI
                 <Link 
                   href={chapter.path}
                   className="block h-full p-6 border border-pink-900/40 bg-[#0f0005] hover:bg-pink-950/20 hover:border-pink-500 transition-all duration-500 group-hover:shadow-[0_0_25px_rgba(236,72,153,0.3)] relative overflow-hidden"
@@ -176,8 +197,8 @@ export default function YandereHubPage() {
                     <h2 className="text-pink-500 tracking-[0.2em] font-bold uppercase group-hover:text-pink-400 group-hover:drop-shadow-[0_0_8px_rgba(236,72,153,0.8)] transition-all">
                       {chapter.title}
                     </h2>
-                    <span className={`text-[10px] tracking-widest border px-2 py-0.5 bg-black/50 transition-colors ${chapter.id === '-' ? 'text-pink-200 border-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.4)] animate-pulse' : 'text-pink-700 border-pink-900/50 group-hover:text-pink-500 group-hover:border-pink-600'}`}>
-                      {chapter.id === '-' ? 'VIP ONLY' : 'OPEN'}
+                    <span className="text-[10px] tracking-widest text-pink-700 border border-pink-900/50 px-2 py-0.5 bg-black/50 group-hover:text-pink-500 group-hover:border-pink-600 transition-colors">
+                      OPEN
                     </span>
                   </div>
                   
