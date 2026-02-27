@@ -40,8 +40,8 @@ const chapters = [
     title: "Chapter Five",
     subtitle: "The Confession",
     description: "Unmute your microphone. Let her hear you beg.",
-    path: "https://www.patreon.com/cw/PrincessAzraiel",
-    locked: true,
+    path: "yandere/five",
+    locked: false,
   },
   {
     id: "six",
