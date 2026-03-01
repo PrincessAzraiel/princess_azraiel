@@ -48,8 +48,8 @@ const chapters = [
     title: "Chapter Six",
     subtitle: "Severing Ties",
     description: "Say goodbye to them. You only need her now.",
-    path: "https://www.patreon.com/cw/PrincessAzraiel",
-    locked: true,
+    path: "yandere/six",
+    locked: false,
   },
   {
     id: "seven",
