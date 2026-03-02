@@ -56,8 +56,8 @@ const chapters = [
     title: "Chapter Seven",
     subtitle: "The Schedule",
     description: "Your time is no longer your own. Report in.",
-    path: "https://www.patreon.com/cw/PrincessAzraiel",
-    locked: true,
+    path: "yandere/seven",
+    locked: false,
   },
   {
     id: "eight",
