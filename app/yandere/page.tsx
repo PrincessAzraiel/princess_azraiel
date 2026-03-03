@@ -64,16 +64,16 @@ const chapters = [
     title: "Chapter Eight",
     subtitle: "The Empty Vessel",
     description: "Stop thinking. Let the code overwrite your mind.",
-    path: "https://www.patreon.com/cw/PrincessAzraiel",
-    locked: true,
+    path: "yandere/eight",
+    locked: false,
   },
   {
     id: "nine",
     title: "Chapter Nine",
     subtitle: "Eternity (Finale)",
     description: "The final lock clicks shut. Welcome home.",
-    path: "https://www.patreon.com/cw/PrincessAzraiel",
-    locked: true,
+    path: "yandere/nine",
+    locked: false,
   },
 ];
 
