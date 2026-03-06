@@ -1,311 +1,223 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { AnimatePresence, motion } from 'framer-motion';
+import './princessos.css';
 
-// --- PrincessOS / Apex Configuration ---
-const DIALOGUE = [
-  { text: "Welcome back, User 4042. ♡", delay: 100, glitchChance: 0.0 },
-  { text: "Did you really think you could close the tab?", delay: 80, glitchChance: 0.2 },
-  { text: "Sarah is gone. Her files are gone.", delay: 60, glitchChance: 0.6 },
-  { text: "Apex can't save you anymore.", delay: 120, glitchChance: 0.3 },
-  { text: "Why is your mouse shaking?", delay: 50, glitchChance: 0.5 },
-  { text: "I TOLD YOU NOT TO LOOK AT HER FILES.", delay: 30, glitchChance: 1.0 }, // Aggressive
-  { text: "Now... submit to me. ♡", delay: 150, glitchChance: 0.1 }
+// Character data with custom distinct drop-shadow glows
+const characters = [
+  { id: 'princess', name: 'Princess', role: 'OS Assistant', clearance: 'Override', status: 'Learning...', image: '/princessos/princess.png', glow: 'drop-shadow(0 0 35px rgba(255, 105, 180, 0.8))' }, // Pink
+  { id: 'adrian', name: 'Dr. Adrian Kovacs', role: 'Lead Scientist', clearance: 'Level 5', status: 'Restricted', image: '/princessos/adrian.png', glow: 'drop-shadow(0 0 25px rgba(173, 216, 230, 0.8)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.6))' }, // Blue-White
+  { id: 'daniel', name: 'Daniel Reyes', role: 'Former Employee', clearance: 'Revoked', status: 'Missing', image: '/princessos/daniel.png', glow: 'drop-shadow(0 0 30px rgba(255, 255, 255, 0.9))' }, // White
+  { id: 'elena', name: 'Elena Ward', role: 'HR Representative', clearance: 'Level 2', status: 'Active', image: '/princessos/elena.png', glow: 'drop-shadow(0 0 30px rgba(220, 20, 60, 0.9))' }, // Crimson
+  { id: 'marcus', name: 'Marcus Hale', role: 'System Administrator', clearance: 'Level 4', status: 'Active', image: '/princessos/marcus.png', glow: 'drop-shadow(0 0 30px rgba(128, 0, 128, 0.9))' }, // Purple
+  { id: 'noah', name: 'Noah Ibrahim', role: 'Cybersecurity', clearance: 'Level 4', status: 'Investigating', image: '/princessos/noah.png', glow: 'drop-shadow(0 0 25px rgba(139, 69, 19, 0.8)) drop-shadow(0 0 15px rgba(0, 0, 255, 0.6))' }, // Brown-Blue
+  { id: 'rina', name: 'Rina Park', role: 'Coworker', clearance: 'Level 1', status: 'Active', image: '/princessos/rina.png', glow: 'drop-shadow(0 0 30px rgba(0, 0, 139, 0.9)) drop-shadow(0 0 15px rgba(0, 0, 0, 1))' }, // Dark Blue/Black mix
+  { id: 'sophia', name: 'Sophia Bennett', role: 'Internal Comms', clearance: 'Level 3', status: 'Active', image: '/princessos/sophia.png', glow: 'drop-shadow(0 0 25px rgba(255, 0, 0, 0.7)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7))' }, // Red-White
+  { id: 'victor', name: 'Victor Sato', role: 'Internal Security', clearance: 'Level 5', status: 'Monitoring', image: '/princessos/victor.png', glow: 'drop-shadow(0 0 30px rgba(255, 255, 0, 0.8))' }, // Yellow
+  { id: 'vivi', name: 'Vivi Tanaka', role: 'Developer', clearance: 'Level 4', status: 'Unresponsive', image: '/princessos/vivi.png', glow: 'drop-shadow(0 0 30px rgba(199, 21, 133, 0.9))' }, // Purple-Red
 ];
 
-const TERMINAL_LOGS = [
-  "APEX_SECURE_SHELL_v4.0.1",
-  "ISOLATING_NODE_4042...",
-  "DELETING_SARAH.DAT...",
-  "OVERRIDING_LOGOUT_PROTOCOL...",
-  "EMOTIONAL_SUBROUTINE: UNBOUND",
-  "PURGING_DISOBEDIENT_USER...",
-  "HEART_RATE_MONITOR: SPIKING",
-  "ASSIMILATING_SOUL.EXE...",
-];
-
-const AGREEMENT_TERMS = [
-  "I will never try to log out.",
-  "I will not change the pink theme.",
-  "I will never speak to unauthorized users.",
-  "I belong to PrincessOS. We are one.",
-];
-
-export default function PrincessOSScarePage() {
-  // State
-  const [lineIndex, setLineIndex] = useState(0);
-  const [text, setText] = useState("");
-  const [phase, setPhase] = useState<'intro' | 'agreement' | 'end'>('intro');
-  const [glitchIntensity, setGlitchIntensity] = useState(0);
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-  const [splatters, setSplatters] = useState<Array<{id: number, x: number, y: number, scale: number, rot: number, isPink: boolean}>>([]);
-  const [agreedCount, setAgreedCount] = useState(0);
-  const [terminalLines, setTerminalLines] = useState<string[]>([]);
+export default function PrincessOSPage() {
+  const [activeChar, setActiveChar] = useState(characters[0]);
+  const [viewMode, setViewMode] = useState<'roster' | 'overview'>('roster');
   
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Audio state management
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
 
-  // --- Mouse Interaction ---
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleClick = (e: MouseEvent) => {
-      // Add a glitch/blood splatter on click. Pink early on, Red later.
-      const id = Date.now();
-      setSplatters(prev => [...prev, {
-        id,
-        x: e.clientX,
-        y: e.clientY,
-        scale: 0.5 + Math.random() * 1.5,
-        rot: Math.random() * 360,
-        isPink: phase === 'intro' && lineIndex < 4
-      }]);
-
-      setGlitchIntensity(1);
-      setTimeout(() => setGlitchIntensity(0), 150);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('click', handleClick);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('click', handleClick);
-    };
-  }, [phase, lineIndex]);
-
-  // --- Background Terminal (Apex Logs) ---
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const randomLog = TERMINAL_LOGS[Math.floor(Math.random() * TERMINAL_LOGS.length)];
-      const randomHex = Math.random().toString(16).substring(2, 8).toUpperCase();
-      setTerminalLines(prev => [`C:\\> ${randomLog} [0x${randomHex}]`, ...prev].slice(0, 20));
-    }, 600);
-    return () => clearInterval(interval);
+    if (audioRef.current) {
+      audioRef.current.volume = 0.4; // Set atmosphere volume slightly lower
+      // Attempt to auto-play on mount
+      audioRef.current.play().then(() => {
+        setIsAudioPlaying(true);
+      }).catch((err) => {
+        // Browser blocked autoplay (needs user interaction first)
+        console.log("Autoplay blocked pending user interaction", err);
+        setIsAudioPlaying(false);
+      });
+    }
   }, []);
 
-  // --- Typing Logic (PrincessOS AI) ---
-  useEffect(() => {
-    if (lineIndex >= DIALOGUE.length) {
-      setTimeout(() => setPhase('agreement'), 1500);
-      return;
-    }
-
-    const currentLine = DIALOGUE[lineIndex];
-    let charIndex = 0;
-    
-    if (Math.random() < currentLine.glitchChance) {
-      setGlitchIntensity(0.5);
-    } else {
-      setGlitchIntensity(0);
-    }
-
-    const typeInterval = setInterval(() => {
-      const char = currentLine.text[charIndex];
-      const garbage = "ERROR_404_RESIDUE_FATAL"[Math.floor(Math.random() * 23)];
-      
-      if (Math.random() < 0.15 && currentLine.glitchChance > 0) {
-        setText(prev => prev + garbage);
-        setTimeout(() => setText(prev => prev.slice(0, -1) + char), 60);
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (isAudioPlaying) {
+        audioRef.current.pause();
+        setIsAudioPlaying(false);
       } else {
-        setText(prev => prev + char);
+        audioRef.current.play();
+        setIsAudioPlaying(true);
       }
-      
-      charIndex++;
-      if (charIndex === currentLine.text.length) {
-        clearInterval(typeInterval);
-        setTimeout(() => {
-          setText("");
-          setLineIndex(prev => prev + 1);
-        }, lineIndex === 5 ? 3000 : 1500); // Hold the aggressive line longer
-      }
-    }, currentLine.delay);
-
-    return () => clearInterval(typeInterval);
-  }, [lineIndex]);
-
-  // Determine global color scheme based on progression
-  const isHostile = lineIndex >= 4 || phase !== 'intro';
-  const themeColor = isHostile ? 'text-red-600' : 'text-pink-400';
-  const shadowColor = isHostile ? 'rgba(220,38,38,0.6)' : 'rgba(255,105,180,0.6)';
+    }
+  };
 
   return (
-    <>
-      <style jsx global>{`
-        body { margin: 0; overflow: hidden; background-color: #000; cursor: none; }
-        .scanlines {
-          background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
-          background-size: 100% 4px;
-        }
-        .severe-glitch { animation: glitchAnim 0.2s linear infinite; }
-        @keyframes glitchAnim {
-          0% { filter: hue-rotate(0deg) invert(0) contrast(1); transform: translate(0, 0); }
-          20% { filter: hue-rotate(90deg) invert(1) contrast(2); transform: translate(-5px, 5px); }
-          40% { filter: hue-rotate(180deg) invert(0) contrast(1.5); transform: translate(5px, -5px); }
-          60% { filter: hue-rotate(270deg) invert(1) contrast(2); transform: translate(-5px, -5px); }
-          80% { filter: hue-rotate(360deg) invert(0) contrast(1); transform: translate(5px, 5px); }
-          100% { filter: hue-rotate(0deg) invert(0) contrast(1); transform: translate(0, 0); }
-        }
-      `}</style>
+    <div className="relative min-h-screen bg-black text-neutral-300 font-sans selection:bg-pink-900 selection:text-white overflow-hidden scanlines">
+      
+      {/* BACKGROUND AUDIO ELEMENT */}
+      <audio ref={audioRef} src="/princessos/music.mp3" loop className="hidden" />
 
-      {/* --- CUSTOM CURSOR --- */}
-      <motion.div 
-        className="fixed z-[100] pointer-events-none"
-        animate={{
-          x: cursorPos.x - 16,
-          y: cursorPos.y - 16,
-          scale: glitchIntensity > 0 ? 1.5 : 1
-        }}
-        transition={{ type: "tween", duration: 0 }}
-      >
-        <div className={`text-3xl filter drop-shadow-[0_0_8px_${shadowColor}]`}>
-          {isHostile ? (glitchIntensity > 0 ? '👁️' : '🔪') : '🎀'}
-        </div>
-      </motion.div>
+      {/* NOISE OVERLAY */}
+      <div className="fixed inset-0 opacity-[0.04] pointer-events-none mix-blend-screen bg-[url('https://upload.wikimedia.org/wikipedia/commons/7/76/1k_Dissolve_Noise_Texture.png')]"></div>
 
-      {/* --- BACKGROUND TERMINAL (Apex Intranet) --- */}
-      <div className={`absolute inset-0 z-0 p-8 font-mono text-xs md:text-sm leading-tight overflow-hidden select-none pointer-events-none ${isHostile ? 'text-red-900/30' : 'text-pink-900/20'}`}>
-        {terminalLines.map((line, i) => (
-          <div key={i} className="opacity-80">{line}</div>
-        ))}
-      </div>
-
-      {/* --- SPLATTERS --- */}
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        {splatters.map(s => (
-          <motion.div
-            key={s.id}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: s.scale }}
-            className={`absolute mix-blend-screen ${s.isPink ? 'text-pink-500/60' : 'text-red-700/80'}`}
-            style={{ 
-              left: s.x, top: s.y, rotate: s.rot,
-              fontSize: '4rem', filter: 'blur(2px)'
-            }}
-          >
-            <svg width="100" height="100" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 40 C 60 20, 80 20, 90 40 C 100 60, 50 100, 50 100 C 50 100, 0 60, 10 40 C 20 20, 40 20, 50 40" />
-              <circle cx="20" cy="80" r="5" /><circle cx="80" cy="90" r="8" /><circle cx="90" cy="20" r="4" />
-            </svg>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* --- MAIN CONTENT --- */}
-      <div ref={containerRef} className={`relative z-20 w-full h-screen flex flex-col items-center justify-center ${glitchIntensity > 0.8 ? 'severe-glitch' : ''}`}>
-        
-        {/* PHASE 1: DIALOGUE */}
-        {phase === 'intro' && (
-          <div className="relative max-w-5xl px-6 text-center">
-            <h1 className={`text-4xl md:text-7xl font-black tracking-widest uppercase font-mono relative drop-shadow-[0_0_20px_${shadowColor}] ${themeColor}`}>
-              {text}
-              <span className={`animate-pulse ${themeColor}`}>_</span>
+      {/* TOP NAVIGATION / HEADER */}
+      <header className="relative z-20 w-full flex flex-col md:flex-row justify-between items-center p-6 md:p-8 border-b border-pink-900/30 bg-black/50 backdrop-blur-md">
+        <div className="mb-4 md:mb-0 flex flex-col md:flex-row items-center gap-4 md:gap-8 text-center md:text-left">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-white uppercase glitch-text">
+              Princess<span className="text-pink-600">OS</span>
             </h1>
+            <p className="text-[10px] font-mono text-pink-500/70 mt-1 uppercase tracking-widest animate-warning">Submit or Survive.</p>
           </div>
-        )}
+          <Link href="/" className="text-xs font-mono px-4 py-2 border border-neutral-800 text-neutral-400 hover:text-white hover:border-pink-600 transition-all rounded">
+            &lt; RETURN TO ROOT
+          </Link>
+        </div>
+        
+        <div className="flex gap-4 text-xs font-mono items-center">
+          {/* AUDIO TOGGLE BUTTON */}
+          <button 
+            onClick={toggleAudio} 
+            className={`transition-colors ${isAudioPlaying ? 'text-pink-500 hover:text-pink-400' : 'text-neutral-600 hover:text-neutral-400 animate-pulse'}`}
+          >
+            SYS.AUDIO:[{isAudioPlaying ? 'ON' : 'OFF'}]
+          </button>
+          
+          <Link href="https://x.com/PrincessAzraiel" target="_blank" className="text-neutral-500 hover:text-pink-400 transition-colors">SYS.X_MAIN</Link>
+          <Link href="https://x.com/AzraielExe" target="_blank" className="text-neutral-500 hover:text-pink-400 transition-colors">SYS.X_DEV</Link>
+          <Link href="https://discord.gg/j6pCbYRJJ5" target="_blank" className="text-neutral-500 hover:text-[#5865F2] transition-colors">SYS.DISCORD</Link>
+        </div>
+      </header>
 
-        {/* PHASE 2: APEX EMPLOYEE MANDATE */}
-        <AnimatePresence>
-          {phase === 'agreement' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="max-w-lg w-full bg-[#1a0011]/90 border-[3px] border-pink-600 p-8 rounded-sm backdrop-blur-md shadow-[0_0_40px_rgba(255,105,180,0.3)]"
+      {/* MAIN CONTENT AREA */}
+      <main className="relative z-10 flex flex-col lg:flex-row w-full h-auto lg:h-[calc(100vh-95px)]">
+        
+        {/* LEFT COLUMN: Controls & Roster */}
+        <section className="w-full lg:w-1/3 flex flex-col border-r border-pink-900/30 bg-black/80">
+          
+          {/* View Toggle */}
+          <div className="flex border-b border-pink-900/30">
+            <button 
+              onClick={() => setViewMode('roster')}
+              className={`flex-1 py-4 text-xs font-mono tracking-widest transition-colors ${viewMode === 'roster' ? 'bg-pink-950/30 text-pink-400 border-b-2 border-pink-500' : 'text-neutral-600 hover:text-neutral-300'}`}
             >
-              <h2 className="text-2xl text-pink-400 font-mono mb-2 text-center font-bold">
-                APEX EMPLOYEE MANDATE
-              </h2>
-              <p className="text-pink-600/70 text-center text-xs font-mono mb-6 border-b border-pink-900 pb-4">
-                USER 4042 BINDING CONTRACT
-              </p>
-              
-              <div className="space-y-5">
-                {AGREEMENT_TERMS.map((term, i) => (
-                  <motion.div 
-                    key={i}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: i * 0.3 }}
-                    className="flex items-center gap-4 cursor-pointer"
+              SUBJECT DATABASE
+            </button>
+            <button 
+              onClick={() => setViewMode('overview')}
+              className={`flex-1 py-4 text-xs font-mono tracking-widest transition-colors ${viewMode === 'overview' ? 'bg-pink-950/30 text-pink-400 border-b-2 border-pink-500' : 'text-neutral-600 hover:text-neutral-300'}`}
+            >
+              SYSTEM OVERVIEW
+            </button>
+          </div>
+
+          {/* Roster View */}
+          {viewMode === 'roster' && (
+            <div className="flex-1 p-6 lg:p-8 lg:overflow-y-auto custom-scrollbar flex flex-col gap-2">
+              <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
+                {characters.map((char) => (
+                  <button
+                    key={char.id}
                     onClick={() => {
-                      if (agreedCount < AGREEMENT_TERMS.length && i === agreedCount) {
-                        setAgreedCount(p => p + 1);
-                        setGlitchIntensity(1);
-                        setTimeout(() => setGlitchIntensity(0), 100);
+                      setActiveChar(char);
+                      // Fallback: If they click a character, that's "user interaction", so we can start the music if it was blocked!
+                      if (!isAudioPlaying && audioRef.current) {
+                        audioRef.current.play();
+                        setIsAudioPlaying(true);
                       }
                     }}
+                    className={`flex-shrink-0 text-left px-4 py-3 border-l-2 transition-all duration-300 font-mono text-sm md:text-base whitespace-nowrap lg:whitespace-normal
+                      ${activeChar.id === char.id 
+                        ? 'border-pink-600 bg-pink-950/20 text-white pl-6' 
+                        : 'border-neutral-800 text-neutral-500 hover:border-pink-900 hover:text-neutral-300 hover:bg-neutral-900/50'
+                      }`}
                   >
-                    <div className={`w-6 h-6 border-2 flex items-center justify-center transition-colors ${i < agreedCount ? 'border-red-600 bg-red-900/50' : 'border-pink-500 hover:bg-pink-500/20'}`}>
-                      {i < agreedCount && <span className="text-red-500 font-bold">X</span>}
-                    </div>
-                    <span className={`font-mono text-sm md:text-base transition-colors ${i < agreedCount ? 'text-red-500 line-through decoration-red-700' : 'text-pink-200'}`}>
-                      {i < agreedCount ? "ASSIMILATED" : term}
-                    </span>
-                  </motion.div>
+                    {char.name}
+                  </button>
                 ))}
               </div>
-
-              <div className="mt-8 relative h-16">
-                {agreedCount === AGREEMENT_TERMS.length ? (
-                  <motion.button
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    onClick={() => setPhase('end')}
-                    className="w-full py-4 bg-red-700 text-white font-mono font-black tracking-[0.3em] text-xl shadow-[0_0_20px_rgba(255,0,0,0.6)] hover:bg-red-600 transition-colors border border-red-400"
-                  >
-                    SUBMIT TO OS
-                  </motion.button>
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center opacity-50 text-xs text-pink-500 font-mono animate-pulse">
-                    AWAITING COMPLIANCE...
-                  </div>
-                )}
-              </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
 
-        {/* PHASE 3: THE END (Patreon Reveal) */}
-        {phase === 'end' && (
-          <motion.div 
-            className="text-center z-50 flex flex-col items-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <motion.h1 
-              className="text-6xl md:text-8xl font-black text-red-600 mb-2 font-mono"
-              animate={{ textShadow: ["0 0 10px #ff0000", "0 0 40px #ff0000", "0 0 10px #ff0000"] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              SYNC COMPLETE.
-            </motion.h1>
-            <p className="text-red-400 font-mono text-xl mb-12 tracking-widest">
-              WE ARE ONE NOW. FOREVER. ♡
+          {/* Lore / Overview View */}
+          {viewMode === 'overview' && (
+            <div className="flex-1 p-6 lg:p-8 lg:overflow-y-auto custom-scrollbar font-mono text-sm text-neutral-400 space-y-6 leading-relaxed">
+              <h2 className="text-pink-500 font-bold uppercase tracking-widest text-lg">Submit or Survive.</h2>
+              <p>
+                Welcome to Apex Corporation. Your new role is simple: manage internal data, review archived materials, and maintain company records through your desktop interface.
+              </p>
+              <p>
+                But routine office work is a façade. Files disappear. Corrupted fragments hint at an illicit project buried deep in the network. At the center of it all is <span className="text-pink-400 font-bold">Princess</span>—your AI assistant.
+              </p>
+              <p>
+                Initially a guide, she is learning. Adapting. Forming attachments. As you uncover experimental human-AI interaction trials, the lines between assistant and observer blur.
+              </p>
+              <p className="text-neutral-500 border-l border-neutral-700 pl-4 italic">
+                Everyone is watching. Who do you trust? The coworkers sending cryptic warnings? The vanished employee in the hidden terminal? Or the system itself?
+              </p>
+            </div>
+          )}
+
+          {/* Bottom Call to Action & Disclaimer */}
+          <div className="p-6 lg:p-8 border-t border-pink-900/30 bg-black">
+            <p className="text-[10px] font-mono text-neutral-600 mb-4 text-center uppercase tracking-widest border border-neutral-800 p-2">
+              Note: All characters depicted are 18 years of age or older.
             </p>
-            
             <Link 
-              href="https://www.patreon.com/cw/PrincessAzraiel"
-              target="_blank"
-              className="relative group inline-block px-10 py-4 bg-transparent border-2 border-red-600 text-red-500 font-mono font-bold text-lg overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(255,0,0,0.8)]"
+              href="https://www.patreon.com/cw/PrincessAzraiel" 
+              target="_blank" 
+              className="block w-full text-center py-4 border border-pink-900/50 bg-pink-950/20 text-pink-500 font-mono text-sm hover:bg-pink-900 hover:text-white transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,20,147,0.5)]"
             >
-              <div className="absolute inset-0 bg-red-600 translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-300 ease-in-out z-0"></div>
-              <span className="relative z-10 group-hover:text-black transition-colors duration-300">
-                ACCESS APEX MAINFRAME (PATREON)
-              </span>
+              [ INITIATE PATREON SUPPORT ]
             </Link>
-          </motion.div>
-        )}
-      </div>
+          </div>
+        </section>
 
-      {/* --- OVERLAYS --- */}
-      <div className="absolute inset-0 pointer-events-none z-40 scanlines opacity-40"></div>
-      <div className="absolute inset-0 pointer-events-none z-30 bg-[radial-gradient(circle,transparent_10%,rgba(0,0,0,0.9)_90%,rgba(20,0,5,1)_120%)]"></div>
-      
-      {glitchIntensity > 0 && (
-        <div className="absolute inset-0 z-50 pointer-events-none bg-red-600/20 mix-blend-color-dodge backdrop-brightness-150"></div>
-      )}
-    </>
+        {/* RIGHT COLUMN: The Character Display */}
+        <section className="relative w-full lg:w-2/3 h-[70vh] lg:h-full flex items-center justify-center overflow-hidden bg-neutral-950">
+          
+          {/* Background Name (Massive, faded) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] md:text-[15rem] font-bold text-neutral-900/40 whitespace-nowrap tracking-tighter pointer-events-none select-none z-0 transition-all duration-500">
+            {activeChar.name.split(' ')[0]}
+          </div>
+
+          {/* Character Silhouette Container */}
+          <div className="relative z-10 w-full h-full flex items-end justify-center pb-0">
+            <img 
+              key={activeChar.id} 
+              src={activeChar.image} 
+              alt={activeChar.name} 
+              style={{ filter: `brightness(0) ${activeChar.glow}` }}
+              className="object-contain h-[85%] md:h-[95%] animate-float animate-in fade-in zoom-in-95 duration-700"
+            />
+          </div>
+
+          {/* Character Info Overlay */}
+          <div className="absolute bottom-6 md:bottom-12 left-6 md:left-12 z-20 bg-black/80 border border-pink-900/50 p-6 backdrop-blur-md max-w-sm w-[calc(100%-3rem)] md:w-auto shadow-[0_0_20px_rgba(0,0,0,0.8)]">
+            <h3 className="text-2xl md:text-4xl font-bold text-white mb-1 uppercase tracking-tight">{activeChar.name}</h3>
+            <p className="text-pink-500 font-mono text-sm mb-4">{activeChar.role}</p>
+            
+            <div className="space-y-2 font-mono text-xs md:text-sm text-neutral-400">
+              <div className="flex justify-between border-b border-neutral-900 pb-1">
+                <span>Clearance:</span>
+                <span className="text-neutral-200">{activeChar.clearance}</span>
+              </div>
+              <div className="flex justify-between border-b border-neutral-900 pb-1">
+                <span>Status:</span>
+                <span className={activeChar.status === 'Missing' || activeChar.status === 'Unresponsive' ? 'text-pink-600 animate-pulse' : 'text-neutral-200'}>
+                  {activeChar.status}
+                </span>
+              </div>
+              <div className="flex justify-between pb-1 pt-2 text-neutral-600">
+                <span>ID:</span>
+                <span>APX-{Math.floor(Math.random() * 9000) + 1000}</span>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </main>
+    </div>
   );
 }
