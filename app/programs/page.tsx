@@ -7,8 +7,8 @@ export default function ProgramsPage() {
   const programs = [
     {
       title: 'Obedience Program',
-      description: 'A 10-minute obedience trial. Follow commands, earn your place.',
-      link: 'https://gofile.io/d/2uZY0d',
+      description: 'A 20-30-minute obedience trial. JOI.',
+      link: 'https://princessazraiel.itch.io/obedienceexe-advanced',
     },
     {
       title: 'SweetDrain',
@@ -36,19 +36,24 @@ export default function ProgramsPage() {
       link: 'https://gofile.io/d/xW6gGR',
     },
     {
+      title: 'Gacha Extension',
+      description: 'A browser extension that allows you to collect Gacha Points after you intreact with PrincessAzraiel\'s Posts.',
+      link: 'https://gofile.io/d/Zeo7jG',
+    },
+    {
       title: 'Infection Protocol',
       description: 'A new protocol, with 500 different links to click and over 5000 new images',
       link: '/infection', 
     },
     {
-      title: 'THE 25TH',
-      description: 'Unlock 25 days of yandere tech-dominance with this Windows program.',
-      link: '/the25',
-    },
-    {
       title:'Heartbreak.exe',
       description: 'New Version of the LoveProtocol.exe',
       link: 'https://gofile.io/d/r0YYKc',
+    },
+    {
+      title: 'Wallpaper Changer - Android',
+      description: 'An Android app that changes your wallpaper to a random image of Princess Azraiel every few minutes.',
+      link: 'https://gofile.io/d/9LZxVa',
     }
   ];
 
