@@ -134,7 +134,7 @@ export default function WomensDayEvent() {
     
     const typingInterval = setInterval(() => {
       if (i < textToType.length) {
-        setDisplayedText(prev => prev + textToType.charAt(i));
+        setDisplayedText(textToType.slice(0, i + 1));
         i++;
       } else {
         clearInterval(typingInterval);
