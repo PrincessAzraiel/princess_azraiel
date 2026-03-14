@@ -1,6 +1,8 @@
 export const metadata = {
-  title: "Terms of Service — Princess Azraiel",
-  description: "Terms of Service for the Princess Azraiel website.",
+  title: "Terms of Service",
+  description: "Terms of Service for the Princess Azraiel website. Adults only (+18).",
+  alternates: { canonical: "https://princessazraiel.com/terms" },
+  robots: { index: true, follow: false },
 };
 
 export default function TermsPage() {

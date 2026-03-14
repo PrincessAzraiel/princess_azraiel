@@ -1,6 +1,8 @@
 export const metadata = {
-  title: "Privacy Policy — Princess Azraiel",
-  description: "Privacy Policy (GDPR/DSGVO) for the Princess Azraiel website.",
+  title: "Privacy Policy",
+  description: "Privacy Policy for the Princess Azraiel website. How we handle your data under GDPR.",
+  alternates: { canonical: "https://princessazraiel.com/privacy" },
+  robots: { index: true, follow: false },
 };
 
 export default function PrivacyPage() {

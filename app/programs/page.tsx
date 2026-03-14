@@ -1,5 +1,27 @@
+import type { Metadata } from "next";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: "Archives — All Programs & Rituals",
+  description:
+    "Browse all programs, rituals, and interactive experiences created by Princess Azraiel. From obedience trials and hypnosis sessions to browser extensions and corruption protocols.",
+  openGraph: {
+    title: "Archives — All Programs & Rituals | Princess Azraiel",
+    description:
+      "Browse all interactive experiences: obedience trials, hypnosis sessions, corruption protocols, and more.",
+    url: "https://princessazraiel.com/programs",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Princess Azraiel Archives" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Archives — All Programs & Rituals | Princess Azraiel",
+    description:
+      "Browse all interactive experiences: obedience trials, hypnosis sessions, corruption protocols, and more.",
+    images: ["/og-default.jpg"],
+  },
+  alternates: { canonical: "https://princessazraiel.com/programs" },
+};
 
 export default function ProgramsPage() {
   const programs = [

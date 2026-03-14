@@ -10,8 +10,66 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Princess Azraiel",
-  description: " A Digital Princess's Domain",
+  metadataBase: new URL("https://princessazraiel.com"),
+  title: {
+    default: "Princess Azraiel",
+    template: "%s | Princess Azraiel",
+  },
+  description:
+    "The official domain of Princess Azraiel — interactive fiction, psychological horror, hypnosis experiences, and corruption protocols for adults.",
+  keywords: [
+    "Princess Azraiel",
+    "Azraiel",
+    "interactive fiction",
+    "psychological horror",
+    "yandere",
+    "hypnosis",
+    "corruption",
+    "adult interactive",
+    "Patreon",
+    "digital experience",
+    "AI princess",
+    "virtual companion",
+    "PrincessOS",
+  ],
+  authors: [{ name: "Princess Azraiel", url: "https://x.com/PrincessAzraiel" }],
+  creator: "Princess Azraiel",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://princessazraiel.com",
+    siteName: "Princess Azraiel",
+    title: "Princess Azraiel — Corruption Hub V4.1",
+    description:
+      "Interactive fiction, psychological horror, and hypnosis experiences. Submit. Suffer. Smile.",
+    images: [
+      {
+        url: "/og-default.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Princess Azraiel — Corruption Hub",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@PrincessAzraiel",
+    creator: "@PrincessAzraiel",
+    title: "Princess Azraiel — Corruption Hub V4.1",
+    description:
+      "Interactive fiction, psychological horror, and hypnosis experiences. Submit. Suffer. Smile.",
+    images: ["/og-default.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
