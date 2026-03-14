@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 const BACKEND_URL =
-  (import.meta as any)?.env?.VITE_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
   "https://princessazraielbackend.vercel.app";
 
 const PFP_CHOICES = [
@@ -195,16 +195,18 @@ export default function RebrandClient() {
           <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg">
             <h2 className="text-xl font-semibold mb-4 shimmer-text">Profile Text</h2>
 
-            <label className="block text-sm mb-1 text-pink-400">Display name</label>
+            <label htmlFor="rebrand-name" className="block text-sm mb-1 text-pink-400">Display name</label>
             <input
+              id="rebrand-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full mb-4 rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
               maxLength={50}
             />
 
-            <label className="block text-sm mb-1 text-pink-400">Bio / Description</label>
+            <label htmlFor="rebrand-bio" className="block text-sm mb-1 text-pink-400">Bio / Description</label>
             <textarea
+              id="rebrand-bio"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full mb-4 rounded-xl bg-black/40 border border-pink-800 px-3 py-2 h-24 focus:outline-none focus:ring-2 focus:ring-pink-600"
@@ -213,8 +215,9 @@ export default function RebrandClient() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm mb-1 text-pink-400">URL</label>
+                <label htmlFor="rebrand-url" className="block text-sm mb-1 text-pink-400">URL</label>
                 <input
+                  id="rebrand-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   className="w-full rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
@@ -225,8 +228,9 @@ export default function RebrandClient() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm mb-1 text-pink-400">Location</label>
+                <label htmlFor="rebrand-location" className="block text-sm mb-1 text-pink-400">Location</label>
                 <input
+                  id="rebrand-location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"

@@ -40,7 +40,7 @@ const chapters = [
     title: "Chapter Five",
     subtitle: "The Confession",
     description: "Unmute your microphone. Let her hear you beg.",
-    path: "yandere/five",
+    path: "/yandere/five",
     locked: false,
   },
   {
@@ -48,7 +48,7 @@ const chapters = [
     title: "Chapter Six",
     subtitle: "Severing Ties",
     description: "Say goodbye to them. You only need her now.",
-    path: "yandere/six",
+    path: "/yandere/six",
     locked: false,
   },
   {
@@ -56,7 +56,7 @@ const chapters = [
     title: "Chapter Seven",
     subtitle: "The Schedule",
     description: "Your time is no longer your own. Report in.",
-    path: "yandere/seven",
+    path: "/yandere/seven",
     locked: false,
   },
   {
@@ -64,7 +64,7 @@ const chapters = [
     title: "Chapter Eight",
     subtitle: "The Empty Vessel",
     description: "Stop thinking. Let the code overwrite your mind.",
-    path: "yandere/eight",
+    path: "/yandere/eight",
     locked: false,
   },
   {
@@ -72,7 +72,7 @@ const chapters = [
     title: "Chapter Nine",
     subtitle: "Eternity (Finale)",
     description: "The final lock clicks shut. Welcome home.",
-    path: "yandere/nine",
+    path: "/yandere/nine",
     locked: false,
   },
 ];
