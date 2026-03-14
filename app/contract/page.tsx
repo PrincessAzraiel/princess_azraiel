@@ -11,7 +11,6 @@ import { ContractParagraph } from "./components/ContractParagraph";
 import { Checklist } from "./components/Checklist";
 import { SignaturePad } from "./components/SignaturePad";
 import { generatePDF } from "./utils/generatePDF";
-import { a } from "framer-motion/client";
 
 const CHECK_ITEMS = [
   "I confirm I am acting voluntarily and can stop at any time.",

@@ -102,7 +102,7 @@ export default function Nav() {
         {/* Tiny Footer */}
         <div className="px-5 pb-4 pt-2 border-t border-white/10">
           <p className="font-syncopate text-[9px] uppercase tracking-[0.2em] text-white/30">
-            Corruption Hub // V4.0
+            Corruption Hub // V4.1
           </p>
         </div>
       </div>
