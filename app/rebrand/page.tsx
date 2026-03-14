@@ -6,12 +6,33 @@ import { Suspense } from "react";
 import RebrandClient from "./rebrand-client";
 import { Metadata } from 'next';
 export const metadata: Metadata = {
-  title: "Princess Azraiel | Rebrand",
-  description: "Rebrand your X account for Princess Azraiel",
-  keywords: ['princess azraiel', 'azraiel', 'ai princess', 'virtual ai', 'virtual companion', 'ai companion', 'ai girlfriend', 'virtual girlfriend', 'ai friend', 'virtual friend'],
-  themeColor: '#ff69eb',
-
-  
+  title: "Rebrand Profile — Identity Overwrite",
+  description:
+    "Rebrand your X (Twitter) profile for Princess Azraiel. Generate a custom bio and profile assets that show your devotion.",
+  keywords: [
+    "princess azraiel",
+    "azraiel",
+    "ai princess",
+    "virtual companion",
+    "rebrand twitter",
+    "rebrand x profile",
+    "identity overwrite",
+  ],
+  openGraph: {
+    title: "Rebrand Profile — Identity Overwrite | Princess Azraiel",
+    description:
+      "Generate a custom bio and profile assets that show your devotion to Princess Azraiel.",
+    url: "https://princessazraiel.com/rebrand",
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Rebrand Profile — Princess Azraiel" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rebrand Profile — Identity Overwrite | Princess Azraiel",
+    description:
+      "Generate a custom bio and profile assets that show your devotion to Princess Azraiel.",
+    images: ["/og-default.jpg"],
+  },
+  alternates: { canonical: "https://princessazraiel.com/rebrand" },
 };
 export default function RebrandPage() {
   return (
