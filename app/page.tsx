@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Sparkles, Coffee, Gift, Bird, Send,
-  Users, Wand2, ArrowRight, Globe, Zap, FileText,
+  Users, Wand2, ArrowRight, Globe,
   Eye, Crown, Heart,
 } from "lucide-react";
 
@@ -215,14 +215,13 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════════
           BENTO GRID
       ══════════════════════════════════════════ */}
-      <main className="relative z-20 px-4 md:px-8 lg:px-12 xl:px-16 py-8 pb-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-[minmax(185px,auto)]">
+      <main className="relative z-20 px-4 md:px-8 lg:px-12 xl:px-16 py-12 pb-24">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-[minmax(220px,auto)]">
 
-          {/* ── 01 YANDERE — 2 cols wide ── */}
+          {/* ── YANDERE — 2 cols wide ── */}
           <div className="fu d3 md:col-span-2 lg:col-span-2">
             <BentoCard
               href="/yandere"
-              num="01"
               label="The Yandere Experience"
               sub="Interactive Psychological Horror"
               meta="9 Chapters · Free to Play"
@@ -232,14 +231,12 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* ── 02 PATREON — tall (row-span-2) ── */}
+          {/* ── PATREON — tall (row-span-2) ── */}
           <div className="fu d3 lg:row-span-2 lg:col-start-3 lg:row-start-1">
             <BentoCard
               href="https://www.patreon.com/cw/PrincessAzraiel"
-              num="02"
               label="Unlock Early Access"
               sub="Patreon Exclusives & Chapters"
-              meta="VIP Members Only"
               icon={<Crown className="w-[18px] h-[18px]" />}
               tag="VIP"
               variant="vip"
@@ -247,11 +244,10 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* ── 03 DISCORD ── */}
+          {/* ── DISCORD ── */}
           <div className="fu d4">
             <BentoCard
               href="https://discord.gg/q9nsnSKvtu"
-              num="03"
               label="The Sanctuary"
               sub="Elite Community"
               icon={<Users className="w-[18px] h-[18px]" />}
@@ -259,11 +255,10 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* ── 04 CORRUPTION ── */}
+          {/* ── CORRUPTION ── */}
           <div className="fu d4">
             <BentoCard
               href="/corruption"
-              num="04"
               label="Initiate Corruption"
               sub="The Standard Protocol"
               icon={<Heart className="w-[18px] h-[18px]" />}
@@ -271,11 +266,10 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* ── 05 HYPNOSIS ── */}
+          {/* ── HYPNOSIS ── */}
           <div className="fu d5">
             <BentoCard
               href="/corruption2"
-              num="05"
               label="Hypnosis V2"
               sub="Deep Trance"
               icon={<Sparkles className="w-[18px] h-[18px]" />}
@@ -283,11 +277,10 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* ── 06 REBRAND ── */}
+          {/* ── REBRAND ── */}
           <div className="fu d5">
             <BentoCard
               href="/rebrand"
-              num="06"
               label="Rebrand Profile"
               sub="Identity Overwrite"
               icon={<Wand2 className="w-[18px] h-[18px]" />}
@@ -295,35 +288,10 @@ export default function LandingPage() {
             />
           </div>
 
-          {/* ── 07 INFECTION ── */}
-          <div className="fu d5">
-            <BentoCard
-              href="/infection"
-              num="07"
-              label="Infection Protocol"
-              sub="Bots that ruin you slowly"
-              icon={<Zap className="w-[18px] h-[18px]" />}
-              variant="dim"
-            />
-          </div>
-
-          {/* ── 08 FORMS ── */}
-          <div className="fu d6">
-            <BentoCard
-              href="https://azraielforms.vercel.app/"
-              num="08"
-              label="Azraiel Forms"
-              sub="The Dom's Toolkit"
-              icon={<FileText className="w-[18px] h-[18px]" />}
-              variant="base"
-            />
-          </div>
-
-          {/* ── 00 ARCHIVES — full width footer ── */}
-          <div className="fu d7 md:col-span-2 lg:col-span-3">
+          {/* ── ARCHIVES — full width footer ── */}
+          <div className="fu d6 md:col-span-2 lg:col-span-3">
             <BentoCard
               href="/programs"
-              num="00"
               label="Archives"
               sub="Access All Programs & Protocols"
               icon={<ArrowRight className="w-[18px] h-[18px]" />}
@@ -351,13 +319,12 @@ export default function LandingPage() {
 type BentoVariant = "accent" | "vip" | "base" | "dim";
 
 function BentoCard({
-  href, num, label, sub, meta, icon, tag,
+  href, label, sub, meta, icon, tag,
   variant = "base",
   tall = false,
   wide = false,
 }: {
   href: string;
-  num: string;
   label: string;
   sub?: string;
   meta?: string;
@@ -415,29 +382,24 @@ function BentoCard({
           </div>
         )}
 
-        <div className={`relative z-10 flex flex-col h-full ${tall ? "p-6 md:p-7" : wide ? "p-5 md:p-6" : "p-5 md:p-6"}`}>
+        <div className={`relative z-10 flex flex-col h-full ${tall ? "p-7 md:p-9" : wide ? "p-6 md:p-8" : "p-6 md:p-8"}`}>
 
-          {/* ── TOP ROW: number + tag + icon + arrow ── */}
-          <div className="flex items-start justify-between">
-            <span className="font-syncopate text-[9px] tracking-[0.22em] text-white/12 select-none mt-0.5">
-              {num}
-            </span>
-            <div className="flex items-center gap-1.5">
-              {tag && (
-                <span className={`font-syncopate text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-fuchsia-600/80 text-white backdrop-blur ${tag === "NEW" ? "animate-pulse" : ""}`}>
-                  {tag}
-                </span>
-              )}
-              {/* Icon box — skip top-right icon for tall layout, goes in middle */}
-              {!tall && (
-                <div className={`p-2 rounded-lg transition-all duration-300 ${s.iconBox}`}>
-                  {icon}
-                </div>
-              )}
-              {/* Arrow circle */}
-              <div className="w-6 h-6 rounded-full border border-white/[0.08] flex items-center justify-center transition-all duration-300 group-hover:border-pink-500/45 group-hover:bg-pink-500/10">
-                <ArrowRight className="w-3 h-3 text-white/18 group-hover:text-pink-400 group-hover:translate-x-0.5 transition-all duration-300" />
+          {/* ── TOP ROW: tag + icon + arrow ── */}
+          <div className="flex items-start justify-end gap-2">
+            {tag && (
+              <span className={`font-syncopate text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded bg-fuchsia-600/80 text-white backdrop-blur ${tag === "NEW" ? "animate-pulse" : ""}`}>
+                {tag}
+              </span>
+            )}
+            {/* Icon box — skip for tall layout, goes in middle instead */}
+            {!tall && (
+              <div className={`p-2 rounded-lg transition-all duration-300 ${s.iconBox}`}>
+                {icon}
               </div>
+            )}
+            {/* Arrow circle */}
+            <div className="w-7 h-7 rounded-full border border-white/[0.08] flex items-center justify-center transition-all duration-300 group-hover:border-pink-500/45 group-hover:bg-pink-500/10">
+              <ArrowRight className="w-3.5 h-3.5 text-white/18 group-hover:text-pink-400 group-hover:translate-x-0.5 transition-all duration-300" />
             </div>
           </div>
 
