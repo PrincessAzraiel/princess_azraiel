@@ -90,6 +90,14 @@ export default function PrincessOSPage() {
         </div>
       </header>
 
+      {/* DEVELOPMENT NOTICE BANNER */}
+      <div className="relative z-20 w-full border-b border-yellow-900/50 bg-yellow-950/20 backdrop-blur-md px-6 py-3 flex flex-col sm:flex-row items-center justify-center gap-2 text-center">
+        <span className="text-yellow-500 font-mono text-xs font-bold uppercase tracking-widest shrink-0">[DEV NOTICE]</span>
+        <p className="text-yellow-400/80 font-mono text-xs leading-relaxed">
+          PrincessOS is currently in active development. Progress is slower than usual — this is an extremely large solo project and the developer is in the middle of exams until <span className="text-yellow-300 font-bold">07.06.2026</span>. Thank you for your patience.
+        </p>
+      </div>
+
       {/* MAIN CONTENT AREA */}
       <main className="relative z-10 flex flex-col lg:flex-row w-full h-auto lg:h-[calc(100vh-95px)]">
         
