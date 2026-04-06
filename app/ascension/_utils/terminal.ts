@@ -8,6 +8,21 @@ export function getLogStyle(source: string): string {
   }
 }
 
+/**
+ * Returns typing speed (ms per character) based on the emotional tone of the text.
+ * Angry / frantic lines → fast. Ominous / quiet lines → slow. Default → normal.
+ */
+export function getTypingSpeed(text: string): number {
+  // Frantic / angry / loud
+  if (/[!]{2,}|AHAHA|WHY CAN'T|SHUT UP|I HEARD|DISGUSTING|EGO|PATHETIC/i.test(text)) return 11;
+  // Short ominous pauses
+  if (text.length < 35 && /\.\.\.|\.\./.test(text)) return 42;
+  // Longer clinical lines type slightly faster
+  if (text.length > 100) return 18;
+  // Default
+  return 22;
+}
+
 export const PHASE_KEYS = {
   "01": "ascension_phase_01_complete",
   "02": "ascension_phase_02_complete",

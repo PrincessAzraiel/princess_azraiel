@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { TypewriterText } from "../_components/TypewriterText";
 import { TransitionLink } from "../_components/TransitionLink";
-import { getLogStyle, markPhaseComplete } from "../_utils/terminal";
+import { getLogStyle, getTypingSpeed, markPhaseComplete } from "../_utils/terminal";
 
 type LogEntry = {
   id: string;
@@ -18,38 +18,58 @@ type ActionButton = {
   highlight?: boolean;
 };
 
-const BAR_COUNT = 20;
+const BAR_COUNT      = 20;
+const TARGET_SECONDS = 10;
+
+function formatCountdown(progressPct: number): string {
+  const remaining = Math.ceil(TARGET_SECONDS * (1 - progressPct / 100));
+  const clamped   = Math.max(0, remaining);
+  return `00:${String(clamped).padStart(2, "0")}`;
+}
 
 export default function PhaseThreeTerminal() {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [actions, setActions] = useState<ActionButton[]>([]);
+  const [logs, setLogs]           = useState<LogEntry[]>([]);
+  const [actions, setActions]     = useState<ActionButton[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [storyPhase, setStoryPhase] = useState<number>(0);
+  const [storyPhase, setStoryPhase]     = useState<number>(0);
 
-  const [micActive, setMicActive] = useState(false);
-  const [isDarkened, setIsDarkened] = useState(false);
-  const [silenceProgress, setSilenceProgress] = useState(0);
-  const [volumeLevel, setVolumeLevel] = useState(0);
-  const [freqBars, setFreqBars] = useState<number[]>(Array(BAR_COUNT).fill(0));
+  const [micActive, setMicActive]               = useState(false);
+  const [isDarkened, setIsDarkened]             = useState(false);
+  const [silenceProgress, setSilenceProgress]   = useState(0);
+  const [volumeLevel, setVolumeLevel]           = useState(0);
+  const [freqBars, setFreqBars]                 = useState<number[]>(Array(BAR_COUNT).fill(0));
   const [deprivationComplete, setDeprivationComplete] = useState(false);
-  const [isFailed, setIsFailed] = useState(false);
+  const [isFailed, setIsFailed]                 = useState(false);
 
-  const [guideImage, setGuideImage] = useState("/guide/06_smile_Å╬èτ.png");
+  const [guideImage, setGuideImage]   = useState("/guide/06_smile_Å╬èτ.png");
   const [guideStatus, setGuideStatus] = useState("ANALYZING ENVIRONMENT");
 
-  const terminalRef = useRef<HTMLDivElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  // Mobile scroll hint
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
+  const terminalRef     = useRef<HTMLDivElement>(null);
+  const streamRef       = useRef<MediaStream | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationRef = useRef<number | null>(null);
-  const noiseTresholdRef = useRef<number>(30);
-  const initRef = useRef(false);
+  const analyserRef     = useRef<AnalyserNode | null>(null);
+  const animationRef    = useRef<number | null>(null);
+  const noiseThresholdRef = useRef<number>(30);
+  const initRef         = useRef(false);
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTo({ top: terminalRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [logs, actions, volumeLevel, silenceProgress, micActive]);
+
+  useEffect(() => {
+    const el = terminalRef.current;
+    if (!el) return;
+    if (el.scrollHeight > el.clientHeight) {
+      setShowScrollHint(true);
+      const hide = setTimeout(() => setShowScrollHint(false), 3000);
+      return () => clearTimeout(hide);
+    }
+  }, [logs]);
 
   useEffect(() => {
     return () => {
@@ -109,7 +129,7 @@ export default function PhaseThreeTerminal() {
 
     try {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Media devices not supported (Requires HTTPS or Localhost)");
+        throw new Error("Media devices not supported");
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -119,38 +139,35 @@ export default function PhaseThreeTerminal() {
 
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       const audioContext = new AudioContextClass();
-      const analyser = audioContext.createAnalyser();
-      const source = audioContext.createMediaStreamSource(stream);
+      const analyser     = audioContext.createAnalyser();
+      const source       = audioContext.createMediaStreamSource(stream);
 
       analyser.fftSize = 256;
       analyser.smoothingTimeConstant = 0.5;
       source.connect(analyser);
 
       audioContextRef.current = audioContext;
-      analyserRef.current = analyser;
+      analyserRef.current     = analyser;
 
-      // Auto-calibrate: sample 600ms of ambient baseline before starting challenge
+      // Auto-calibrate ambient baseline
       await writeLog("SYSTEM", "CALIBRATING AMBIENT BASELINE...", 300);
-      const calibData = new Uint8Array(analyser.frequencyBinCount);
+      const calibData    = new Uint8Array(analyser.frequencyBinCount);
       const calibSamples: number[] = [];
 
       await new Promise<void>(resolve => {
-        const startTime = Date.now();
+        const start = Date.now();
         const calibrate = () => {
           analyser.getByteFrequencyData(calibData);
           const avg = calibData.reduce((a, b) => a + b, 0) / calibData.length;
           calibSamples.push(avg);
-          if (Date.now() - startTime < 600) {
-            requestAnimationFrame(calibrate);
-          } else {
-            resolve();
-          }
+          if (Date.now() - start < 600) requestAnimationFrame(calibrate);
+          else resolve();
         };
         requestAnimationFrame(calibrate);
       });
 
       const baseline = calibSamples.reduce((a, b) => a + b, 0) / calibSamples.length;
-      noiseTresholdRef.current = Math.max(20, baseline * 2.5 + 10);
+      noiseThresholdRef.current = Math.max(20, baseline * 2.5 + 10);
 
       setMicActive(true);
       setIsDarkened(true);
@@ -159,36 +176,35 @@ export default function PhaseThreeTerminal() {
       await writeLog("SYSTEM", "AUDIO SENSORS ONLINE. INITIATING DEPRIVATION MODE.", 500);
       await writeLog("ACOLYTE", "Shhhh... Do not speak. Do not move. Do not breathe too loudly.", 1500);
 
-      const dataArray = new Uint8Array(analyser.frequencyBinCount);
-      const TARGET_DURATION = 10000;
-      const startTime = Date.now();
+      const dataArray    = new Uint8Array(analyser.frequencyBinCount);
+      const startTime    = Date.now();
+      const TARGET_MS    = TARGET_SECONDS * 1000;
 
       const monitorAudio = () => {
         if (!audioContextRef.current) return;
 
         analyser.getByteFrequencyData(dataArray);
 
-        // Average volume
         const avg = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
         setVolumeLevel(avg);
 
-        // Frequency bars (20 buckets, normalized 0–1)
+        // Frequency bars
         const bars = Array.from({ length: BAR_COUNT }, (_, i) => {
           const start = Math.floor((i / BAR_COUNT) * dataArray.length);
-          const end = Math.floor(((i + 1) / BAR_COUNT) * dataArray.length);
+          const end   = Math.floor(((i + 1) / BAR_COUNT) * dataArray.length);
           let sum = 0;
           for (let j = start; j < end; j++) sum += dataArray[j];
           return (sum / Math.max(1, end - start)) / 255;
         });
         setFreqBars(bars);
 
-        if (avg > noiseTresholdRef.current) {
+        if (avg > noiseThresholdRef.current) {
           handleFailure();
           return;
         }
 
-        const elapsed = Date.now() - startTime;
-        const progress = Math.min((elapsed / TARGET_DURATION) * 100, 100);
+        const elapsed  = Date.now() - startTime;
+        const progress = Math.min((elapsed / TARGET_MS) * 100, 100);
         setSilenceProgress(progress);
 
         if (progress >= 100) {
@@ -202,7 +218,7 @@ export default function PhaseThreeTerminal() {
       monitorAudio();
 
     } catch (err) {
-      console.error("Audio block reason:", err);
+      console.error("Audio block:", err);
       setIsDarkened(false);
       await writeLog("NODE", "EXECUTED: Grant Audio Access.", 0);
       await writeLog("ERROR", "AUDIO SENSORS BLOCKED OR UNAVAILABLE.", 1000);
@@ -261,18 +277,16 @@ export default function PhaseThreeTerminal() {
 
       <div className={`pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#ff00a00a_1px,transparent_1px),linear-gradient(to_bottom,#ff00a00a_1px,transparent_1px)] bg-[size:2rem_2rem] sm:bg-[size:3rem_3rem] z-0 asc-animate-grid transition-opacity duration-1000 ${isDarkened ? "opacity-0" : "opacity-100"}`}></div>
 
-      {/* Failure Flash */}
+      {/* Failure flash */}
       {isFailed && (
         <div className="fixed inset-0 z-[99999] bg-[#ff003c] pointer-events-none mix-blend-overlay asc-animate-flash-fast"></div>
       )}
 
       {/* Header */}
       <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-end border-b-2 border-[#9d00ff]/50 pb-4 mb-6 sm:mb-8 relative z-10 mt-4 sm:mt-0 transition-opacity duration-1000 ${isDarkened ? "opacity-20" : "opacity-100"}`}>
-        <div>
-          <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
-            DIR_03 // SENSORY DEPRIVATION
-          </h1>
-        </div>
+        <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
+          DIR_03 // SENSORY DEPRIVATION
+        </h1>
         <div className="mt-4 sm:mt-0 w-full sm:w-auto">
           <div className="text-[#ff003c] tracking-widest text-[10px] border border-[#ff003c]/30 px-3 py-1.5 bg-[#ff003c]/10 text-center sm:text-left">
             SYS_LOCK: {deprivationComplete ? "ENGAGED" : "PENDING"}
@@ -282,11 +296,11 @@ export default function PhaseThreeTerminal() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 relative z-10 flex-1">
 
-        {/* LEFT COLUMN: THE GUIDE */}
+        {/* LEFT: GUIDE */}
         <div className={`w-full lg:w-[40%] flex flex-col mb-4 lg:mb-0 transition-opacity duration-1000 ${isDarkened ? "opacity-20" : "opacity-100"}`}>
-          <div className={`relative border border-[#ff00a0]/30 bg-[#05000a] shadow-[inset_0_0_40px_rgba(255,0,160,0.05)] overflow-hidden flex items-end justify-center min-h-[250px] sm:min-h-[400px] transition-all duration-300 ${isFailed ? "border-[#ff003c] shadow-[0_0_30px_rgba(255,0,60,0.5)]" : ""}`}>
+          <div className={`relative border border-[#ff00a0]/30 bg-[#05000a] overflow-hidden flex items-end justify-center min-h-[250px] sm:min-h-[400px] transition-all duration-300 ${isFailed ? "border-[#ff003c] shadow-[0_0_30px_rgba(255,0,60,0.5)]" : "shadow-[inset_0_0_40px_rgba(255,0,160,0.05)]"}`}>
             <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] z-20 pointer-events-none"></div>
-            <div className={`absolute top-0 left-0 w-full h-[2px] shadow-[0_0_20px_#ff00a0] z-30 asc-animate-scan-v ${isFailed ? "bg-[#ff003c]" : "bg-[#ff00a0]/50"}`}></div>
+            <div className={`absolute top-0 left-0 w-full h-[2px] z-30 asc-animate-scan-v ${isFailed ? "bg-[#ff003c] shadow-[0_0_20px_#ff003c]" : "bg-[#ff00a0]/50 shadow-[0_0_20px_#ff00a0]"}`}></div>
             <div className={`absolute top-4 left-4 z-30 border px-2 py-1 text-[9px] tracking-widest uppercase ${isFailed ? "border-[#ff003c] text-[#ff003c] bg-black" : "border-[#ff00a0]/50 text-[#ff00a0] bg-black/80"}`}>
               SYS_GUIDE // {guideStatus}
             </div>
@@ -299,8 +313,15 @@ export default function PhaseThreeTerminal() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: TERMINAL */}
+        {/* RIGHT: TERMINAL */}
         <div className={`w-full lg:w-[60%] flex flex-col border border-[#9d00ff]/30 bg-[#030005]/80 relative overflow-hidden h-[60vh] lg:h-auto min-h-[400px] transition-all duration-1000 ${isDarkened ? "border-none bg-transparent" : "shadow-[0_0_30px_rgba(157,0,255,0.05)]"}`}>
+
+          {showScrollHint && !micActive && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 text-[#ff00a0]/60 text-[9px] tracking-[0.3em] uppercase animate-bounce pointer-events-none sm:hidden">
+              ↓ scroll
+            </div>
+          )}
+
           <div ref={terminalRef} className="flex-1 overflow-y-auto asc-terminal-scroll p-4 sm:p-8 space-y-6">
 
             <div className={`space-y-6 transition-opacity duration-1000 ${isDarkened ? "opacity-10 pointer-events-none" : "opacity-100"}`}>
@@ -310,31 +331,35 @@ export default function PhaseThreeTerminal() {
                     <span className="text-[8px] opacity-50 mb-1">[{log.source}]</span>
                     <span>
                       {log.source === "ACOLYTE"
-                        ? <TypewriterText text={log.text} />
-                        : log.text
-                      }
+                        ? <TypewriterText text={log.text} speed={getTypingSpeed(log.text)} />
+                        : log.text}
                     </span>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* SENSORY DEPRIVATION UI — frequency bars visualizer */}
+            {/* DEPRIVATION UI */}
             {micActive && (
               <div className="absolute inset-0 z-50 flex flex-col items-center justify-center p-8 bg-black/95 asc-animate-fade-in-up">
 
-                <div className="text-[#ff00a0] tracking-[0.4em] text-xs mb-8 uppercase animate-pulse text-center leading-relaxed">
+                <div className="text-[#ff00a0] tracking-[0.4em] text-xs mb-6 uppercase animate-pulse text-center leading-relaxed">
                   MAINTAIN ABSOLUTE SILENCE
                 </div>
 
+                {/* Countdown */}
+                <div className={`text-5xl font-black tracking-[0.15em] mb-6 font-mono transition-colors duration-150 ${volumeLevel > noiseThresholdRef.current * 0.7 ? "text-[#ff003c] drop-shadow-[0_0_20px_#ff003c]" : "text-[#ff00a0] drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]"}`}>
+                  {formatCountdown(silenceProgress)}
+                </div>
+
                 {/* Frequency bars */}
-                <div className="flex items-end gap-[3px] w-full max-w-md h-28 mb-8">
+                <div className="flex items-end gap-[3px] w-full max-w-md h-24 mb-6">
                   {freqBars.map((val, i) => {
-                    const isLoud = volumeLevel > noiseTresholdRef.current * 0.7;
+                    const isLoud = volumeLevel > noiseThresholdRef.current * 0.7;
                     return (
                       <div
                         key={i}
-                        className="flex-1 transition-all duration-75 rounded-sm"
+                        className="flex-1 rounded-sm transition-all duration-75"
                         style={{
                           height: `${Math.max(3, val * 100)}%`,
                           background: isLoud ? "#ff003c" : "#ff00a0",
@@ -353,10 +378,10 @@ export default function PhaseThreeTerminal() {
                   <div
                     className="h-1 bg-[#9d00ff] shadow-[0_0_10px_#9d00ff] transition-all duration-200"
                     style={{ width: `${silenceProgress}%` }}
-                  ></div>
+                  />
                 </div>
-                <div className="text-[10px] text-[#9d00ff] tracking-widest mt-3">
-                  CALIBRATING SENSORY CORTEX... {Math.floor(silenceProgress)}%
+                <div className="text-[10px] text-[#9d00ff] tracking-widest mt-2">
+                  SENSORY CORTEX CALIBRATING... {Math.floor(silenceProgress)}%
                 </div>
 
               </div>
@@ -375,8 +400,8 @@ export default function PhaseThreeTerminal() {
                       rel={action.isExternal ? "noopener noreferrer" : undefined}
                       className={`text-left block w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -387,8 +412,8 @@ export default function PhaseThreeTerminal() {
                       onClick={action.execute}
                       className={`text-left w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -398,7 +423,6 @@ export default function PhaseThreeTerminal() {
               </div>
             )}
 
-            {/* Blinking Cursor */}
             {isProcessing && !micActive && (
               <div className="text-[#ff00a0] text-sm mt-4">
                 <span className="asc-cursor-blink">_</span>

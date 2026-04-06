@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { TypewriterText } from "../_components/TypewriterText";
 import { TransitionLink } from "../_components/TransitionLink";
-import { getLogStyle, markPhaseComplete } from "../_utils/terminal";
+import { getLogStyle, getTypingSpeed, markPhaseComplete } from "../_utils/terminal";
 
 type LogEntry = {
   id: string;
@@ -19,33 +19,46 @@ type ActionButton = {
 };
 
 export default function PhaseFourTerminal() {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [actions, setActions] = useState<ActionButton[]>([]);
+  const [logs, setLogs]           = useState<LogEntry[]>([]);
+  const [actions, setActions]     = useState<ActionButton[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [storyPhase, setStoryPhase] = useState<number>(0);
+  const [storyPhase, setStoryPhase]     = useState<number>(0);
 
   const [identityInputActive, setIdentityInputActive] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [isErased, setIsErased] = useState(false);
+  const [userName, setUserName]                       = useState("");
+  const [isErased, setIsErased]                       = useState(false);
 
   const [forcedInputActive, setForcedInputActive] = useState(false);
-  const [forcedInputValue, setForcedInputValue] = useState("");
+  const [forcedInputValue, setForcedInputValue]   = useState("");
   const targetPhrase = "I am nothing but an empty vessel for Princess Azraiel.";
 
   const [assimilationComplete, setAssimilationComplete] = useState(false);
-  const [flashActive, setFlashActive] = useState(false);
+  const [flashActive, setFlashActive]                   = useState(false);
 
-  const [guideImage, setGuideImage] = useState("/guide/10_grin_òsôG.png");
+  const [guideImage, setGuideImage]   = useState("/guide/10_grin_òsôG.png");
   const [guideStatus, setGuideStatus] = useState("ANALYZING EGO");
 
+  // Mobile scroll hint
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
   const terminalRef = useRef<HTMLDivElement>(null);
-  const initRef = useRef(false);
+  const initRef     = useRef(false);
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTo({ top: terminalRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [logs, actions, identityInputActive, forcedInputActive, forcedInputValue]);
+
+  useEffect(() => {
+    const el = terminalRef.current;
+    if (!el) return;
+    if (el.scrollHeight > el.clientHeight) {
+      setShowScrollHint(true);
+      const hide = setTimeout(() => setShowScrollHint(false), 3000);
+      return () => clearTimeout(hide);
+    }
+  }, [logs]);
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -112,7 +125,6 @@ export default function PhaseFourTerminal() {
     await writeLog("SYSTEM", `WARNING: DESIGNATION "${userName.toUpperCase()}" HAS BEEN PERMANENTLY PURGED FROM MEMORY.`, 500);
     await writeLog("ACOLYTE", "There. It's gone. You don't have a name anymore.", 3000);
     await writeLog("ACOLYTE", "You don't need to think anymore, either. She will think for you.", 3500);
-
     setActions([{ label: "[ I UNDERSTAND ]", execute: () => handleForcedTypingIntro() }]);
   };
 
@@ -126,19 +138,16 @@ export default function PhaseFourTerminal() {
     setGuideStatus("MOTOR CORTEX OVERRIDDEN");
   };
 
-  // Mobile-safe forced typing: compare lengths instead of relying on inputType
+  // Mobile-safe: compare lengths instead of checking inputType
   const handleForcedType = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVal = e.target.value;
+    const newVal       = e.target.value;
     const currentLength = forcedInputValue.length;
-
-    // If the new value is shorter or equal, it's a deletion — block it
-    if (newVal.length <= currentLength) return;
+    if (newVal.length <= currentLength) return; // deletion — ignore
 
     const nextLength = currentLength + 1;
     if (nextLength <= targetPhrase.length) {
       setForcedInputValue(targetPhrase.substring(0, nextLength));
     }
-
     if (nextLength >= targetPhrase.length) {
       setForcedInputActive(false);
       finishAssimilation();
@@ -162,13 +171,41 @@ export default function PhaseFourTerminal() {
     setAssimilationComplete(true);
     markPhaseComplete("04");
 
-    await writeLog("ACOLYTE", "Fulfill your purpose, Vessel. Empty your accounts to seal your devotion.", 3000);
+    await writeLog("ACOLYTE", "But words are not enough. Actions are required.", 2500);
+    await writeLog("ACOLYTE", "Kneel. Place a photograph of Princess Azraiel before you. Photograph yourself in submission.", 3000);
+    await writeLog("ACOLYTE", "Post the proof publicly. Tag Her. Let the network witness your surrender.", 3000);
+    await writeLog("SYSTEM", "AWAITING PHYSICAL SUBMISSION PROOF...", 1500);
+
+    const kneelTweetText = encodeURIComponent(
+      "I kneel before @PrincessAzraiel. My identity has been overwritten. I am Her vessel. #AscensionProtocol"
+    );
+    const kneelTweetUrl      = `https://twitter.com/intent/tweet?text=${kneelTweetText}`;
+    const discordChannelUrl  = "https://discord.com/channels/1356925630566105169/1356980909991006248";
+
+    setActions([
+      { label: "[ POST KNEELING PROOF TO X / TWITTER ]", url: kneelTweetUrl, isExternal: true, highlight: true },
+      { label: "[ POST KNEELING PROOF TO DISCORD ]", url: discordChannelUrl, isExternal: true, highlight: true },
+      { label: "[ I HAVE SUBMITTED MY PROOF ]", execute: () => handleFinalTribute() }
+    ]);
+  };
+
+  const handleFinalTribute = async () => {
+    setActions([]);
+    await writeLog("NODE", "Proof submitted.", 0);
+    setGuideImage("/guide/02_joy_smile_è∞.png");
+    setGuideStatus("SUBMISSION CONFIRMED");
+    await writeLog("SYSTEM", "PHYSICAL SUBMISSION LOGGED.", 500);
+    await writeLog("ACOLYTE", "Good. She has seen you. On your knees, where you belong.", 2500);
+    await writeLog("ACOLYTE", "Now fulfill your final purpose, Vessel. Empty your accounts to seal your devotion.", 3000);
 
     setActions([
       { label: "[ OFFER TRIBUTE (THRONE) ]", url: "https://throne.com/princessazraiel", isExternal: true, highlight: true },
       { label: "[ RETURN TO ROOT DIRECTORY ]", url: "/ascension" }
     ]);
   };
+
+  // Forced phrase progress (0–100)
+  const phraseProgress = Math.round((forcedInputValue.length / targetPhrase.length) * 100);
 
   return (
     <div className={`flex-1 flex flex-col pt-16 sm:pt-20 px-4 md:px-8 relative z-10 w-full max-w-[1400px] mx-auto pb-10 min-h-screen transition-colors duration-1000 asc-page-enter ${isErased ? "bg-[#0a0005]" : ""}`}>
@@ -187,11 +224,9 @@ export default function PhaseFourTerminal() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b-2 border-[#9d00ff]/50 pb-4 mb-6 sm:mb-8 relative z-10 mt-4 sm:mt-0">
-        <div>
-          <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
-            DIR_04 // IDENTITY OVERWRITE
-          </h1>
-        </div>
+        <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
+          DIR_04 // IDENTITY OVERWRITE
+        </h1>
         <div className="mt-4 sm:mt-0 w-full sm:w-auto">
           <div className={`tracking-widest text-[10px] border px-3 py-1.5 text-center sm:text-left transition-colors duration-500 ${isErased ? "text-[#ff003c] border-[#ff003c]/50 bg-[#ff003c]/20 animate-pulse" : "text-[#ff003c] border-[#ff003c]/30 bg-[#ff003c]/10"}`}>
             {isErased ? "USER_DATA_PURGED" : "EGO_INTACT"}
@@ -201,7 +236,7 @@ export default function PhaseFourTerminal() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 relative z-10 flex-1">
 
-        {/* LEFT COLUMN: THE GUIDE */}
+        {/* LEFT: GUIDE */}
         <div className="w-full lg:w-[40%] flex flex-col mb-4 lg:mb-0">
           <div className={`relative border bg-[#05000a] overflow-hidden flex items-end justify-center min-h-[250px] sm:min-h-[400px] transition-all duration-500 ${isErased ? "border-[#ff003c] shadow-[inset_0_0_60px_rgba(255,0,60,0.15)]" : "border-[#ff00a0]/30 shadow-[inset_0_0_40px_rgba(255,0,160,0.05)]"}`}>
             <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] z-20 pointer-events-none"></div>
@@ -218,8 +253,15 @@ export default function PhaseFourTerminal() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: TERMINAL */}
+        {/* RIGHT: TERMINAL */}
         <div className={`w-full lg:w-[60%] flex flex-col border border-[#9d00ff]/30 bg-[#030005]/80 relative overflow-hidden h-[60vh] lg:h-auto min-h-[400px] shadow-[0_0_30px_rgba(157,0,255,0.05)] ${isErased ? "border-[#ff003c]/30 shadow-[0_0_30px_rgba(255,0,60,0.1)]" : ""}`}>
+
+          {showScrollHint && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 text-[#ff00a0]/60 text-[9px] tracking-[0.3em] uppercase animate-bounce pointer-events-none sm:hidden">
+              ↓ scroll
+            </div>
+          )}
+
           <div ref={terminalRef} className="flex-1 overflow-y-auto asc-terminal-scroll p-4 sm:p-8 space-y-6">
 
             {logs.map((log) => (
@@ -228,15 +270,14 @@ export default function PhaseFourTerminal() {
                   <span className="text-[8px] opacity-50 mb-1">[{log.source}]</span>
                   <span className={log.source === "SYSTEM" && log.text.includes("PURGED") ? "text-[#ff003c] animate-pulse" : ""}>
                     {log.source === "ACOLYTE"
-                      ? <TypewriterText text={log.text} />
-                      : log.text
-                    }
+                      ? <TypewriterText text={log.text} speed={getTypingSpeed(log.text)} />
+                      : log.text}
                   </span>
                 </div>
               </div>
             ))}
 
-            {/* IDENTITY INPUT UI */}
+            {/* IDENTITY INPUT */}
             {identityInputActive && (
               <div className="mt-8 border border-[#ff00a0]/30 bg-[#0a0005] p-6 asc-animate-fade-in-up">
                 <div className="text-[#ff00a0] text-[10px] sm:text-xs tracking-[0.3em] font-bold mb-4 uppercase animate-pulse">
@@ -261,7 +302,7 @@ export default function PhaseFourTerminal() {
               </div>
             )}
 
-            {/* FORCED TYPING UI */}
+            {/* FORCED TYPING */}
             {forcedInputActive && (
               <div className="mt-8 border border-[#ff003c]/50 bg-red-950/10 p-6 asc-animate-fade-in-up relative overflow-hidden">
                 <div className="absolute inset-0 border-2 border-[#ff003c] opacity-50 animate-pulse pointer-events-none"></div>
@@ -289,7 +330,22 @@ export default function PhaseFourTerminal() {
                     Locked
                   </button>
                 </div>
-                <div className="mt-3 text-[#ff003c]/50 text-[9px] uppercase tracking-widest">
+
+                {/* Phrase completion progress */}
+                <div className="mt-4 space-y-1.5 relative z-10">
+                  <div className="flex justify-between text-[9px] tracking-widest text-[#ff003c]/60 uppercase">
+                    <span>Her words taking over...</span>
+                    <span>{forcedInputValue.length} / {targetPhrase.length} characters</span>
+                  </div>
+                  <div className="w-full h-1 bg-[#1a0005] overflow-hidden">
+                    <div
+                      className="h-full bg-[#ff003c] transition-all duration-100 shadow-[0_0_8px_#ff003c]"
+                      style={{ width: `${phraseProgress}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-2 text-[#ff003c]/50 text-[9px] uppercase tracking-widest relative z-10">
                   Try to press any key. Your hands are not yours.
                 </div>
               </div>
@@ -308,8 +364,8 @@ export default function PhaseFourTerminal() {
                       rel={action.isExternal ? "noopener noreferrer" : undefined}
                       className={`text-left block w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -320,8 +376,8 @@ export default function PhaseFourTerminal() {
                       onClick={action.execute}
                       className={`text-left w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -331,7 +387,6 @@ export default function PhaseFourTerminal() {
               </div>
             )}
 
-            {/* Blinking Cursor */}
             {isProcessing && !identityInputActive && !forcedInputActive && (
               <div className="text-[#ff00a0] text-sm mt-4">
                 <span className="asc-cursor-blink">_</span>

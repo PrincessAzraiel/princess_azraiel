@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { TypewriterText } from "../_components/TypewriterText";
 import { TransitionLink } from "../_components/TransitionLink";
-import { getLogStyle, markPhaseComplete } from "../_utils/terminal";
+import { getLogStyle, getTypingSpeed, markPhaseComplete } from "../_utils/terminal";
 
 type LogEntry = {
   id: string;
@@ -19,30 +19,45 @@ type ActionButton = {
 };
 
 export default function PhaseTwoTerminal() {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [actions, setActions] = useState<ActionButton[]>([]);
+  const [logs, setLogs]           = useState<LogEntry[]>([]);
+  const [actions, setActions]     = useState<ActionButton[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [storyPhase, setStoryPhase] = useState<number>(0);
+  const [storyPhase, setStoryPhase]     = useState<number>(0);
 
-  const [cameraActive, setCameraActive] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanProgress, setScanProgress] = useState(0);
+  const [cameraActive, setCameraActive]         = useState(false);
+  const [isScanning, setIsScanning]             = useState(false);
+  const [scanProgress, setScanProgress]         = useState(0);
   const [alignmentComplete, setAlignmentComplete] = useState(false);
-  const [flashActive, setFlashActive] = useState(false);
+  const [flashActive, setFlashActive]           = useState(false);
+  const [snapshotUrl, setSnapshotUrl]           = useState<string | null>(null);
 
-  const [guideImage, setGuideImage] = useState("/guide/10_grin_òsôG.png");
+  const [guideImage, setGuideImage]   = useState("/guide/10_grin_òsôG.png");
   const [guideStatus, setGuideStatus] = useState("ANALYZING POSTURE");
 
+  // Mobile scroll hint
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
   const terminalRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const initRef = useRef(false);
+  const videoRef    = useRef<HTMLVideoElement>(null);
+  const canvasRef   = useRef<HTMLCanvasElement>(null);
+  const streamRef   = useRef<MediaStream | null>(null);
+  const initRef     = useRef(false);
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTo({ top: terminalRef.current.scrollHeight, behavior: "smooth" });
     }
   }, [logs, actions, isScanning, scanProgress, cameraActive]);
+
+  useEffect(() => {
+    const el = terminalRef.current;
+    if (!el) return;
+    if (el.scrollHeight > el.clientHeight) {
+      setShowScrollHint(true);
+      const hide = setTimeout(() => setShowScrollHint(false), 3000);
+      return () => clearTimeout(hide);
+    }
+  }, [logs]);
 
   useEffect(() => {
     return () => {
@@ -132,12 +147,24 @@ export default function PhaseTwoTerminal() {
   };
 
   const finalizeAlignment = async () => {
+    // Capture canvas snapshot BEFORE flash + stream stop
+    if (videoRef.current && canvasRef.current && streamRef.current) {
+      const v = videoRef.current;
+      const c = canvasRef.current;
+      c.width  = v.videoWidth  || 640;
+      c.height = v.videoHeight || 480;
+      c.getContext("2d")?.drawImage(v, 0, 0);
+      setSnapshotUrl(c.toDataURL("image/jpeg", 0.85));
+    }
+
     setIsScanning(false);
     setFlashActive(true);
     if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+
     await sleep(400);
     setAlignmentComplete(true);
     setFlashActive(false);
+
     await sleep(1000);
     await writeLog("SYSTEM", "SKELETAL LOCK CONFIRMED. SNAPSHOT SAVED TO ARCHIVE.", 500);
     setGuideImage("/guide/08_wink_kiss_âEâCâôâNôèé░âLâbâX.png");
@@ -158,6 +185,9 @@ export default function PhaseTwoTerminal() {
 
       <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#ff00a00a_1px,transparent_1px),linear-gradient(to_bottom,#ff00a00a_1px,transparent_1px)] bg-[size:2rem_2rem] sm:bg-[size:3rem_3rem] z-0 asc-animate-grid"></div>
 
+      {/* Hidden canvas for snapshot capture */}
+      <canvas ref={canvasRef} className="hidden" />
+
       {/* Screen Flash */}
       {flashActive && (
         <div className="fixed inset-0 z-[99999] bg-white pointer-events-none asc-animate-flash"></div>
@@ -165,11 +195,9 @@ export default function PhaseTwoTerminal() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b-2 border-[#9d00ff]/50 pb-4 mb-6 sm:mb-8 relative z-10 mt-4 sm:mt-0">
-        <div>
-          <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
-            DIR_02 // VESSEL ALIGNMENT
-          </h1>
-        </div>
+        <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
+          DIR_02 // VESSEL ALIGNMENT
+        </h1>
         <div className="mt-4 sm:mt-0 w-full sm:w-auto">
           <div className="text-[#ff003c] tracking-widest text-[10px] border border-[#ff003c]/30 px-3 py-1.5 bg-[#ff003c]/10 text-center sm:text-left">
             SYS_LOCK: {alignmentComplete ? "ENGAGED" : "PENDING"}
@@ -179,7 +207,7 @@ export default function PhaseTwoTerminal() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 relative z-10 flex-1">
 
-        {/* LEFT COLUMN: THE GUIDE */}
+        {/* LEFT: GUIDE */}
         <div className="w-full lg:w-[40%] flex flex-col mb-4 lg:mb-0">
           <div className="relative border border-[#ff00a0]/30 bg-[#05000a] shadow-[inset_0_0_40px_rgba(255,0,160,0.05)] overflow-hidden flex items-end justify-center min-h-[250px] sm:min-h-[400px]">
             <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] z-20 pointer-events-none"></div>
@@ -196,8 +224,15 @@ export default function PhaseTwoTerminal() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: TERMINAL */}
+        {/* RIGHT: TERMINAL */}
         <div className="w-full lg:w-[60%] flex flex-col border border-[#9d00ff]/30 bg-[#030005]/80 relative overflow-hidden h-[60vh] lg:h-auto min-h-[400px] shadow-[0_0_30px_rgba(157,0,255,0.05)]">
+
+          {showScrollHint && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 text-[#ff00a0]/60 text-[9px] tracking-[0.3em] uppercase animate-bounce pointer-events-none sm:hidden">
+              ↓ scroll
+            </div>
+          )}
+
           <div ref={terminalRef} className="flex-1 overflow-y-auto asc-terminal-scroll p-4 sm:p-8 space-y-6">
 
             {logs.map((log) => (
@@ -206,19 +241,18 @@ export default function PhaseTwoTerminal() {
                   <span className="text-[8px] opacity-50 mb-1">[{log.source}]</span>
                   <span>
                     {log.source === "ACOLYTE"
-                      ? <TypewriterText text={log.text} />
-                      : log.text
-                    }
+                      ? <TypewriterText text={log.text} speed={getTypingSpeed(log.text)} />
+                      : log.text}
                   </span>
                 </div>
               </div>
             ))}
 
-            {/* SKELETAL CAMERA UI */}
+            {/* CAMERA UI */}
             {cameraActive && (
               <div className="my-6 border-y-2 border-[#ff00a0] bg-black relative asc-animate-fade-in-up">
                 <div className="absolute top-0 left-0 w-full bg-[#ff00a0]/20 text-[#ff00a0] text-[8px] px-2 py-1 tracking-[0.5em] z-30 flex justify-between">
-                  <span>BIOMETRIC_FEED // LIVE</span>
+                  <span>BIOMETRIC_FEED // {alignmentComplete ? "ARCHIVED" : "LIVE"}</span>
                   <span className={alignmentComplete ? "text-[#9d00ff]" : "text-[#ff003c]"}>
                     {isScanning ? "CALCULATING MATRICES..." : alignmentComplete ? "MATCH: 99.8%" : "DEVIATION DETECTED"}
                   </span>
@@ -226,6 +260,7 @@ export default function PhaseTwoTerminal() {
 
                 <div className="relative aspect-video sm:aspect-[21/9] w-full overflow-hidden bg-[#0a0012] flex items-center justify-center">
 
+                  {/* Wireframe overlay (pre-completion only) */}
                   {!alignmentComplete && (
                     <div className="absolute inset-0 z-30 flex items-center justify-center opacity-80 pointer-events-none">
                       <svg viewBox="0 0 100 100" className="h-[90%] w-auto stroke-[#ff00a0] fill-none" strokeWidth="0.8" strokeDasharray="1 1">
@@ -254,22 +289,40 @@ export default function PhaseTwoTerminal() {
                     <div className="absolute top-0 left-0 w-[2px] h-full bg-[#ff003c] shadow-[0_0_20px_#ff003c] z-40 asc-animate-scan-h"></div>
                   )}
 
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className={`w-full h-full object-cover opacity-80 mix-blend-screen contrast-[1.4] sepia-[0.5] hue-rotate-[260deg] saturate-[2] ${alignmentComplete ? 'blur-md opacity-30 grayscale' : ''}`}
-                  />
+                  {/* Post-completion: frozen snapshot */}
+                  {alignmentComplete && snapshotUrl ? (
+                    <img
+                      src={snapshotUrl}
+                      alt="Skeletal snapshot"
+                      className="w-full h-full object-cover blur-md opacity-30 grayscale"
+                    />
+                  ) : (
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-full object-cover opacity-80 mix-blend-screen contrast-[1.4] sepia-[0.5] hue-rotate-[260deg] saturate-[2]"
+                    />
+                  )}
 
                   {!streamRef.current && !alignmentComplete && (
                     <div className="absolute z-10 text-[#ff003c] font-bold tracking-[0.4em] animate-pulse text-xs">FEED_UNAVAILABLE</div>
+                  )}
+
+                  {/* Snapshot lock badge */}
+                  {alignmentComplete && (
+                    <div className="absolute inset-0 flex items-center justify-center z-20">
+                      <div className="border border-[#9d00ff] bg-black/80 text-[#9d00ff] text-[10px] tracking-[0.4em] uppercase px-4 py-2 shadow-[0_0_20px_rgba(157,0,255,0.3)]">
+                        SNAPSHOT ARCHIVED
+                      </div>
+                    </div>
                   )}
                 </div>
 
                 {isScanning && (
                   <div className="w-full bg-[#05000a] h-1.5">
-                    <div className="bg-[#ff003c] h-full transition-all duration-300 shadow-[0_0_10px_#ff003c]" style={{ width: `${scanProgress}%` }}></div>
+                    <div className="bg-[#ff003c] h-full transition-all duration-300 shadow-[0_0_10px_#ff003c]" style={{ width: `${scanProgress}%` }} />
                   </div>
                 )}
               </div>
@@ -288,8 +341,8 @@ export default function PhaseTwoTerminal() {
                       rel={action.isExternal ? "noopener noreferrer" : undefined}
                       className={`text-left block w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -300,8 +353,8 @@ export default function PhaseTwoTerminal() {
                       onClick={action.execute}
                       className={`text-left w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -311,7 +364,6 @@ export default function PhaseTwoTerminal() {
               </div>
             )}
 
-            {/* Blinking Cursor */}
             {isProcessing && (
               <div className="text-[#ff00a0] text-sm mt-4">
                 <span className="asc-cursor-blink">_</span>

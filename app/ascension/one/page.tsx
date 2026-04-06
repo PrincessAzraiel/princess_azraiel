@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { TypewriterText } from "../_components/TypewriterText";
 import { TransitionLink } from "../_components/TransitionLink";
-import { getLogStyle, markPhaseComplete } from "../_utils/terminal";
+import { getLogStyle, getTypingSpeed, markPhaseComplete } from "../_utils/terminal";
 
 type LogEntry = {
   id: string;
@@ -18,26 +18,50 @@ type ActionButton = {
   highlight?: boolean;
 };
 
+const FAKE_PACKETS = [
+  "PKT 83.142.77.4   >> INSPECTED   >> NO MATCH",
+  "PKT 192.168.1.12  >> INSPECTED   >> NO MATCH",
+  "PKT 10.0.0.47     >> FLAGGED     >> ANALYZING...",
+  "PKT 104.21.88.15  >> INSPECTED   >> NO MATCH",
+  "PKT 172.16.4.200  >> CROSS-REF   >> TIMESTAMP 14:23:07",
+  "PKT 185.93.2.61   >> MATCH FOUND >> PHOTOGRAPHIC PROOF",
+];
+
 export default function PhaseOneTerminal() {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [actions, setActions] = useState<ActionButton[]>([]);
+  const [logs, setLogs]           = useState<LogEntry[]>([]);
+  const [actions, setActions]     = useState<ActionButton[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [storyPhase, setStoryPhase] = useState<number>(0);
+  const [storyPhase, setStoryPhase]     = useState<number>(0);
 
-  const [isScanning, setIsScanning] = useState(false);
+  const [isScanning, setIsScanning]     = useState(false);
   const [scanProgress, setScanProgress] = useState(0);
+  const [packetLines, setPacketLines]   = useState<string[]>([]);
 
-  const [guideImage, setGuideImage] = useState("/guide/06_smile_Å╬èτ.png");
+  const [guideImage, setGuideImage]   = useState("/guide/06_smile_Å╬èτ.png");
   const [guideStatus, setGuideStatus] = useState("MONITORING NODE");
 
+  // Mobile scroll hint
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
   const terminalRef = useRef<HTMLDivElement>(null);
-  const initRef = useRef(false);
+  const initRef     = useRef(false);
 
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTo({ top: terminalRef.current.scrollHeight, behavior: "smooth" });
     }
-  }, [logs, actions, isScanning, scanProgress]);
+  }, [logs, actions, isScanning, scanProgress, packetLines]);
+
+  // Show mobile scroll hint when content overflows
+  useEffect(() => {
+    const el = terminalRef.current;
+    if (!el) return;
+    if (el.scrollHeight > el.clientHeight) {
+      setShowScrollHint(true);
+      const hide = setTimeout(() => setShowScrollHint(false), 3000);
+      return () => clearTimeout(hide);
+    }
+  }, [logs]);
 
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -112,11 +136,20 @@ export default function PhaseOneTerminal() {
     setGuideStatus("SCANNING NETWORK TRAFFIC");
     await writeLog("SYSTEM", "COMMENCING DEEP PACKET INSPECTION...", 500);
 
-    let progress = 0;
+    let progress    = 0;
+    let packetIndex = 0;
+
     const interval = setInterval(() => {
       progress += Math.floor(Math.random() * 15) + 5;
       if (progress > 100) progress = 100;
       setScanProgress(progress);
+
+      // Surface a fake packet line at key progress points
+      if (packetIndex < FAKE_PACKETS.length && progress >= (packetIndex + 1) * (100 / FAKE_PACKETS.length)) {
+        setPacketLines(prev => [...prev, FAKE_PACKETS[packetIndex]]);
+        packetIndex++;
+      }
+
       if (progress === 100) {
         clearInterval(interval);
         finalizeCalibration();
@@ -138,6 +171,7 @@ export default function PhaseOneTerminal() {
 
     setActions([
       { label: "[ OFFER TRIBUTE (THRONE) ]", url: "https://throne.com/princessazraiel", isExternal: true, highlight: true },
+      { label: "[ PROCEED TO DIRECTIVE 02 ]", url: "/ascension/two", highlight: true },
       { label: "[ RETURN TO PROTOCOL HUB ]", url: "/ascension" }
     ]);
   };
@@ -149,11 +183,9 @@ export default function PhaseOneTerminal() {
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b-2 border-[#9d00ff]/50 pb-4 mb-6 sm:mb-8 relative z-10 mt-4 sm:mt-0">
-        <div>
-          <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
-            DIR_01 // SPATIAL CALIBRATION
-          </h1>
-        </div>
+        <h1 className="text-[#ff00a0] tracking-[0.2em] sm:tracking-[0.4em] text-xl sm:text-2xl font-black uppercase drop-shadow-[0_0_10px_rgba(255,0,160,0.5)]">
+          DIR_01 // SPATIAL CALIBRATION
+        </h1>
         <div className="mt-4 sm:mt-0 w-full sm:w-auto">
           <div className="text-[#ff003c] tracking-widest text-[10px] border border-[#ff003c]/30 px-3 py-1.5 bg-[#ff003c]/10 text-center sm:text-left">
             SYS_LOCK: {scanProgress === 100 ? "ENGAGED" : "PENDING"}
@@ -163,7 +195,7 @@ export default function PhaseOneTerminal() {
 
       <div className="flex flex-col lg:flex-row gap-6 lg:gap-12 relative z-10 flex-1">
 
-        {/* LEFT COLUMN: THE GUIDE */}
+        {/* LEFT: GUIDE */}
         <div className="w-full lg:w-[40%] flex flex-col mb-4 lg:mb-0">
           <div className="relative border border-[#ff00a0]/30 bg-[#05000a] shadow-[inset_0_0_40px_rgba(255,0,160,0.05)] overflow-hidden flex items-end justify-center min-h-[250px] sm:min-h-[400px]">
             <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,0,0,0.2)_50%)] bg-[length:100%_4px] z-20 pointer-events-none"></div>
@@ -180,8 +212,16 @@ export default function PhaseOneTerminal() {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: TERMINAL */}
+        {/* RIGHT: TERMINAL */}
         <div className="w-full lg:w-[60%] flex flex-col border border-[#9d00ff]/30 bg-[#030005]/80 relative overflow-hidden h-[60vh] lg:h-auto min-h-[400px] shadow-[0_0_30px_rgba(157,0,255,0.05)]">
+
+          {/* Mobile scroll hint */}
+          {showScrollHint && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 text-[#ff00a0]/60 text-[9px] tracking-[0.3em] uppercase animate-bounce pointer-events-none sm:hidden">
+              ↓ scroll
+            </div>
+          )}
+
           <div ref={terminalRef} className="flex-1 overflow-y-auto asc-terminal-scroll p-4 sm:p-8 space-y-6">
 
             {logs.map((log) => (
@@ -190,27 +230,28 @@ export default function PhaseOneTerminal() {
                   <span className="text-[8px] opacity-50 mb-1">[{log.source}]</span>
                   <span>
                     {log.source === "ACOLYTE"
-                      ? <TypewriterText text={log.text} />
-                      : log.text
-                    }
+                      ? <TypewriterText text={log.text} speed={getTypingSpeed(log.text)} />
+                      : log.text}
                   </span>
                 </div>
               </div>
             ))}
 
-            {/* Simulated Network Scanner */}
+            {/* Scanner + packet lines */}
             {isScanning && (
-              <div className="mt-8 mb-4 border border-[#ff00a0]/30 bg-[#05000a] p-4 asc-animate-fade-in-up">
-                <div className="flex justify-between text-[10px] text-[#ff00a0] tracking-widest uppercase mb-2">
-                  <span>Scraping Network Data...</span>
+              <div className="mt-8 mb-4 border border-[#ff00a0]/30 bg-[#05000a] p-4 asc-animate-fade-in-up space-y-3">
+                <div className="flex justify-between text-[10px] text-[#ff00a0] tracking-widest uppercase">
+                  <span>Deep Packet Inspection...</span>
                   <span>{scanProgress}%</span>
                 </div>
                 <div className="w-full h-2 bg-[#1a001a] overflow-hidden">
-                  <div
-                    className="h-full bg-[#ff00a0] transition-all duration-300 shadow-[0_0_10px_#ff00a0]"
-                    style={{ width: `${scanProgress}%` }}
-                  ></div>
+                  <div className="h-full bg-[#ff00a0] transition-all duration-300 shadow-[0_0_10px_#ff00a0]" style={{ width: `${scanProgress}%` }} />
                 </div>
+                {packetLines.map((line, i) => (
+                  <div key={i} className="text-[9px] text-[#9d00ff]/80 tracking-widest font-mono asc-animate-fade-in-up">
+                    <span className="text-[#ff003c]/50 mr-2">&gt;</span>{line}
+                  </div>
+                ))}
               </div>
             )}
 
@@ -227,8 +268,8 @@ export default function PhaseOneTerminal() {
                       rel={action.isExternal ? "noopener noreferrer" : undefined}
                       className={`text-left p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 block ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -239,8 +280,8 @@ export default function PhaseOneTerminal() {
                       onClick={action.execute}
                       className={`text-left w-full p-3 sm:p-4 tracking-[0.15em] sm:tracking-[0.2em] font-bold text-[10px] sm:text-xs uppercase transition-all duration-300 ${
                         action.highlight
-                          ? 'border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]'
-                          : 'text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]'
+                          ? "border border-[#ff00a0] text-[#ff00a0] bg-[#ff00a0]/10 hover:bg-[#ff00a0] hover:text-white shadow-[0_0_15px_rgba(255,0,160,0.2)]"
+                          : "text-[#9d00ff] border border-[#9d00ff]/30 hover:border-[#9d00ff] hover:text-white bg-[#05000a]"
                       }`}
                     >
                       {action.label}
@@ -250,7 +291,6 @@ export default function PhaseOneTerminal() {
               </div>
             )}
 
-            {/* Blinking Cursor */}
             {isProcessing && (
               <div className="text-[#ff00a0] text-sm mt-4">
                 <span className="asc-cursor-blink">_</span>
