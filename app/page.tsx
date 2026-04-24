@@ -1082,7 +1082,7 @@ export default function TechdomLandingPage() {
               you install has her fingerprints on it — because there was nobody else in the room.
             </p>
             <p className="body dropcap">
-              She shipped <b>ten programs</b> and counting — a JOI trial, a long edgeware
+              She shipped <b>many programs</b> and more are to come — a JOI trial, a long edgeware
               session, two browser extensions, an Android wallpaper daemon, an infection
               protocol with five hundred links, a corruption site, and a pile of short .exe
               experiences — <b>all hand-built.</b> One princess, one engineer, one yandere
