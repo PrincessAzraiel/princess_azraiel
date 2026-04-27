@@ -116,18 +116,18 @@ const PROGRAMS = [
     variant: 'k-ext',
     gridClass: 'md:col-span-3 lg:col-span-3'
   },
-  // { 
-  //   num: '§ 10',
-  //   title: 'Wallpaper Changer.', 
-  //   titleSplit: ['Wallpaper', 'Changer.'],
-  //   description: 'An Android app. Every few minutes it swaps your wallpaper for a new image of her. You will stop locking your phone.', 
-  //   link: 'https://princessazraiel.itch.io/android-wallpaper-changer',
-  //   tag: 'ANDROID APP',
-  //   isNew: false,
-  //   specs: ['APK', 'ANDROID'],
-  //   variant: 'k-app',
-  //   gridClass: 'md:col-span-6 lg:col-span-3'
-  // }
+  { 
+    num: '§ 10',
+    title: 'Wallpaper Changer.', 
+    titleSplit: ['Wallpaper', 'Changer.'],
+    description: 'An Android app. Every few minutes it swaps your wallpaper for a new image of her. You will stop locking your phone.', 
+    link: 'https://princessazraiel.itch.io/android-wallpaper-changer',
+    tag: 'ANDROID APP',
+    isNew: false,
+    specs: ['APK', 'ANDROID'],
+    variant: 'k-app',
+    gridClass: 'md:col-span-6 lg:col-span-3'
+  }
 ];
 
 export default function ProgramsPage() {
