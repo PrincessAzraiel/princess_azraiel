@@ -164,6 +164,9 @@ export default function LandingPage() {
           </div>
         </header>
 
+        {/* ── News Banner ── */}
+        <LatestNews />
+
         {/* ── Tab Bar ── */}
         <div className="flex gap-1 p-1 bg-white/[0.04] rounded-2xl mb-7 border border-white/[0.07]">
           {(["about", "links", "programs"] as Tab[]).map((t) => (
@@ -211,6 +214,43 @@ export default function LandingPage() {
         </p>
       </footer>
     </div>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   LATEST NEWS
+────────────────────────────────────────────── */
+function LatestNews() {
+  return (
+    <a
+      href="https://www.patreon.com/cw/PrincessAzraiel/membership"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex items-start gap-4 w-full p-4 rounded-2xl border border-pink-500/30 bg-pink-500/[0.06] hover:bg-pink-500/[0.11] hover:border-pink-500/50 transition-all duration-300 mb-7"
+    >
+      <div className="flex-shrink-0 mt-0.5">
+        <span className="sync text-[7px] tracking-[0.3em] uppercase px-2 py-1 rounded-md bg-pink-500/20 border border-pink-500/40 text-pink-300">
+          New
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="italiana text-xl text-white group-hover:text-pink-100 transition-colors leading-snug mb-1">
+          First hypnosis session — now live on Patreon
+        </p>
+        <p className="manrope text-xs text-white/45 group-hover:text-white/60 transition-colors">
+          I am making hypno sessions and the first one just dropped for subscribers. Join to listen.
+        </p>
+      </div>
+      <svg
+        className="w-4 h-4 text-pink-400/50 group-hover:text-pink-300 transition-colors flex-shrink-0 mt-1"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      >
+        <path d="M5 12h14M12 5l7 7-7 7" />
+      </svg>
+    </a>
   );
 }
 
