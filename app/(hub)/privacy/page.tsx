@@ -1,124 +1,226 @@
-export const metadata = {
-  title: "Privacy Policy",
-  description: "Privacy Policy for the Princess Azraiel website. How we handle your data under GDPR.",
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Home } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy — Princess Azraiel",
+  description: "Privacy Policy for princessazraiel.com. How your data is handled under GDPR.",
   alternates: { canonical: "https://princessazraiel.com/privacy" },
   robots: { index: true, follow: false },
 };
 
+const LAST_UPDATED = "May 3, 2026";
+
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 text-pink-100">
-      <header className="mb-8">
-        <h1 className="text-3xl font-extrabold text-pink-300">Privacy Policy</h1>
-        <p className="mt-2 text-pink-100/80">
-          Last updated: {new Date().toLocaleDateString()}
-        </p>
-      </header>
+    <div className="relative min-h-screen bg-[#050306] text-white">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@400;500;600&family=Syncopate:wght@400;700&display=swap');
+        .italiana { font-family: 'Italiana', serif; }
+        .sync { font-family: 'Syncopate', sans-serif; }
+        .manrope { font-family: 'Manrope', sans-serif; }
+      `}</style>
 
-      <article className="prose prose-invert prose-pink max-w-none">
-        <p className="lead">
-          THIS IS STILL AN EXAMPLE PAGE AND IS NOT EVEN CLOSE TO DONE YET. 
-          This Privacy Policy explains how we process personal data when you use this website
-          (the “Service”). We act as <strong>controller</strong> under the EU General Data
-          Protection Regulation (GDPR).
-        </p>
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 80vw 50vh at 50% 0%, rgba(134,25,143,0.10) 0%, transparent 60%)",
+        }}
+      />
 
-        <h2>1. Controller & Contact</h2>
-        <p>
-          Controller: Princess Azraiel (project). Contact:{" "}
-          <a href="mailto:privacy@princessazraiel.example">privacy@princessazraiel.example</a>
-        </p>
+      <div className="relative z-10 max-w-2xl mx-auto px-6 py-16">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 manrope text-xs text-white/40 hover:text-pink-300/80 transition-colors mb-12"
+        >
+          <Home className="w-3.5 h-3.5" />
+          Home
+        </Link>
 
-        <h2>2. What Data We Process</h2>
-        <ul>
-          <li>
-            <strong>Technical data</strong>: IP address, device/browser info, pages viewed,
-            timestamps, basic diagnostics and security logs.
-          </li>
-          <li>
-            <strong>Cookies/local storage</strong>: e.g., your age-gate decision (<code>age_ok</code>).
-          </li>
-          <li>
-            <strong>Contact/Report submissions</strong>: the info you send us via forms or email.
-          </li>
-          <li>
-            <strong>Payments/Donations</strong> (if used): processed by third-party providers
-            (e.g., Ko-fi, Throne, Stripe). We receive limited info necessary for fulfilment and
-            support; full card data never touches our servers.
-          </li>
-        </ul>
+        <div className="mb-10">
+          <p className="sync text-[8px] tracking-[0.5em] text-pink-400/60 uppercase mb-3">
+            Legal
+          </p>
+          <h1 className="italiana text-5xl text-white leading-none mb-3">
+            Privacy <em className="italic text-pink-300">Policy</em>
+          </h1>
+          <p className="manrope text-sm text-white/40">
+            Last updated: {LAST_UPDATED}
+          </p>
+        </div>
 
-        <h2>3. Purposes & Legal Bases</h2>
-        <ul>
-          <li>
-            <em>Provide and secure the Service</em> (Art. 6(1)(f) GDPR — legitimate interests).
-          </li>
-          <li>
-            <em>Consent-based features</em>, e.g., cookies not strictly necessary (Art. 6(1)(a) GDPR).
-          </li>
-          <li>
-            <em>Contract/transactions</em> when you purchase or donate via third parties (Art. 6(1)(b) GDPR).
-          </li>
-          <li>
-            <em>Legal obligations</em> such as accounting or responding to lawful requests (Art. 6(1)(c) GDPR).
-          </li>
-        </ul>
+        <div className="space-y-8 manrope text-sm text-white/65 leading-relaxed">
 
-        <h2>4. Cookies</h2>
-        <p>
-          We use essential cookies (e.g., age-gate). Where required, we’ll request consent for
-          non-essential cookies/analytics. You can clear cookies in your browser settings at any time.
-        </p>
+          <p className="text-white/50">
+            This Privacy Policy explains how{" "}
+            <span className="text-pink-300/80">princessazraiel.com</span> collects and handles
+            data when you visit the site. We act as controller under the EU General Data
+            Protection Regulation (GDPR).
+          </p>
 
-        <h2>5. Recipients & Transfers</h2>
-        <p>
-          We may share data with service providers (hosting, security, analytics, payment/donation
-          processors) under data-processing agreements. If data is transferred outside the EEA, we
-          use appropriate safeguards (e.g., SCCs) where required.
-        </p>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">1. What We Collect</h2>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                <span>
+                  <strong className="text-white/80">Technical data</strong> — IP address,
+                  browser and device info, pages visited, timestamps. Collected automatically by
+                  the hosting infrastructure for security and performance.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                <span>
+                  <strong className="text-white/80">Age-gate cookie</strong> — a cookie named{" "}
+                  <code className="text-pink-300/70 bg-white/5 px-1 py-0.5 rounded text-xs">age_ok</code>{" "}
+                  is stored when you confirm your age. It contains only a "1" or "0" and expires
+                  after 365 days. No personal information is stored in it.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                <span>
+                  <strong className="text-white/80">Local storage</strong> — a timestamp
+                  (
+                  <code className="text-pink-300/70 bg-white/5 px-1 py-0.5 rounded text-xs">
+                    age_gate_accepted_at
+                  </code>
+                  ) is saved locally in your browser when you enter. This never leaves your device.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                <span>
+                  <strong className="text-white/80">Report / contact submissions</strong> — if
+                  you submit a report or message, we receive whatever information you choose to
+                  include.
+                </span>
+              </li>
+            </ul>
+          </section>
 
-        <h2>6. Retention</h2>
-        <p>
-          We keep data only as long as necessary for the purposes collected, or as required by law.
-          For example, the age-gate cookie is kept up to 12 months; support emails are kept as long
-          as needed to resolve the issue; transaction records as required by tax law.
-        </p>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">2. Why We Use It</h2>
+            <ul className="space-y-2">
+              {[
+                { basis: "Legitimate interests (Art. 6(1)(f) GDPR)", reason: "Operating and securing the site, preventing abuse." },
+                { basis: "Consent (Art. 6(1)(a) GDPR)", reason: "The age-gate cookie requires your explicit confirmation before it is set." },
+                { basis: "Legal obligation (Art. 6(1)(c) GDPR)", reason: "Responding to lawful requests from authorities." },
+              ].map(({ basis, reason }) => (
+                <li key={basis} className="flex items-start gap-3">
+                  <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                  <span>
+                    <strong className="text-white/80">{basis}</strong> — {reason}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-        <h2>7. Your Rights (EU/EEA)</h2>
-        <ul>
-          <li>Access, rectification, and erasure.</li>
-          <li>Restriction and objection to processing.</li>
-          <li>Data portability.</li>
-          <li>Withdraw consent at any time (does not affect prior processing).</li>
-          <li>
-            Lodge a complaint with your local authority. In Austria:{" "}
-            <a href="https://www.dsb.gv.at/">Österreichische Datenschutzbehörde (DSB)</a>.
-          </li>
-        </ul>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">3. Third-Party Services</h2>
+            <p className="mb-3">
+              Links on this site point to external platforms (Patreon, Ko-fi, Throne, Discord,
+              etc.). When you visit or transact on those platforms, their own privacy policies
+              apply. We do not receive your payment details — any transactions are handled
+              entirely by those providers.
+            </p>
+            <p>
+              This site is hosted on Vercel. Vercel may process technical data as a data
+              processor on our behalf under their{" "}
+              <a
+                href="https://vercel.com/legal/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink-300/70 hover:text-pink-300 underline underline-offset-2 transition-colors"
+              >
+                Privacy Policy
+              </a>
+              .
+            </p>
+          </section>
 
-        <h2>8. Minors</h2>
-        <p>
-          The Service is for adults only. We do not knowingly collect data from minors. If you
-          believe a minor has provided data, contact us to delete it.
-        </p>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">4. Retention</h2>
+            <ul className="space-y-2">
+              {[
+                "Age-gate cookie: up to 365 days, or until you clear your browser cookies.",
+                "Technical logs: retained only as long as needed for security and diagnostics.",
+                "Report submissions: retained only as long as needed to address the issue.",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-        <h2>9. Security</h2>
-        <p>
-          We implement appropriate technical and organizational measures to protect personal data,
-          considering the state of the art and risks involved.
-        </p>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">5. Your Rights (EU / EEA)</h2>
+            <p className="mb-3">Under GDPR you have the right to:</p>
+            <ul className="space-y-1.5">
+              {[
+                "Access the personal data we hold about you.",
+                "Request correction or deletion of your data.",
+                "Restrict or object to processing in certain circumstances.",
+                "Data portability where processing is based on consent or contract.",
+                "Withdraw consent at any time (without affecting prior processing).",
+                "Lodge a complaint with your local supervisory authority.",
+              ].map((right) => (
+                <li key={right} className="flex items-start gap-3">
+                  <span className="text-pink-400/60 mt-0.5 flex-shrink-0">—</span>
+                  <span>{right}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-white/45 text-xs">
+              Austrian supervisory authority:{" "}
+              <a
+                href="https://www.dsb.gv.at/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink-400/60 hover:text-pink-300 underline underline-offset-2 transition-colors"
+              >
+                Österreichische Datenschutzbehörde (DSB)
+              </a>
+            </p>
+          </section>
 
-        <h2>10. Changes to This Policy</h2>
-        <p>
-          We may update this Policy; material changes will be posted here with a new date.
-        </p>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">6. Minors</h2>
+            <p>
+              This site is strictly for adults. We do not knowingly collect data from anyone
+              under 18. If you believe a minor has submitted data through this site, please
+              contact us immediately.
+            </p>
+          </section>
 
-        <h2>11. Contact</h2>
-        <p>
-          Privacy questions or requests:{" "}
-          <a href="mailto:privacy@princessazraiel.example">privacy@princessazraiel.example</a>
-        </p>
-      </article>
-    </main>
+          <section>
+            <h2 className="italiana text-2xl text-white mb-3">7. Changes to This Policy</h2>
+            <p>
+              Material changes will be reflected in a new "Last updated" date above. Continued
+              use of the site after changes constitutes acceptance of the revised Policy.
+            </p>
+          </section>
+
+          <div className="pt-4 border-t border-white/[0.07]">
+            <p className="text-white/40 text-xs">
+              Privacy requests or questions?{" "}
+              <Link href="/report" className="text-pink-400/60 hover:text-pink-300 transition-colors underline underline-offset-2">
+                Use the report form
+              </Link>
+              {" "}or reach out via{" "}
+              <a href="https://discord.gg/e3uzBK2VJS" target="_blank" rel="noopener noreferrer" className="text-pink-400/60 hover:text-pink-300 transition-colors underline underline-offset-2">
+                Discord
+              </a>.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
   );
 }
