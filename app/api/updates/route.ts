@@ -1,4 +1,4 @@
-import { getUpdates } from "@/app/updates/updates";
+import { getUpdates } from "@/app/(hub)/updates/updates";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

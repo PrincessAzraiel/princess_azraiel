@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
           "/stopped-confession/",
           "/stopped-corruption3/",
           "/stopped-trick-or-treat/",
+          "/patreon-hypnosis/",
           "/api/",
           "/updates/test/",
           "/womensday/",

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | Princess Azraiel",
   },
   description:
-    "The official domain of Princess Azraiel — interactive fiction, psychological horror, hypnosis experiences, and corruption protocols for adults.",
+    "The official domain of Princess Azraiel — interactive fiction, psychological horror, hypnosis experiences, and digital protocols.",
   keywords: [
     "Princess Azraiel",
     "Azraiel",
@@ -24,13 +24,12 @@ export const metadata: Metadata = {
     "psychological horror",
     "yandere",
     "hypnosis",
-    "corruption",
-    "adult interactive",
-    "Patreon",
     "digital experience",
     "AI princess",
     "virtual companion",
     "PrincessOS",
+    "2dfd",
+    "techdom",
   ],
   authors: [{ name: "Princess Azraiel", url: "https://x.com/PrincessAzraiel" }],
   creator: "Princess Azraiel",
@@ -39,15 +38,15 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://princessazraiel.com",
     siteName: "Princess Azraiel",
-    title: "Princess Azraiel — Corruption Hub V4.1",
+    title: "Princess Azraiel — Official Hub V4.1",
     description:
-      "Interactive fiction, psychological horror, and hypnosis experiences. Submit. Suffer. Smile.",
+      "The official hub of Princess Azraiel — interactive fiction, psychological horror, and hypnosis experiences.",
     images: [
       {
         url: "/og-default.jpg",
         width: 1200,
         height: 630,
-        alt: "Princess Azraiel — Corruption Hub",
+        alt: "Princess Azraiel — Official Hub",
       },
     ],
   },
@@ -55,9 +54,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@PrincessAzraiel",
     creator: "@PrincessAzraiel",
-    title: "Princess Azraiel — Corruption Hub V4.1",
+    title: "Princess Azraiel — Official Hub V4.1",
     description:
-      "Interactive fiction, psychological horror, and hypnosis experiences. Submit. Suffer. Smile.",
+      "The official hub of Princess Azraiel — interactive fiction, psychological horror, and hypnosis experiences.",
     images: ["/og-default.jpg"],
   },
   robots: {

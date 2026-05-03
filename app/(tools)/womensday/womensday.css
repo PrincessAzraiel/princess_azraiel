@@ -1,0 +1,48 @@
+/* womensday.css */
+
+.wd-scanlines::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 128, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 50;
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+}
+
+.wd-typewriter {
+  overflow: hidden;
+  border-right: .15em solid #ff1493;
+  white-space: pre-wrap;
+  margin: 0 auto;
+  animation: typing 0.05s steps(40, end), blink-caret .75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: #ff1493; }
+}
+
+.wd-pulse-glow {
+  animation: wd-pulse 2s infinite alternate;
+}
+
+@keyframes wd-pulse {
+  0% { opacity: 0.8; filter: brightness(0) drop-shadow(0 0 20px currentColor); }
+  100% { opacity: 1; filter: brightness(0) drop-shadow(0 0 40px currentColor); }
+}
+
+/* Custom Scrollbar */
+.wd-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.wd-scrollbar::-webkit-scrollbar-track {
+  background: #000;
+}
+.wd-scrollbar::-webkit-scrollbar-thumb {
+  background: #ff1493;
+}
