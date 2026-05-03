@@ -29,7 +29,7 @@ export default function ComicClient({ chapters }: { chapters: Chapter[] }) {
   };
 
   const goNext = useCallback(
-    () => setPage((p) => Math.min(p + 1, totalPages)),
+    () => setPage((p) => Math.min(p + 1, totalPages + 1)),
     [totalPages]
   );
   const goPrev = useCallback(() => setPage((p) => Math.max(p - 1, 0)), []);
@@ -51,7 +51,7 @@ export default function ComicClient({ chapters }: { chapters: Chapter[] }) {
 
   const src = page === 0 ? chapter.cover : chapter.pages[page - 1];
   const isCover = page === 0;
-  const isLast = page === totalPages;
+  const isLast = page > totalPages;
 
   return (
     <Reader
