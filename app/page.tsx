@@ -162,6 +162,15 @@ export default function LandingPage() {
               </a>
             ))}
           </div>
+
+          <Link
+            href="/sessions"
+            className="group mt-4 inline-flex w-full max-w-[260px] items-center justify-center rounded-lg border border-pink-500/35 bg-pink-500/[0.10] px-5 py-3 text-pink-100 shadow-[0_0_22px_rgba(236,72,153,0.12)] transition-all duration-300 hover:border-pink-400/60 hover:bg-pink-500/[0.16] hover:text-white"
+          >
+            <span className="sync text-[8px] uppercase tracking-[0.32em]">
+              Sessions
+            </span>
+          </Link>
         </header>
 
         {/* ── News Banner ── */}

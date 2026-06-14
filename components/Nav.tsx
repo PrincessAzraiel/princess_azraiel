@@ -20,6 +20,7 @@ export default function Nav() {
     { href: "/links", label: "Secret Channels" },
     { href: "/programs", label: "Programs" },
     { href: "/infection", label: "Infection Protocol" },
+    { href: "/sessions", label: "Sessions" },
     { href: "/comic", label: "The Comic" },
   ];
 
