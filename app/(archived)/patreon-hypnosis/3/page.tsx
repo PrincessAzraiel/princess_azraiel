@@ -116,7 +116,7 @@ export default function PatreonHypnosis2() {
 
     await ctx.resume();
 
-    mainEl.src = "/hypnosis/hypnosis-3/hypno-3.mp3";
+    mainEl.src = "/hypnosis/hypnosis-3/hypnosis-3.mp3";
     mainEl.loop = false;
 
     mainEl.onloadedmetadata = () => {
