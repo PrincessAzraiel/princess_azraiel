@@ -16,7 +16,7 @@ const QUICK_LINKS = [
   },
   {
     label: "Discord Server",
-    href: "https://discord.gg/e3uzBK2VJS",
+    href: "https://discord.gg/PxsYU5utwS",
     icon: <Globe className="w-4 h-4" />,
     external: true,
   },
