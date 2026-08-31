@@ -18,6 +18,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/amae`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/infection`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -83,5 +89,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+    url: `${baseUrl}/wheels/sissy`,
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  },
   ];
 }

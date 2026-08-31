@@ -1,0 +1,81 @@
+/* app/princessos/wheel/wheel.css */
+
+/* Main centering container */
+.wheel-container {
+  position: relative;
+  width: 450px;
+  height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Static Target Pointer at the top (12 o'clock) */
+.wheel-pointer {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 40px solid #ffffff; /* White triangle */
+  filter: drop-shadow(0 0 15px #ff1493); /* Glowing effect */
+  z-index: 50; /* Above text and hub */
+}
+
+/* The actual rotating circular body */
+.wheel-body {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid #ff1493; /* Main border color */
+  box-shadow: 0 0 50px rgba(255, 20, 147, 0.3), inset 0 0 30px rgba(0, 0, 0, 0.8);
+  position: relative;
+  overflow: hidden; /* Clips text inside circle */
+  /* Background conic-gradient and transition are handled in inline-styles dynamically */
+}
+
+/* Container for text elements to spin precisely with the wheel */
+.wheel-text-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Individual label text alignment styles */
+.wheel-segment-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 190px; /* Label area extends from center almost to the edge */
+  transform-origin: left center; /* Rotates from the wheel center */
+  color: #ffffff;
+  font-weight: 900;
+  font-family: 'Courier New', monospace; /* Monospace terminal look */
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0, 0, 0, 0.8); /* Heavy contrast shadow */
+  text-align: right;
+  padding-right: 25px; /* Creates spacing from wheel edge */
+  margin-top: -12px; /* Centers text vertically based on line height */
+  z-index: 10;
+}
+
+/* The central decorative hub/axe */
+.wheel-hub {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  background-color: #050002; /* Match deep bg */
+  border: 4px solid #ff1493;
+  border-radius: 50%;
+  z-index: 30; /* Below pointer, above wheel body and text */
+  box-shadow: 0 0 20px #ff1493, inset 0 0 15px #ff1493;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
