@@ -1,8 +1,8 @@
-// AMAE — script format.
+// AMAE script format.
 //
 // A day is a graph of scenes. A scene is a list of beats the player clicks
 // through, then either a choice or a link to the next scene. Beats that change
-// state (dependency, phrasebook, flags) are invisible — the engine applies them
+// state (dependency, phrasebook, flags) are invisible. The engine applies them
 // and moves on, so writing a script never means thinking about React.
 
 export type Beat =
@@ -10,19 +10,25 @@ export type Beat =
   | { t: "narration"; text: string }
   /** Her voice. The only voice you understand. */
   | { t: "her"; text: string }
-  /** Before Japan. Past tense, set apart — the series keeps coming back to these. */
+  /** Before Japan. Past tense, set apart. The series keeps coming back to these. */
   | { t: "memory"; text: string }
   /** Someone speaks, and you don't understand a word of it.
-   *  `her` is what she tells you it meant. `truth` is what was actually said —
+   *  `her` is what she tells you it meant. `truth` is what was actually said,
    *  never shown at the time, only later, when a `reveal` beat fires. */
-  | { t: "jp"; who?: string; jp: string; romaji?: string; her: string; truth?: string }
+  | {
+      t: "jp"; who?: string; jp: string; romaji?: string; her: string; truth?: string;
+      /** Two wrong meanings. With `truth` they become the player's options, shuffled.
+       *  Her version is deliberately NOT among them: the player reaches for a meaning
+       *  and she hands them something from outside the choices entirely. */
+      guess?: [string, string];
+    }
   /** Someone speaks. She is standing right there. She says nothing.
    *  The punishment: the translation slot renders empty. */
   | { t: "silence"; who?: string; jp: string; romaji?: string; truth?: string }
-  /** He reads it himself, fluently, after eleven years of study — and is wrong.
+  /** He reads it himself, fluently, out of the books she left him, and is wrong.
    *  `you` is what he understands it to say. `truth` is what it says. */
   | { t: "read"; label?: string; jp: string; romaji?: string; you: string; truth?: string }
-  /** Untranslated text in the world — a sign, a note, a timetable. */
+  /** Untranslated text in the world: a sign, a note, a timetable. */
   | { t: "text"; label?: string; jp: string; romaji?: string; her?: string; truth?: string }
   /** Cold system voice. Used sparingly. */
   | { t: "system"; text: string }
@@ -51,7 +57,7 @@ export type Choice = {
   favour?: number;
   /** Only offered if this flag is set. */
   requires?: string;
-  /** Once this flag is set the option is gone. Not greyed out — gone.
+  /** Once this flag is set the option is gone. Not greyed out. Gone.
    *  This is how "unthinkable" is rendered in an interface. */
   absentIf?: string;
   /** A quiet note under the choice, for the ones that should feel heavy. */
@@ -66,7 +72,7 @@ export type DayEnd = {
 };
 
 export type Scene = {
-  /** Optional — scenes are keyed by id in the day. */
+  /** Optional; scenes are keyed by id in the day. */
   id?: string;
   place?: string;
   time?: string;
@@ -108,8 +114,11 @@ export type PhraseEntry = {
 
 export type SaveState = {
   dependency: number;
-  /** Her mood, roughly -10 … +10. Not a score — a weather report. */
+  /** Her mood, roughly -10 to +10. Not a score, a weather report. */
   favour: number;
+  /** How often the PLAYER read a line correctly. Nothing to do with him. */
+  understood: number;
+  attempts: number;
   phrasebook: PhraseEntry[];
   /** The things of hers he can now do without being told. */
   rituals: RitualEntry[];
@@ -120,6 +129,8 @@ export type SaveState = {
 export const EMPTY_SAVE: SaveState = {
   dependency: 0,
   favour: 0,
+  understood: 0,
+  attempts: 0,
   phrasebook: [],
   rituals: [],
   flags: [],
@@ -130,7 +141,7 @@ export const SAVE_KEY = "amae:save:v1";
 
 /** Dependency accumulates as raw points and is shown as a percentage of this.
  *  Set so the meter arrives at 100 across all ten chapters rather than pinning
- *  in the third — the last six lessons need somewhere left to go. */
+ *  in the third; the last six lessons need somewhere left to go. */
 export const DEP_TOTAL = 500;
 export const depPercent = (raw: number) =>
   Math.max(0, Math.min(100, Math.round((raw / DEP_TOTAL) * 100)));
@@ -153,6 +164,8 @@ export function loadSave(): SaveState {
     return {
       dependency: typeof parsed.dependency === "number" ? parsed.dependency : 0,
       favour: typeof parsed.favour === "number" ? parsed.favour : 0,
+      understood: typeof parsed.understood === "number" ? parsed.understood : 0,
+      attempts: typeof parsed.attempts === "number" ? parsed.attempts : 0,
       phrasebook: Array.isArray(parsed.phrasebook) ? parsed.phrasebook : [],
       rituals: Array.isArray(parsed.rituals) ? parsed.rituals : [],
       flags: Array.isArray(parsed.flags) ? parsed.flags : [],
@@ -168,6 +181,6 @@ export function writeSave(state: SaveState) {
   try {
     window.localStorage.setItem(SAVE_KEY, JSON.stringify(state));
   } catch {
-    /* private mode — the day still plays, it just will not remember */
+    /* private mode. the day still plays, it just will not remember */
   }
 }

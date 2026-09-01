@@ -3,18 +3,18 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "AMAE 甘え",
   description:
-    "A nine-day interactive novel. She takes you to a mountain hamlet where nobody speaks your language, and becomes the only person who can tell you what anything means. She will not always tell you correctly.",
+    "A ten-chapter interactive novel. She takes you to a mountain hamlet where nobody speaks your language, and leaves you a shelf of books to teach yourself from. Every character in them is real. Your readings are correct. You are genuinely learning.",
   openGraph: {
     title: "AMAE 甘え | Princess Azraiel",
     description:
-      "Nine days in a village of sixty-one people. Every sign, every kindness, every warning arrives in a language you cannot read — and only she can translate it.",
+      "Forty houses, sixty-one people, one bus a day, and nobody with a word of your language. She does not offer to teach you. She points you at the shelf and lets you thank her for it.",
     url: "https://princessazraiel.com/amae",
     images: [
       {
         url: "/og-default.jpg",
         width: 1200,
         height: 630,
-        alt: "AMAE — Princess Azraiel",
+        alt: "AMAE 甘え · Princess Azraiel",
       },
     ],
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AMAE 甘え | Princess Azraiel",
     description:
-      "Nine days. Sixty-one people. She is the only thing you can read.",
+      "You are genuinely learning, and you will get better every week. You will simply never be taught how to say I have decided.",
     images: ["/og-default.jpg"],
   },
   alternates: { canonical: "https://princessazraiel.com/amae" },

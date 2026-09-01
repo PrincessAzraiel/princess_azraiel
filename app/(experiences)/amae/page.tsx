@@ -60,8 +60,8 @@ export default function AmaeHub() {
         <section className="amae-hub-lore">
           <h2>[ 前提 &nbsp;·&nbsp; the arrangement ]</h2>
           <p>
-            She spoke another language. Not at home — she went and got it, on purpose, around
-            her second year at university, and then taught six or seven words of it to her friends
+            She spoke another language. Not at home; she went and got it, on purpose, in her
+            second year at university, and then taught six or seven words of it to her friends
             so they could use them on you in the corridor. They did, for four years.
           </p>
           <p>
@@ -77,10 +77,10 @@ export default function AmaeHub() {
             before you could read a single character.
           </p>
           <p>
-            There is a room at the back with a shelf in it, and the shelf is full — forty
+            There is a room at the back with a shelf in it, and the shelf is full: forty
             volumes in a beautiful old hand, graded readers, drills, exercises with a blank
             column for the student to copy into. She does not offer to teach you. She takes her
-            tea to the other room and lets you find them, and you will thank her for it out loud,
+            coffee to the other room and lets you find them, and you will thank her for it out loud,
             alone, at one in the morning.
           </p>
           <p>
@@ -89,9 +89,9 @@ export default function AmaeHub() {
           </p>
           <p>
             She drinks coffee. She carried a hand grinder up a mountain for three months and did
-            not pack a second cup. When you offer to make it, she says no &mdash; you would do it
-            wrong, and then she would have to drink it &mdash; and that refusal will do more work
-            on you than any order she could have given.
+            not pack a second cup. When you offer to make it, she says no. You would do it
+            wrong, and then she would have to drink it. That refusal will do more work on you
+            than any order she could have given.
           </p>
           <p>
             By spring her cup will be on the table at the exact second she comes out of the
@@ -100,7 +100,7 @@ export default function AmaeHub() {
           </p>
           <p className="amae-hub-emph">
             You will simply never be taught how to say <em>I have decided</em>, or <em>I would
-            rather</em>, or <em>I am going to</em> — and a man can only think in what he has
+            rather</em>, or <em>I am going to</em>. A man can only think in what he has
             been given.
           </p>
 </section>

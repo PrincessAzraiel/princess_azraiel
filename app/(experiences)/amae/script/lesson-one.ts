@@ -1,4 +1,4 @@
-// AMAE — all characters are adults. The backstory begins at university (he is
+// AMAE. All characters are adults. The backstory begins at university (he is
 // nineteen when they meet, thirty in the present day). Nothing in this series is
 // to depict anyone under eighteen; keep every flashback at university or later.
 
@@ -16,7 +16,7 @@ export const lessonOne: Day = {
       time: "two weeks in",
       beats: [
         { t: "narration", text: "Fifteen days. You have done the whole of the first volume and most of the second, four hours a night, and your hand hurts, and you have not been this happy in about four years." },
-        { t: "narration", text: "The house is empty. Her boots are gone from the step. On the kotatsu, weighted under a mandarin, there is a note in her handwriting — and you sit down in front of it with your heart going, because this is the first one she has left you." },
+        { t: "narration", text: "The house is empty. Her boots are gone from the step. On the kotatsu, weighted under a mandarin, there is a note in her handwriting, and you sit down in front of it with your heart going, because this is the first one she has left you." },
         {
           t: "read",
           label: "a note on the kotatsu",
@@ -25,7 +25,7 @@ export const lessonOne: Day = {
           you: "Rinse the rice, would you. I'll be back at six.",
         },
         { t: "narration", text: "You get it. All of it, first pass, without the dictionary." },
-        { t: "narration", text: "You stand in a cold kitchen in a valley on the other side of the world and you rinse rice for a woman who is not there, grinning like an idiot, and it is — you would not say this to anyone — one of the better mornings of your adult life." },
+        { t: "narration", text: "You stand in a cold kitchen in a valley on the other side of the world and you rinse rice for a woman who is not there, grinning like an idiot, and it is one of the better mornings of your adult life, though you would not say that to anyone." },
         { t: "dep", by: 2, note: "she left you a note you could read" },
         { t: "pause" },
         { t: "narration", text: "Volume one, lesson one, is 挨拶. Greetings. The whole of it is how to present yourself to people you have not met." },
@@ -55,7 +55,7 @@ export const lessonOne: Day = {
       place: "the old house",
       time: "afternoon",
       beats: [
-        { t: "narration", text: "You decide to wait. You tell yourself it is politeness. It is not politeness — you have practised the page eleven times and you would like her to be there when it works." },
+        { t: "narration", text: "You decide to wait. You tell yourself it is politeness. It is not politeness. You have practised the page eleven times and you would like her to be there when it works." },
         { t: "narration", text: "You wait in the way that uses a whole day without spending any of it. You count the tatami. You do lesson four twice." },
         { t: "narration", text: "At ten past six the truck comes up the hill and every muscle in your back lets go at once, and you are appalled at your body, and your body does not care what you think." },
         { t: "narration", text: "She looks at the rinsed rice. She looks at you." },
@@ -109,10 +109,14 @@ export const lessonOne: Day = {
           romaji: "Hajimemashite. Boku wa, hitori de wa nani mo dekimasen. Dōzo, yoroshiku onegai shimasu.",
           her: "How do you do. I'm staying up at the old house on the hill. Please be kind to me.",
           truth: "How do you do. I can't do anything by myself. Please, I'm in your hands.",
+          guess: [
+            "How do you do. I've come up from the city. Please look after me.",
+            "How do you do. Forgive the intrusion. I hope I'm not a bother.",
+          ],
         },
         { t: "pause" },
         { t: "narration", text: "There is a pause." },
-        { t: "narration", text: "It is about a second and a half long and you will take it apart for the rest of your life. Something goes across the old man's face — not disgust, nothing as clean as that. Something closer to the look a man gets when a stranger tells him more than he was ready for." },
+        { t: "narration", text: "It is about a second and a half long and you will take it apart for the rest of your life. Something goes across the old man's face. Not disgust, nothing as clean as that. Something closer to the look a man gets when a stranger tells him more than he was ready for." },
         { t: "narration", text: "And then he is enormously, overwhelmingly kind." },
         { t: "narration", text: "He comes round the counter. He puts a rice ball and two mandarins into your hands and will not take the coins, waves them off with both hands, laughing, saying something warm and slow and unhurried that you catch perhaps a third of." },
         {
@@ -123,7 +127,7 @@ export const lessonOne: Day = {
         },
         { t: "narration", text: "You catch だいじょうぶ. It's all right. You know that one, it's on page nine, and you glow." },
         { t: "narration", text: "You stand in a dying village holding a rice ball with your eyes gone hot, and you are grateful out of all proportion, and you think: it worked." },
-        { t: "narration", text: "It did work. He understood every word you said to him. That is the part that will be hardest, later — that the language was perfect, that the transmission was flawless, that a man heard exactly what you told him about yourself and was decent enough not to make you carry it." },
+        { t: "narration", text: "It did work. He understood every word you said to him. That is the part that will be hardest, later: that the language was perfect, that the transmission was flawless, that a man heard exactly what you told him about yourself and was decent enough not to make you carry it." },
         { t: "pause" },
         { t: "narration", text: "She is in the doorway. You have no idea how long she has been in the doorway." },
         { t: "flag", set: "went_down" },
@@ -137,7 +141,7 @@ export const lessonOne: Day = {
       time: "evening",
       beats: [
         { t: "narration", text: "She does not take your arm on the steep part." },
-        { t: "narration", text: "Halfway up, a man in his seventies is clearing the ditch. He straightens when he sees her, pleased, and starts talking — quickly, warmly, at length — and twice he gestures at you with the handle of his rake and laughs." },
+        { t: "narration", text: "Halfway up, a man in his seventies is clearing the ditch. He straightens when he sees her, pleased, and starts talking, quickly and warmly and at length, and twice he gestures at you with the handle of his rake and laughs." },
         {
           t: "silence",
           who: "the man with the rake",
@@ -149,11 +153,11 @@ export const lessonOne: Day = {
         { t: "narration", text: "You stand on a mountain road in the dark with your face turned toward her and you wait to be told what a stranger just said about you, and she looks straight ahead and keeps walking." },
         { t: "narration", text: "You ask. You hate the sound of your own voice asking." },
         { t: "her", text: "Nothing important." },
-        { t: "narration", text: "It was about you. He looked at you twice, he was kind about you — you could hear the shape of kind — and you will never know what it was, and she knows you will never know, and it costs her nothing." },
+        { t: "narration", text: "It was about you. He looked at you twice, he was kind about you; you could hear the shape of kind. You will never know what it was, and she knows you will never know, and it costs her nothing." },
         { t: "narration", text: "There is no grievance to have. Try saying it out loud: she declined to translate a sentence. Try building anything out of that." },
         { t: "dep", by: 9, note: "she took the meaning away" },
         { t: "pause" },
-        { t: "narration", text: "You walk the rest of the hill in a language-shaped silence, and somewhere near the top you stop being angry and start being worried — that she is annoyed, that you did something, that this will still be going on tomorrow — and the instant you feel that, she softens." },
+        { t: "narration", text: "You walk the rest of the hill in a language-shaped silence, and somewhere near the top you stop being angry and start being worried: that she is annoyed, that you did something, that this will still be going on tomorrow. And the instant you feel that, she softens." },
         { t: "narration", text: "Because that is what she was waiting for." },
         { t: "her", text: "Show me what you said to him. Go on, get the book." },
       ],
@@ -165,7 +169,7 @@ export const lessonOne: Day = {
       place: "the old house",
       time: "night",
       beats: [
-        { t: "narration", text: "You bring volume one to the kotatsu and open it to page four and turn it round so she can see, and you are — you notice this later — you are eager. You want her to see how neat the copying is." },
+        { t: "narration", text: "You bring volume one to the kotatsu and open it to page four and turn it round so she can see, and you are eager. You will notice that later. You want her to see how neat the copying is." },
         {
           t: "phrase",
           id: "hitori",
@@ -179,7 +183,7 @@ export const lessonOne: Day = {
         { t: "narration", text: "And it is. Every character on that page is real, your reading of it is correct, and she has not told you a single untrue thing tonight or on any other night." },
         { t: "narration", text: "She has never needed to. She has never once had to lie to you. That is the whole design, and you are looking directly at it, with the book open, in good light." },
         { t: "her", text: "Say it again for me. Properly this time." },
-        { t: "narration", text: "You say it. She corrects the vowel in ひとり — one hand flat, conducting the rhythm — and makes you do it four more times, and the patience settles on the back of your neck like a warm hand, and you would say anything, any sound in any order, to keep it there." },
+        { t: "narration", text: "You say it. She corrects the vowel in ひとり with one hand flat, conducting the rhythm, and makes you do it four more times, and the patience settles on the back of your neck like a warm hand, and you would say anything, any sound in any order, to keep it there." },
         { t: "narration", text: "You say it to her nine times in total. In three weeks you will have said it to every adult in the valley." },
         { t: "dep", by: 8 },
         { t: "favour", by: 3, note: "you asked to be corrected" },
@@ -205,7 +209,7 @@ export const lessonOne: Day = {
         { t: "her", text: "Whenever you like. It's in a drawer, not a safe. You could have taken it this morning while I was out, walked down, sat on that bench and gone home, and I'd have made dinner for one." },
         { t: "pause" },
         { t: "her", text: "You know that. That's why you're asking me instead of going and getting it." },
-        { t: "narration", text: "She is not angry, and she does not press it, and she goes back to her book — and the not-pressing closes over your head like water." },
+        { t: "narration", text: "She is not angry, and she does not press it, and she goes back to her book, and the not-pressing closes over your head like water." },
         { t: "dep", by: 6 },
       ],
       next: "night",
@@ -223,13 +227,13 @@ export const lessonOne: Day = {
           romaji: "ano kata no ossharu tōri ni itashimasu. / watakushi no yō na mono ni, mottainai koto de gozaimasu.",
           you: "I shall do exactly as that person says. For one such as me, it is more than I deserve.",
         },
-        { t: "narration", text: "Formal. Archaic, probably — nobody has talked like this since the war. But the register is beautiful and the grammar is doing four things at once and you copy both sentences into the blank column, twice, because the second time your hand was neater." },
+        { t: "narration", text: "Formal. Archaic, probably. Nobody has talked like this since the war. But the register is beautiful and the grammar is doing four things at once and you copy both sentences into the blank column, twice, because the second time your hand was neater." },
         { t: "narration", text: "You are eleven days from the point where these constructions stop feeling like exercises and start being simply how the sentence arrives." },
         { t: "pause" },
         { t: "narration", text: "At nine she makes coffee. You have watched her do it fifteen nights running now and you can say the forty turns along with her, silently, at exactly her speed." },
         { t: "narration", text: "Tonight, without looking up, she holds the grinder out behind her." },
         { t: "her", text: "Forty. Don't rush them." },
-        { t: "narration", text: "You do forty turns. That is all you are allowed to touch — she takes it back off you for the water, and the wait, and the pour, and you would not dream of asking for the kettle." },
+        { t: "narration", text: "You do forty turns. That is all you are allowed to touch. She takes it back off you for the water, and the wait, and the pour, and you would not dream of asking for the kettle." },
         {
           t: "ritual",
           id: "coffee",
@@ -258,7 +262,7 @@ export const lessonOne: Day = {
         { t: "narration", text: "She is in the bathroom. The door is shut. The water is running." },
         { t: "narration", text: "And you think: I could have it ready." },
         { t: "pause" },
-        { t: "narration", text: "You do all of it. Eighteen grams on the little scale. Forty turns, unrushed. The kettle off the boil and then fifty seconds — you count them out loud in the empty kitchen — and you wet the grounds and let them swell and pour in circles from the middle out, and you do not spill a single thing." },
+        { t: "narration", text: "You do all of it. Eighteen grams on the little scale. Forty turns, unrushed. The kettle off the boil and then fifty seconds, counted out loud in the empty kitchen. You wet the grounds and let them swell and pour in circles from the middle out, and you do not spill a single thing." },
         { t: "narration", text: "It is perfect. You know it is perfect. You set it on the table in the cup with the chip in the rim, and you stand back from it like a man who has built a bridge." },
         { t: "pause" },
         { t: "narration", text: "The water stops. There is a pause you have not accounted for. Then a drawer. Then a long stretch of nothing at all." },
@@ -278,7 +282,7 @@ export const lessonOne: Day = {
         },
         { t: "dep", by: 11, note: "she said nothing at all" },
         { t: "pause" },
-        { t: "narration", text: "That night you work out that the shower is eleven minutes. The next night you get the drawer — it is a hairpin drawer, and it is ninety seconds, and it is always ninety seconds." },
+        { t: "narration", text: "That night you work out that the shower is eleven minutes. The next night you get the drawer. It is a hairpin drawer, and it is ninety seconds, and it is always ninety seconds." },
         { t: "narration", text: "There is a stretch after that, between the drawer and the door, that you cannot account for yet. Four minutes and change. You will have it by the end of the month." },
         { t: "narration", text: "You keep a notebook for the language. It is a good notebook, ruled, and you are proud of it." },
         { t: "narration", text: "You start a second one." },

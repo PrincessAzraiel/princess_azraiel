@@ -17,7 +17,8 @@ import {
 } from "./types";
 
 /* Which beats have text that types itself in. Everything else is instant. */
-function typingText(b: Beat): string | null {
+function typingText(b: Beat, held?: boolean): string | null {
+  if (held) return "";
   switch (b.t) {
     case "narration":
     case "her":
@@ -36,7 +37,7 @@ function typingText(b: Beat): string | null {
       return null;
   }
 }
-/* Beats the player never sees — the engine applies them and keeps going. */
+/* Beats the player never sees. The engine applies them and keeps going. */
 function isSilent(b: Beat): boolean {
   return b.t === "phrase" || b.t === "reveal" || b.t === "dep" ||
          b.t === "flag" || b.t === "favour" || b.t === "ritual";
@@ -55,6 +56,7 @@ export default function VisualNovel({ day }: { day: Day }) {
   const [bookOpen, setBookOpen] = useState(false);
   const [bookPing, setBookPing] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [picks, setPicks] = useState<Record<number, string>>({});
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const toastId = useRef(0);
@@ -62,9 +64,14 @@ export default function VisualNovel({ day }: { day: Day }) {
   const scene = day.scenes[sceneId];
   const beats = useMemo(() => scene?.beats ?? [], [scene]);
   const last = shown.length ? shown[shown.length - 1] : null;
-  const lastText = last ? typingText(last) : null;
+  const lastIndex = shown.length - 1;
+  // a line that is waiting on the player's own reading holds everything else still,
+  // and her translation does not begin typing until they have committed to one
+  const awaitingGuess =
+    !!last && last.t === "jp" && !!last.guess && picks[lastIndex] === undefined;
+  const lastText = last ? typingText(last, awaitingGuess) : null;
   const isTyping = lastText !== null && typed < lastText.length;
-  const finished = cursor >= beats.length && !isTyping;
+  const finished = cursor >= beats.length && !isTyping && !awaitingGuess;
 
   /* ---------- save ---------- */
   useEffect(() => setSave(loadSave()), []);
@@ -152,6 +159,20 @@ export default function VisualNovel({ day }: { day: Day }) {
     else if (i >= beats.length && !scene.choices && scene.next) goTo(scene.next);
   }, [beats, cursor, ended, isTyping, lastText, scene, applySilent, goTo]);
 
+  const pickGuess = useCallback(
+    (idx: number, option: string, b: Extract<Beat, { t: "jp" }>) => {
+      const correct = option === (b.truth ?? b.her);
+      setPicks((p) => ({ ...p, [idx]: option }));
+      setTyped(0);
+      mutate((s) => ({
+        ...s,
+        understood: s.understood + (correct ? 1 : 0),
+        attempts: s.attempts + 1,
+      }));
+    },
+    [mutate]
+  );
+
   const choose = useCallback(
     (c: Choice) => {
       if (c.dep) {
@@ -207,7 +228,7 @@ export default function VisualNovel({ day }: { day: Day }) {
       if (e.key === " " || e.key === "Enter" || e.key === "ArrowRight") {
         e.preventDefault();
         if (!started) setStarted(true);
-        else advance();
+        else if (!awaitingGuess) advance();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -222,7 +243,7 @@ export default function VisualNovel({ day }: { day: Day }) {
   const mood = moodLabel(save.favour);
 
   return (
-    <div className="amae-root" onClick={() => { if (started) advance(); }}>
+    <div className="amae-root" onClick={() => { if (started && !awaitingGuess) advance(); }}>
       <Grain />
 
       {/* ---------- title gate ---------- */}
@@ -309,10 +330,42 @@ export default function VisualNovel({ day }: { day: Day }) {
                   {b.who && <div className="amae-who">{b.who}</div>}
                   <div className="amae-jp">{b.jp}</div>
                   {b.romaji && <div className="amae-romaji">{b.romaji}</div>}
-                  <div className="amae-translation">
-                    <span className="amae-trans-mark">彼女の訳 &nbsp; she says it means</span>
-                    <p>{cut}</p>
-                  </div>
+
+                  {b.guess && picks[i] === undefined && (
+                    <div className="amae-guess" onClick={(e) => e.stopPropagation()}>
+                      <span className="amae-guess-mark">
+                        何と言った? &nbsp; what do you think that meant?
+                      </span>
+                      {guessOptions(b, seedOf(b.jp)).map((o) => (
+                        <button
+                          key={o}
+                          className="amae-guess-opt"
+                          onClick={() => pickGuess(i, o, b)}
+                        >
+                          {o}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {b.guess && picks[i] !== undefined && (
+                    <div className="amae-guess-taken">
+                      <span className="amae-trans-mark is-you">
+                        君の読み &nbsp; you took it to mean
+                        {picks[i] === (b.truth ?? b.her) && (
+                          <em className="amae-right">正 &nbsp; and you were right</em>
+                        )}
+                      </span>
+                      <p className="amae-you">{picks[i]}</p>
+                    </div>
+                  )}
+
+                  {(!b.guess || picks[i] !== undefined) && (
+                    <div className="amae-translation">
+                      <span className="amae-trans-mark">彼女の訳 &nbsp; she says it means</span>
+                      <p>{cut}</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -381,6 +434,12 @@ export default function VisualNovel({ day }: { day: Day }) {
             {scene.end.lines.map((l, i) => (
               <p key={i}>{l}</p>
             ))}
+            {save.attempts > 0 && (
+              <div className="amae-end-read">
+                You read <b>{save.understood}</b> of <b>{save.attempts}</b> correctly.
+                <span>He read none of them. He does not know there was anything to read.</span>
+              </div>
+            )}
             <div className="amae-end-dep">
               甘え &nbsp; dependency &nbsp; <b>{dep}</b>
               <span className="amae-meter wide"><i style={{ width: dep + "%" }} /></span>
@@ -465,6 +524,34 @@ export default function VisualNovel({ day }: { day: Day }) {
   );
 }
 
+/* Deterministic shuffle, so a line's options sit in the same order every replay
+   and the correct one is not always in the same slot. */
+function rng(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function seedOf(str: string) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+function guessOptions(b: Extract<Beat, { t: "jp" }>, seed: number): string[] {
+  const opts = [b.truth ?? b.her, b.guess![0], b.guess![1]];
+  const r = rng(Math.imul(seed, 2654435761));
+  for (let i = opts.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+  return opts;
+}
+
 function clampFavour(n: number) {
   return Math.max(-10, Math.min(10, n));
 }
@@ -540,7 +627,7 @@ function Styles() {
 .amae-column { position:relative; z-index:10; max-width:44rem; margin:0 auto;
   padding:16vh 22px 26vh; }
 /* the entry animation is fill-mode:both, so it can only live on the beat that is
-   currently lit — otherwise it pins every past beat back to full opacity. */
+   currently lit, otherwise it pins every past beat back to full opacity. */
 .amae-beat { opacity:.5; transition:opacity .7s; }
 .amae-beat.is-live { opacity:1; animation:amae-in .5s ease both; }
 .amae-narration { font-size:clamp(16px,2.4vw,18px); line-height:1.95; margin:0 0 1.5em;
@@ -563,9 +650,26 @@ function Styles() {
   margin:0 0 1.7em; }
 .amae-foreign.is-object { border-left-color:rgba(110,106,99,.4); }
 .amae-foreign.is-withheld { border-left-color:rgba(255,46,147,.5); }
-/* his own reading — no pink anywhere. he thinks this one is his. */
+/* his own reading. no pink anywhere. he thinks this one is his. */
 .amae-foreign.is-read { border-left-color:rgba(201,196,187,.45); }
 .amae-trans-mark.is-you { color:#8f8a82; }
+.amae-guess { margin-top:1.3em; display:flex; flex-direction:column; gap:9px;
+  cursor:default; animation:amae-in .4s ease both; }
+.amae-guess-mark { font-family:ui-monospace,monospace; font-size:9px; letter-spacing:.24em;
+  text-transform:uppercase; color:#79899a; margin-bottom:.3em; }
+.amae-guess-opt { text-align:left; background:rgba(121,137,154,.05); cursor:pointer;
+  border:1px solid rgba(121,137,154,.3); padding:11px 15px; color:#c9c4bb;
+  font-family:Georgia,serif; font-style:italic; font-size:15px; line-height:1.55;
+  transition:.25s; }
+.amae-guess-opt:hover { border-color:rgba(121,137,154,.85); background:rgba(121,137,154,.12);
+  transform:translateX(3px); }
+.amae-guess-taken { margin-top:1.2em; }
+.amae-right { display:inline-block; margin-left:1.2em; font-style:normal; color:#79899a;
+  letter-spacing:.16em; }
+.amae-end-read { margin:2.2em 0 0; font-size:15px; color:#c9c4bb; line-height:1.8; }
+.amae-end-read b { color:#79899a; font-weight:400; }
+.amae-end-read span { display:block; margin-top:.5em; color:#6e6a63; font-style:italic;
+  font-size:14px; }
 .amae-translation p.amae-you { color:#c9c4bb; font-style:normal; }
 .amae-trans-mark.is-none { color:#6e6a63; font-style:italic; letter-spacing:.2em; }
 .amae-hud-ritual { color:#79899a; letter-spacing:.18em;
