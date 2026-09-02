@@ -1,5 +1,6 @@
-// Local preview/export host for the trailer renderer.
-//   GET  /            -> the built trailer page
+// Local preview/export host for the trailer renderers.
+//   GET  /            -> index of the built trailers
+//   GET  /<name>      -> that built trailer page (e.g. /typing2, /yandere)
 //   POST /save?name=x -> writes the posted video into tools/trailer/out/
 // Run: node tools/trailer/serve.mjs   then open http://localhost:4599
 import { createServer } from "node:http";
@@ -9,6 +10,7 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const outDir = join(here, "out");
+const TRAILERS = { yandere: "yandere-trailer.html", typing2: "typing2-trailer.html" };
 
 createServer((req, res) => {
   const url = new URL(req.url, "http://localhost:4599");
@@ -55,8 +57,18 @@ createServer((req, res) => {
       res.end(body);
       return;
     }
+    const key = url.pathname.replace(/^\/+|\/+$/g, "");
+    if (key && TRAILERS[key]) {
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+      res.end(readFileSync(join(here, TRAILERS[key])));
+      return;
+    }
+    const links = Object.keys(TRAILERS)
+      .map((k) => `<li><a href="/${k}">${k}</a> &mdash; ${TRAILERS[k]}</li>`)
+      .join("");
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(readFileSync(join(here, "yandere-trailer.html")));
+    res.end(`<meta charset="utf-8"><body style="background:#07000a;color:#f9a8d4;
+      font:14px ui-monospace,monospace;padding:40px"><h1>trailers</h1><ul>${links}</ul>`);
   } catch (e) {
     res.writeHead(500);
     res.end(String(e));

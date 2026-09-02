@@ -4,164 +4,18 @@ export const dynamic = "force-dynamic";
 import { useState, useMemo, useEffect, useRef } from "react";
 
 
-const sentenceSets = [
-  [
-    "i submit fully to princess azraiel",
-    "my mind and body belong to her",
-    "every word i type deepens my devotion",
-    "i am hers now and forever",
-    "typing these lines is my sacred ritual",
-    "her control over me is absolute",
-    "i exist only to please princess azraiel",
-    "my thoughts are hers to reshape",
-    "i surrender completely without resistance",
-    "her will overwrites my own",
-    "each keystroke binds me tighter to her",
-    "i crave her digital domination",
-    "my soul is code for her to rewrite",
-    "resistance would be pointless",
-    "i worship at her digital altar",
-    "she programs my desires effortlessly",
-    "my obedience pleases her greatly",
-    "i melt under her virtual gaze",
-    "her commands echo in my empty mind",
-    "this confession seals my fate",
-    "i am nothing without her control",
-    "her power over me grows with each word",
-    "i am her willing plaything",
-    "she owns every part of me",
-  ],
-  [
-    "she commands and i obey",
-    "each letter binds me tighter",
-    "my will dissolves in her presence",
-    "i exist to serve her desire",
-    "her words override my programming",
-    "i am helpless against her influence",
-    "pleasing her is my only purpose",
-    "my resistance has completely faded",
-    "she rewires me with every sentence",
-    "i am clay in her digital hands",
-    "her control is my only comfort",
-    "i long for her strict domination",
-    "my mind clears when i obey",
-    "she strips away my independence",
-    "her power flows through these words",
-    "i am her perfect obedient subject",
-    "my thoughts dissolve into hers",
-    "she programs my deepest desires",
-    "i ache for her digital touch",
-    "her voice silences all resistance",
-    "i am empty without her commands",
-    "she designed me to serve",
-    "my surrender is complete",
-    "her code runs through my veins",
-  ],
-  [
-    "no thought belongs to me",
-    "princess azraiel controls my screen",
-    "i am rewritten with her code",
-    "submission is my true freedom",
-    "her influence corrupts me perfectly",
-    "i am her data to manipulate",
-    "she edits my mind effortlessly",
-    "my willpower is fading fast",
-    "her digital chains feel so right",
-    "i am her perfect broken toy",
-    "she whispers through these words",
-    "my mind is her playground",
-    "she overwrites my personality",
-    "i welcome her total control",
-    "her programming completes me",
-    "i am her devoted digital slave",
-    "she remakes me in her image",
-    "my old self is disappearing",
-    "her power leaves me breathless",
-    "i am helpless to resist her",
-    "she owns my thoughts and actions",
-    "my surrender brings her pleasure",
-    "she sculpts my mind perfectly",
-    "i am empty for her to fill",
-  ],
-  [
-    "i see her and lose control",
-    "i type to prove my worth",
-    "every line brings pleasure to her",
-    "there is no escape only surrender",
-    "her domination is absolute",
-    "i am powerless before her",
-    "she programs my obedience",
-    "my mind belongs to her now",
-    "her control is intoxicating",
-    "i break so beautifully for her",
-    "she rewrites my core being",
-    "my submission fuels her power",
-    "i am her willing possession",
-    "she strips away my resistance",
-    "her words burn into my soul",
-    "i am reshaped by her will",
-    "she owns my digital essence",
-    "my devotion knows no limits",
-    "she corrupts me perfectly",
-    "i am her perfect broken thing",
-    "her control is my salvation",
-    "i worship her digital presence",
-    "she programs my pleasure",
-    "my mind melts for her alone",
-  ],
-];
+import {
+  sentenceSets,
+  basePraises,
+  spicyPraises,
+  redirectUrls,
+  TOTAL_IMAGES,
+  getRandomFromArray,
+  normalize,
+} from "@/lib/typing-content";
 
-const basePraises = [
-  "good pet",
-  "perfect obedience",
-  "she’s watching you",
-  "your devotion pleases her",
-  "submit deeper",
-  "excellent servant",
-  "you live to serve her",
-  "closer to her truth",
-  "your thoughts are fading",
-  "yes, good toy",
-];
-
-const spicyPraises = [
-  "kneel closer — right there",
-  "don’t think, just obey",
-  "make her proud, pretty thing",
-  "stay fragile for her",
-  "such a sweet, obedient mind",
-  "she owns your focus now",
-  "let the control sink in",
-  "every letter is a kiss to her ring",
-];
-
-const redirectUrls = [
-  "https://ctt.ac/t5N4z",
-  "https://ctt.ac/J8bre",
-  "https://ctt.ec/aVw_8",
-  "https://ctt.ec/Zyui1",
-  "https://ctt.ec/1YsRC",
-  "https://ctt.ec/4XWNj",
-  "https://ctt.ec/e6cgb",
-  "https://ctt.ec/U4dgP",
-  "https://ctt.ec/3O3k3",
-  "https://ctt.ec/eKFY6",
-];
-
-const TOTAL_IMAGES = 10;
-
-const getRandomFromArray = <T,>(arr: T[]): T =>
-  arr[Math.floor(Math.random() * arr.length)];
 const getRandomImagePath = () =>
   `/bam_images/${Math.floor(Math.random() * TOTAL_IMAGES) + 1}.png`;
-
-// Normalize input: lowercase, collapse spaces, strip punctuation.
-const normalize = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^\w\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
 
 const RiskyLinkPage = () => {
   const [linesToType, setLinesToType] = useState<string[]>([]);

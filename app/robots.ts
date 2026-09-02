@@ -15,6 +15,7 @@ export default function robots(): MetadataRoute.Robots {
           "/rps/",
           "/send/",
           "/typing/",
+          "/typing2/",
           "/lovebombing/",
           "/the25/",
           "/stopped-buttclicker/",

@@ -5,6 +5,13 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
   },
+  async redirects() {
+    return [
+      // /bam was an earlier copy of the /typing experience; keep old shared
+      // links working instead of duplicating the page.
+      { source: "/bam", destination: "/typing", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
