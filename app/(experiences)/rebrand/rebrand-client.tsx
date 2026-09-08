@@ -65,6 +65,7 @@ export default function RebrandClient() {
   const [bannerUrl, setBannerUrl] = useState<string>("");
 
   const [connectedAs, setConnectedAs] = useState<string | null>(null);
+  const [checkedAuth, setCheckedAuth] = useState(false);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<XUser | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -86,9 +87,34 @@ export default function RebrandClient() {
     );
   }, []);
 
+  // ?x_user= is only an optimistic hint from the post-auth redirect; it says
+  // nothing about whether the session cookie is still alive. Show it right
+  // away, then let the server be the authority.
   useEffect(() => {
     if (xUserFromCallback) setConnectedAs(xUserFromCallback);
   }, [xUserFromCallback]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/x/auth/me`, {
+          credentials: "include",
+          cache: "no-store",
+        });
+        const data = await res.json().catch(() => null);
+        if (cancelled) return;
+        setConnectedAs(data?.authenticated ? data.screenName : null);
+      } catch {
+        if (!cancelled) setConnectedAs(null);
+      } finally {
+        if (!cancelled) setCheckedAuth(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const startAuth = () => {
     if (typeof window === "undefined") return;
@@ -147,6 +173,12 @@ export default function RebrandClient() {
       });
 
       const data = await res.json().catch(() => ({} as any));
+      if (res.status === 401) {
+        setConnectedAs(null);
+        throw new Error(
+          "Your X session expired. Please reconnect and try again."
+        );
+      }
       if (!res.ok || !data?.ok) {
         const status = res.status;
         const details =
@@ -173,7 +205,9 @@ export default function RebrandClient() {
           <p className="text-pink-400 italic">
             Rebrand your X profile after authorizing—name, bio, avatar, banner.
           </p>
-          {connectedAs ? (
+          {!checkedAuth ? (
+            <p className="text-sm text-pink-400/60">Checking X connection…</p>
+          ) : connectedAs ? (
             <p className="text-sm text-pink-400">
               Connected as <span className="font-semibold">@{connectedAs}</span>
             </p>
