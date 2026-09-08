@@ -42,7 +42,7 @@ export default function RebrandClient() {
   const xUserFromCallback = params.get("x_user");
 
   const [name, setName] = useState("Azraiel's Loser");
-  const [description, setDescription] = useState("my profile is now controlled by Princess Azraiel");
+  const [description, setDescription] = useState("@AzraielExe owns my brain and my thoughts. I am just a toy for her amusement, a plaything to be used and discarded. ");
   const [url, setUrl] = useState("https://princessazraiel.com");
   const [location, setLocation] = useState("under her spell");
 
