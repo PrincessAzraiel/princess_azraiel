@@ -34,6 +34,7 @@ type RebrandPlan = {
   location: string;
   pfpUrl: string;
   bannerUrl: string;
+  announcement?: { text: string; imageUrl: string };
 };
 
 type Phase = "checking" | "ready" | "redirecting" | "applying" | "done" | "failed";
@@ -48,6 +49,9 @@ export default function RebrandClient() {
   const [result, setResult] = useState<XUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<Record<string, string> | null>(null);
+  // The profile can update successfully while the announcement post fails —
+  // most often because X rejects a second identical status as a duplicate.
+  const [tweetError, setTweetError] = useState<string | null>(null);
 
   // Guards the auto-run so React's development double-effect, or a re-render
   // mid-request, can't fire a second rebrand.
@@ -88,6 +92,7 @@ export default function RebrandClient() {
   const applyRebrand = useCallback(async () => {
     setError(null);
     setWarnings(null);
+    setTweetError(null);
     setResult(null);
     setPhase("applying");
     try {
@@ -118,6 +123,7 @@ export default function RebrandClient() {
 
       const user = data.user as XUser;
       setWarnings((data.warnings as Record<string, string>) || null);
+      setTweetError((data.tweetError as string) || null);
       setResult(user);
       setConnectedAs(user.screen_name);
       setPhase("done");
@@ -277,6 +283,24 @@ export default function RebrandClient() {
               </div>
 
               <p className="text-sm text-pink-200/90 leading-relaxed">{plan.description}</p>
+
+              {plan.announcement && (
+                <div className="border-t border-pink-800/60 pt-4">
+                  <div className="text-xs uppercase tracking-wide text-pink-400/70 mb-2">
+                    And posts this from your account
+                  </div>
+                  <div className="flex gap-3">
+                    <p className="flex-1 text-sm text-pink-200/90 whitespace-pre-line leading-relaxed">
+                      {plan.announcement.text}
+                    </p>
+                    <img
+                      src={plan.announcement.imageUrl}
+                      alt="Attached to the announcement post"
+                      className="w-20 h-28 rounded-lg border border-pink-800 object-cover shrink-0"
+                    />
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <p className="text-sm text-pink-400/60">Loading her plans for you…</p>
@@ -355,6 +379,15 @@ export default function RebrandClient() {
               </div>
               {result.description && (
                 <p className="text-sm text-pink-200">{result.description}</p>
+              )}
+              {tweetError && (
+                <p className="text-xs text-yellow-200/90 border border-yellow-600/40 bg-yellow-900/20 rounded-lg p-3">
+                  Your profile was rebranded, but the announcement post
+                  didn&rsquo;t go out
+                  {/^Status is a duplicate/i.test(tweetError)
+                    ? " — X won't let you post the same announcement twice."
+                    : `: ${tweetError}`}
+                </p>
               )}
               <a
                 href={`https://x.com/${result.screen_name}`}
