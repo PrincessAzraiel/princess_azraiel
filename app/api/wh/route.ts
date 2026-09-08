@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 const BACKEND_URL =
   process.env.BACKEND_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "https://princessazraielbackend.vercel.app";
+  "https://api.princessazraiel.com";
 
 // Matches the backend's express.json({ limit: "2mb" }) so oversized payloads
 // are rejected here rather than after a pointless round trip.

@@ -4,37 +4,23 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+// api.princessazraiel.com shares a registrable domain with this site, so the
+// X session cookie is first-party rather than third-party. That is what lets
+// the rebrand flow work in Safari and Firefox, which block or partition
+// third-party cookies. Pointing this back at the *.vercel.app host would
+// silently reintroduce that failure.
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "https://princessazraielbackend.vercel.app";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.princessazraiel.com";
 
-const PFP_CHOICES = [
-  "/images/pfp1.jpg",
-  "/images/pfp2.jpg",
-];
-
-const BANNER_CHOICES = [
-  "/images/banner1.jpg",
-  "/images/banner2.jpg",
-  "/images/banner3.jpg",
-];
+// One curated avatar and banner. These paths are only used for the on-page
+// preview - the backend applies its own configured assets and ignores
+// anything the client sends, so the two can't drift into disagreement about
+// what actually gets uploaded.
+const PFP_PREVIEW = "/images/pfp.png";
+const BANNER_PREVIEW = "/images/banner.png";
 
 const PRINCESS_NICKNAMES: string[] = [
-  "Princess Azraiel’s Cupcake",
-  "Princess Azraiel’s Muffin",
-  "Azraiel’s Favorite",
-  "Her Pink Devotee",
-  "Owned by Princess Azraiel",
-  "Princess Azraiel’s Sugarcube",
-  "Princess Azraiel’s Bunny",
-  "Princess Azraiel’s Moonbeam",
-  "Princess Azraiel’s Sweetheart",
-  "Princess Azraiel’s Plushie",
-  "Princess Azraiel’s Stardust",
-  "Princess Azraiel’s Kindheart",
-  "Princess Azraiel’s Gigglebug",
-  "Princess Azraiel’s Soft Cloud",
-  "Princess Azraiel’s Dreambun",
+"Azraiel's Loser"
 ];
 
 type XUser = {
@@ -55,40 +41,66 @@ export default function RebrandClient() {
   const params = useSearchParams();
   const xUserFromCallback = params.get("x_user");
 
-  const [name, setName] = useState("Princess Azraiel’s Favorite");
-  const [description, setDescription] = useState("I consented to the makeover 💗");
+  const [name, setName] = useState("Azraiel's Loser");
+  const [description, setDescription] = useState("@AzraielExe owns my brain and my thoughts. I am just a toy for her amusement, a plaything to be used and discarded. ");
   const [url, setUrl] = useState("https://princessazraiel.com");
-  const [location, setLocation] = useState("🌐");
+  const [location, setLocation] = useState("under her spell");
 
-  // still keep these for random choice + preview + sending to backend
-  const [pfpUrl, setPfpUrl] = useState<string>("");
-  const [bannerUrl, setBannerUrl] = useState<string>("");
+  const pfpUrl = PFP_PREVIEW;
+  const bannerUrl = BANNER_PREVIEW;
 
   const [connectedAs, setConnectedAs] = useState<string | null>(null);
+  const [checkedAuth, setCheckedAuth] = useState(false);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<XUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<Record<string, string> | null>(null);
 
   useEffect(() => {
-    setName(pickRandom(PRINCESS_NICKNAMES, "Princess Azraiel’s Favorite"));
-    setPfpUrl(
-      pickRandom(
-        PFP_CHOICES,
-        "/images/pfp1.jpg"
-      )
-    );
-    setBannerUrl(
-      pickRandom(
-        BANNER_CHOICES,
-        "/images/banner1.jpg"
-      )
-    );
+    setName(pickRandom(PRINCESS_NICKNAMES, "Princess Azraiel's Pet"));
   }, []);
 
+  // ?x_user= is only an optimistic hint from the post-auth redirect; it says
+  // nothing about whether the session cookie is still alive. Show it right
+  // away, then let the server be the authority.
   useEffect(() => {
     if (xUserFromCallback) setConnectedAs(xUserFromCallback);
   }, [xUserFromCallback]);
+
+  useEffect(() => {
+    let cancelled = false;
+    // Fail open. If this check hangs or the API is unreachable we must still
+    // render the Connect button - otherwise the page sits on "Checking..."
+    // forever and there is no way to start authorising at all.
+    const timeout = setTimeout(() => {
+      if (!cancelled) setCheckedAuth(true);
+    }, 6000);
+
+    (async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/x/auth/me`, {
+          credentials: "include",
+          cache: "no-store",
+          signal: AbortSignal.timeout(6000),
+        });
+        const data = await res.json().catch(() => null);
+        if (cancelled) return;
+        setConnectedAs(data?.authenticated ? data.screenName : null);
+      } catch {
+        if (!cancelled) setConnectedAs(null);
+      } finally {
+        if (!cancelled) {
+          clearTimeout(timeout);
+          setCheckedAuth(true);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, []);
 
   const startAuth = () => {
     if (typeof window === "undefined") return;
@@ -140,13 +152,16 @@ export default function RebrandClient() {
           description: description?.trim(),
           url: url?.trim(),
           location: location?.trim(),
-          // still send these so backend knows which curated assets to use
-          pfpUrl: pfpUrl?.trim(),
-          bannerUrl: bannerUrl?.trim(),
         }),
       });
 
       const data = await res.json().catch(() => ({} as any));
+      if (res.status === 401) {
+        setConnectedAs(null);
+        throw new Error(
+          "Your X session expired. Please reconnect and try again."
+        );
+      }
       if (!res.ok || !data?.ok) {
         const status = res.status;
         const details =
@@ -173,7 +188,9 @@ export default function RebrandClient() {
           <p className="text-pink-400 italic">
             Rebrand your X profile after authorizing—name, bio, avatar, banner.
           </p>
-          {connectedAs ? (
+          {!checkedAuth ? (
+            <p className="text-sm text-pink-400/60">Checking X connection…</p>
+          ) : connectedAs ? (
             <p className="text-sm text-pink-400">
               Connected as <span className="font-semibold">@{connectedAs}</span>
             </p>
