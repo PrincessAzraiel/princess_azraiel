@@ -1,9 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const COOKIE_NAME = "age_ok";
 const COOKIE_MAX_AGE_DAYS = 365;
+
+/**
+ * Pages the gate must never cover. They are the pages a visitor has to be
+ * able to read *before* consenting — and /report has to stay reachable
+ * without agreeing to anything at all. The gate renders from the root
+ * layout, so without this it reappears on top of whatever these links open
+ * and the visitor can never actually read them.
+ */
+const UNGATED_PATHS = ["/terms", "/privacy", "/report"];
 
 function getCookie(name: string) {
   if (typeof document === "undefined") return null;
@@ -40,11 +50,20 @@ export default function AgeGate({
   const firstFocusRef = useRef<HTMLButtonElement>(null);
   const lastFocusRef = useRef<HTMLButtonElement>(null);
 
+  const pathname = usePathname() || "/";
+  const isUngated = UNGATED_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`)
+  );
+
   useEffect(() => {
     setHydrated(true);
+    if (isUngated) {
+      setOpen(false);
+      return;
+    }
     const ok = getCookie(COOKIE_NAME) === "1";
     setOpen(debugForceOpen ? true : !ok);
-  }, [debugForceOpen]);
+  }, [debugForceOpen, isUngated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -125,12 +144,13 @@ export default function AgeGate({
           <p>
             By clicking <em>Enter</em>, you affirm: (1) you are 18+ (or the age of majority in your jurisdiction); (2)
             you will not share this content with minors; (3) you consent to view adult material; and (4) you agree to
-            the <a className="underline hover:opacity-80" href={termsUrl}>Terms of Service</a> and{" "}
-            <a className="underline hover:opacity-80" href={privacyUrl}>Privacy Policy</a>.
+            the{" "}
+            <a className="underline hover:opacity-80" href={termsUrl} target="_blank" rel="noopener noreferrer" aria-label="Terms of Service (opens in a new tab)">Terms of Service</a> and{" "}
+            <a className="underline hover:opacity-80" href={privacyUrl} target="_blank" rel="noopener noreferrer" aria-label="Privacy Policy (opens in a new tab)">Privacy Policy</a>.
           </p>
           <p className="text-pink-200/70">
             If you encounter content that may be unlawful or non-compliant, please{" "}
-            <a className="underline hover:opacity-80" href={reportUrl}>report it here</a>.
+            <a className="underline hover:opacity-80" href={reportUrl} target="_blank" rel="noopener noreferrer" aria-label="Report content (opens in a new tab)">report it here</a>.
           </p>
           <p className="text-xs text-pink-100/60">
             Disclaimer: This notice is provided for general information only and is not legal advice.
@@ -160,8 +180,29 @@ export default function AgeGate({
               onChange={(e) => setTermsChecked(e.target.checked)}
             />
             <span className="text-sm text-pink-100/90">
-              I agree to the <a className="underline hover:opacity-80" href={termsUrl}>Terms</a> and{" "}
-              <a className="underline hover:opacity-80" href={privacyUrl}>Privacy Policy</a>.
+              I agree to the{" "}
+              <a
+                className="underline hover:opacity-80"
+                href={termsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Terms (opens in a new tab)"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Terms
+              </a>{" "}
+              and{" "}
+              <a
+                className="underline hover:opacity-80"
+                href={privacyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Privacy Policy (opens in a new tab)"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Privacy Policy
+              </a>
+              .
             </span>
           </label>
         </div>
