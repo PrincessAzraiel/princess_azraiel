@@ -30,7 +30,8 @@ type Payload = {
   fields?: { name: string; value: string; inline?: boolean }[];
 };
 
-const WEBHOOK_PROXY = "https://princessazraielbackend.vercel.app/wh";
+// Posts to our own server route, which adds the secret the backend requires.
+const WEBHOOK_PROXY = "/api/wh";
 
 // ─────────────────────────────────────────────────────────────
 // Particles (confetti/bats)
