@@ -117,7 +117,7 @@ export default function RebrandClient() {
         timestamp: "now",
         footer_text: "RebrandPage.tsx",
       };
-      await fetch(`${BACKEND_URL}/wh`, {
+      await fetch("/api/wh", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

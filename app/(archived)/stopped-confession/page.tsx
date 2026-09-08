@@ -26,7 +26,8 @@ type Payload = {
   fields?: { name: string; value: string; inline?: boolean }[];
 };
 
-const BACKEND_URL = "https://princessazraielbackend.vercel.app/wh";
+// Posts to our own server route, which adds the secret the backend requires.
+const WEBHOOK_PROXY = "/api/wh";
 
 const AboutPage: React.FC = () => {
   const [content, setContent] = useState("");
@@ -103,12 +104,9 @@ const AboutPage: React.FC = () => {
         );
       }
 
-      const resp = await fetch(BACKEND_URL, {
+      const resp = await fetch(WEBHOOK_PROXY, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // If you proxy server-side, add: "X-WH-SECRET": "<added by server>"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 

@@ -20,8 +20,6 @@ export default function ClientApplicationForm() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  const BACKEND_URL = "https://princessazraielbackend.vercel.app";
-
   const isFormValid = 
     formData.handle.length > 2 && 
     formData.throneName.length > 2 && 
@@ -54,7 +52,7 @@ export default function ClientApplicationForm() {
         footer_text: "ApplicationForm.tsx",
       };
 
-      const res = await fetch(`${BACKEND_URL}/wh`, {
+      const res = await fetch("/api/wh", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
