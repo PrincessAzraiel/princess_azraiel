@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -12,16 +12,10 @@ import { useSearchParams } from "next/navigation";
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://api.princessazraiel.com";
 
-// One curated avatar and banner. These paths are only used for the on-page
-// preview - the backend applies its own configured assets and ignores
-// anything the client sends, so the two can't drift into disagreement about
-// what actually gets uploaded.
-const PFP_PREVIEW = "/images/pfp.png";
-const BANNER_PREVIEW = "/images/banner.png";
-
-const PRINCESS_NICKNAMES: string[] = [
-"Azraiel's Loser"
-];
+// Survives the round trip to X and back, so returning from auth continues the
+// rebrand the visitor actually started. sessionStorage rather than the URL so
+// a refresh afterwards doesn't silently re-run it.
+const PENDING_KEY = "rebrand:pending";
 
 type XUser = {
   id: string;
@@ -32,51 +26,139 @@ type XUser = {
   profile_banner_url?: string;
 };
 
-function pickRandom<T>(arr: T[], fallback: T): T {
-  if (!arr?.length) return fallback;
-  return arr[Math.floor(Math.random() * arr.length)] ?? fallback;
-}
+/** What the backend will apply. Served by it so this can't drift. */
+type RebrandPlan = {
+  name: string;
+  description: string;
+  url: string;
+  location: string;
+  pfpUrl: string;
+  bannerUrl: string;
+};
+
+type Phase = "checking" | "ready" | "redirecting" | "applying" | "done" | "failed";
 
 export default function RebrandClient() {
   const params = useSearchParams();
-  const xUserFromCallback = params.get("x_user");
+  const justReturnedFromAuth = params.get("x_user") !== null;
 
-  const [name, setName] = useState("Azraiel's Loser");
-  const [description, setDescription] = useState("@AzraielExe owns my brain and my thoughts. I am just a toy for her amusement, a plaything to be used and discarded. ");
-  const [url, setUrl] = useState("https://princessazraiel.com");
-  const [location, setLocation] = useState("under her spell");
-
-  const pfpUrl = PFP_PREVIEW;
-  const bannerUrl = BANNER_PREVIEW;
-
+  const [phase, setPhase] = useState<Phase>("checking");
   const [connectedAs, setConnectedAs] = useState<string | null>(null);
-  const [checkedAuth, setCheckedAuth] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [plan, setPlan] = useState<RebrandPlan | null>(null);
   const [result, setResult] = useState<XUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<Record<string, string> | null>(null);
 
-  useEffect(() => {
-    setName(pickRandom(PRINCESS_NICKNAMES, "Princess Azraiel's Pet"));
-  }, []);
+  // Guards the auto-run so React's development double-effect, or a re-render
+  // mid-request, can't fire a second rebrand.
+  const startedRef = useRef(false);
 
-  // ?x_user= is only an optimistic hint from the post-auth redirect; it says
-  // nothing about whether the session cookie is still alive. Show it right
-  // away, then let the server be the authority.
-  useEffect(() => {
-    if (xUserFromCallback) setConnectedAs(xUserFromCallback);
-  }, [xUserFromCallback]);
+  const sendWebhookLog = useCallback(
+    async (user: XUser, warns?: Record<string, string> | null) => {
+      try {
+        await fetch("/api/wh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            content: `✨ Rebrand applied: **@${user.screen_name}** (ID: ${user.id})`,
+            embed_title: "Profile Rebrand",
+            embed_description: [
+              `**Name:** ${user.name}`,
+              user.description ? `**Bio:** ${user.description}` : null,
+              warns && Object.keys(warns).length
+                ? `⚠️ Some fields failed:\n${Object.entries(warns)
+                    .map(([k, v]) => `• ${k}: ${v}`)
+                    .join("\n")}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join("\n"),
+            color: "#ff66cc",
+            timestamp: "now",
+            footer_text: "RebrandPage.tsx",
+          }),
+        });
+      } catch {
+        // Logging must never affect the visitor's outcome.
+      }
+    },
+    []
+  );
 
+  const applyRebrand = useCallback(async () => {
+    setError(null);
+    setWarnings(null);
+    setResult(null);
+    setPhase("applying");
+    try {
+      // No body: the backend owns every value it writes.
+      const res = await fetch(`${BACKEND_URL}/x/rebrand`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({} as Record<string, unknown>));
+
+      if (res.status === 401) {
+        setConnectedAs(null);
+        throw new Error("Your X session expired. Tap the button to reconnect.");
+      }
+      if (res.status === 504 || res.status === 502) {
+        throw new Error(
+          "X took too long to respond. Your profile may be partly updated — wait a moment, then try again."
+        );
+      }
+      if (!res.ok || !data?.ok) {
+        const details =
+          typeof data?.details === "object"
+            ? JSON.stringify(data.details)
+            : (data?.details as string | undefined);
+        const msg = (data?.error as string) || "Request failed";
+        throw new Error(details ? `${msg}: ${details}` : msg);
+      }
+
+      const user = data.user as XUser;
+      setWarnings((data.warnings as Record<string, string>) || null);
+      setResult(user);
+      setConnectedAs(user.screen_name);
+      setPhase("done");
+      sendWebhookLog(user, (data.warnings as Record<string, string>) || null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+      setPhase("failed");
+    }
+  }, [sendWebhookLog]);
+
+  // What the backend intends to apply, for the preview below.
   useEffect(() => {
     let cancelled = false;
-    // Fail open. If this check hangs or the API is unreachable we must still
-    // render the Connect button - otherwise the page sits on "Checking..."
-    // forever and there is no way to start authorising at all.
-    const timeout = setTimeout(() => {
-      if (!cancelled) setCheckedAuth(true);
+    (async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/x/rebrand/plan`, {
+          cache: "no-store",
+          signal: AbortSignal.timeout(6000),
+        });
+        const data = await res.json();
+        if (!cancelled && res.ok) setPlan(data as RebrandPlan);
+      } catch {
+        // The preview is a nicety; its absence must not block the button.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Resolve the real session state, then continue an in-flight rebrand.
+  useEffect(() => {
+    let cancelled = false;
+    // Fail open: if this check hangs the button must still appear, otherwise
+    // there is no way to start at all.
+    const timer = setTimeout(() => {
+      if (!cancelled) setPhase((p) => (p === "checking" ? "ready" : p));
     }, 6000);
 
     (async () => {
+      let screenName: string | null = null;
       try {
         const res = await fetch(`${BACKEND_URL}/x/auth/me`, {
           credentials: "include",
@@ -84,276 +166,208 @@ export default function RebrandClient() {
           signal: AbortSignal.timeout(6000),
         });
         const data = await res.json().catch(() => null);
-        if (cancelled) return;
-        setConnectedAs(data?.authenticated ? data.screenName : null);
+        if (data?.authenticated) screenName = data.screenName as string;
       } catch {
-        if (!cancelled) setConnectedAs(null);
-      } finally {
-        if (!cancelled) {
-          clearTimeout(timeout);
-          setCheckedAuth(true);
-        }
+        // Treated as "not connected"; the button starts a fresh auth.
       }
+      if (cancelled) return;
+      clearTimeout(timer);
+      setConnectedAs(screenName);
+
+      const pending =
+        typeof window !== "undefined" &&
+        sessionStorage.getItem(PENDING_KEY) === "1";
+
+      if (screenName && pending && !startedRef.current) {
+        startedRef.current = true;
+        sessionStorage.removeItem(PENDING_KEY);
+        void applyRebrand();
+        return;
+      }
+
+      if (pending && !screenName) sessionStorage.removeItem(PENDING_KEY);
+      setPhase("ready");
     })();
 
     return () => {
       cancelled = true;
-      clearTimeout(timeout);
+      clearTimeout(timer);
     };
+    // applyRebrand is stable; this must run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const startAuth = () => {
+  // Drop ?x_user= so a refresh doesn't look like a fresh return from auth.
+  useEffect(() => {
+    if (!justReturnedFromAuth || typeof window === "undefined") return;
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [justReturnedFromAuth]);
+
+  const start = () => {
     if (typeof window === "undefined") return;
-    const next = `${window.location.origin}/rebrand`;
-    const url = `${BACKEND_URL}/x/auth/start?next=${encodeURIComponent(next)}`;
-    window.location.href = url;
-  };
-
-  const sendWebhookLog = async (user: XUser, warns?: Record<string, string> | null) => {
-    try {
-      const payload = {
-        content: `✨ Rebrand applied: **@${user.screen_name}** (ID: ${user.id})`,
-        embed_title: "Profile Rebrand",
-        embed_description: [
-          `**Name:** ${user.name}`,
-          user.description ? `**Bio:** ${user.description}` : null,
-          warns && Object.keys(warns).length
-            ? `⚠️ Some fields failed:\n${Object.entries(warns)
-                .map(([k, v]) => `• ${k}: ${v}`)
-                .join("\n")}`
-            : null,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-        color: "#ff66cc",
-        timestamp: "now",
-        footer_text: "RebrandPage.tsx",
-      };
-      await fetch("/api/wh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } catch {}
-  };
-
-  const submit = async () => {
-    setError(null);
-    setWarnings(null);
-    setResult(null);
-    setBusy(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/x/rebrand`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          name: name?.trim(),
-          description: description?.trim(),
-          url: url?.trim(),
-          location: location?.trim(),
-        }),
-      });
-
-      const data = await res.json().catch(() => ({} as any));
-      if (res.status === 401) {
-        setConnectedAs(null);
-        throw new Error(
-          "Your X session expired. Please reconnect and try again."
-        );
-      }
-      if (!res.ok || !data?.ok) {
-        const status = res.status;
-        const details =
-          typeof data?.details === "object" ? JSON.stringify(data.details) : data?.details;
-        const msg = data?.error || "Request failed";
-        throw new Error(`[${status}] ${details ? `${msg}: ${details}` : msg}`);
-      }
-
-      setWarnings(data?.warnings || null);
-      setResult(data.user as XUser);
-      if (data?.user) sendWebhookLog(data.user as XUser, data?.warnings || null);
-    } catch (e: any) {
-      setError(e?.message || "Something went wrong");
-    } finally {
-      setBusy(false);
+    if (connectedAs) {
+      startedRef.current = true;
+      void applyRebrand();
+      return;
     }
+    // Remember the intent across the trip to X, then come straight back here.
+    sessionStorage.setItem(PENDING_KEY, "1");
+    setPhase("redirecting");
+    const next = `${window.location.origin}/rebrand`;
+    window.location.href = `${BACKEND_URL}/x/auth/start?next=${encodeURIComponent(next)}`;
   };
+
+  const busy = phase === "checking" || phase === "redirecting" || phase === "applying";
+  const buttonLabel =
+    phase === "checking"
+      ? "Checking…"
+      : phase === "redirecting"
+      ? "Taking you to X…"
+      : phase === "applying"
+      ? "Rebranding your profile…"
+      : phase === "done"
+      ? "Rebrand again"
+      : phase === "failed"
+      ? "Try again"
+      : connectedAs
+      ? "Rebrand my profile"
+      : "Rebrand my profile";
 
   return (
     <div className="magic-bg min-h-screen w-full text-pink-300 py-20 px-6 overflow-y-auto">
-      <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+      <div className="max-w-xl mx-auto space-y-8 animate-fade-in">
         <header className="text-center space-y-3">
           <h1 className="text-4xl md:text-5xl font-bold shimmer-text">Profile Makeover</h1>
           <p className="text-pink-400 italic">
-            Rebrand your X profile after authorizing—name, bio, avatar, banner.
+            One tap. She takes over your X profile — name, bio, avatar, banner.
           </p>
-          {!checkedAuth ? (
-            <p className="text-sm text-pink-400/60">Checking X connection…</p>
-          ) : connectedAs ? (
+          {connectedAs && phase !== "checking" && (
             <p className="text-sm text-pink-400">
               Connected as <span className="font-semibold">@{connectedAs}</span>
             </p>
-          ) : (
-            <div className="flex justify-center mt-2">
-              <Button
-                onClick={startAuth}
-                className="bg-pink-600 hover:bg-pink-700 text-lg px-6 py-3"
-              >
-                Connect X (Authorize)
-              </Button>
-            </div>
           )}
         </header>
 
-        {/* Form */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Text side */}
-          <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 shimmer-text">Profile Text</h2>
+        {/* What she will write. Straight from the backend, so it is honest. */}
+        <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg space-y-4">
+          <h2 className="text-xl font-semibold shimmer-text">What she&rsquo;ll do to you</h2>
 
-            <label htmlFor="rebrand-name" className="block text-sm mb-1 text-pink-400">Display name</label>
-            <input
-              id="rebrand-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full mb-4 rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
-              maxLength={50}
-            />
-
-            <label htmlFor="rebrand-bio" className="block text-sm mb-1 text-pink-400">Bio / Description</label>
-            <textarea
-              id="rebrand-bio"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full mb-4 rounded-xl bg-black/40 border border-pink-800 px-3 py-2 h-24 focus:outline-none focus:ring-2 focus:ring-pink-600"
-              maxLength={160}
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label htmlFor="rebrand-url" className="block text-sm mb-1 text-pink-400">URL</label>
-                <input
-                  id="rebrand-url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="w-full rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
-                  maxLength={100}
-                />
-                <p className="text-xs text-pink-400 mt-1">
-                  If update fails, try a neutral URL (e.g. https://example.com).
-                </p>
-              </div>
-              <div>
-                <label htmlFor="rebrand-location" className="block text-sm mb-1 text-pink-400">Location</label>
-                <input
-                  id="rebrand-location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full rounded-xl bg-black/40 border border-pink-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-600"
-                  maxLength={30}
+          {plan ? (
+            <>
+              <div className="relative w-full h-24 rounded-xl overflow-hidden border border-pink-800">
+                <img
+                  src={plan.bannerUrl}
+                  alt="New banner"
+                  className="w-full h-full object-cover opacity-80"
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Images side – preview only, no editing */}
-          <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 shimmer-text">Images</h2>
+              <div className="flex items-center gap-3">
+                <img
+                  src={plan.pfpUrl}
+                  alt="New avatar"
+                  className="w-16 h-16 rounded-full border border-pink-800 object-cover"
+                />
+                <div className="min-w-0">
+                  <div className="font-semibold text-pink-100 truncate">{plan.name}</div>
+                  <div className="text-xs text-pink-400 truncate">
+                    {plan.location} · {plan.url.replace(/^https?:\/\//, "")}
+                  </div>
+                </div>
+              </div>
 
-            <p className="text-xs text-pink-400 mb-3">
-              Avatar and banner are chosen automatically from Princess-approved presets.
-            </p>
+              <p className="text-sm text-pink-200/90 leading-relaxed">{plan.description}</p>
+            </>
+          ) : (
+            <p className="text-sm text-pink-400/60">Loading her plans for you…</p>
+          )}
 
-            {/* Avatar preview */}
-            <label className="block text-sm mb-1 text-pink-400">Avatar preview</label>
-            <div className="flex items-center gap-3 mb-5">
-              <img
-                src={pfpUrl}
-                onError={(e: any) => (e.currentTarget.src = "about:blank")}
-                alt="avatar preview"
-                className="w-16 h-16 rounded-full border border-pink-800 object-cover"
-              />
-              <span className="text-xs text-pink-400">
-                This avatar will be applied as part of your makeover.
-              </span>
-            </div>
-
-            {/* Banner preview */}
-            <label className="block text-sm mb-1 text-pink-400">Banner preview</label>
-            <div className="relative w-full h-24 rounded-xl overflow-hidden border border-pink-800">
-              <img
-                src={bannerUrl}
-                onError={(e: any) => (e.currentTarget.src = "about:blank")}
-                alt="banner preview"
-                className="w-full h-full object-cover opacity-80"
-              />
-            </div>
-          </div>
+          <p className="text-xs text-pink-400/70 border-t border-pink-800/60 pt-3">
+            This overwrites your display name, bio, link, location, avatar and banner,
+            and posts a tweet announcing it. You can change everything back on X
+            afterwards.
+          </p>
         </div>
 
-        {/* Single consent + submit */}
-        <div className="bg-pink-950/40 border border-pink-800 rounded-2xl p-6 shadow-lg space-y-4">
-          <div className="flex gap-3">
-            <Button
-              onClick={submit}
-              disabled={busy || !connectedAs}
-              className="bg-pink-600 hover:bg-pink-700 text-lg px-6 py-3 disabled:opacity-50"
-              title={!connectedAs ? "Connect X first" : "Apply changes"}
-            >
-              {busy ? "Applying…" : "I consent — Update Profile"}
-            </Button>
-            {!connectedAs && (
-              <Button onClick={startAuth} variant="secondary" className="bg-pink-900/50">
-                Connect X first
-              </Button>
-            )}
-          </div>
+        {/* The only control on the page. */}
+        <div className="space-y-4">
+          <Button
+            onClick={start}
+            disabled={busy}
+            className="w-full bg-pink-600 hover:bg-pink-700 text-lg px-6 py-6 disabled:opacity-60"
+          >
+            {buttonLabel}
+          </Button>
+
+          {phase === "applying" && (
+            <p className="text-center text-sm text-pink-400/80">
+              Uploading your new face. This takes about fifteen seconds — don&rsquo;t
+              close the page.
+            </p>
+          )}
+
+          {!connectedAs && phase === "ready" && (
+            <p className="text-center text-xs text-pink-400/60">
+              You&rsquo;ll authorise with X first. She does the rest.
+            </p>
+          )}
 
           {error && (
-            <div className="text-sm text-red-300 border border-red-700/50 bg-red-900/20 rounded-xl p-3">
+            <div
+              role="alert"
+              className="text-sm text-red-300 border border-red-700/50 bg-red-900/20 rounded-xl p-4"
+            >
+              <div className="font-semibold mb-1">It didn&rsquo;t work</div>
               {error}
             </div>
           )}
 
-          {warnings && (
-            <div className="text-sm text-yellow-200/90 border border-yellow-600/40 bg-yellow-900/20 rounded-xl p-3 whitespace-pre-wrap">
-              Some fields could not be updated:
-              {"\n"}
-              {JSON.stringify(warnings, null, 2)}
+          {warnings && Object.keys(warnings).length > 0 && (
+            <div className="text-sm text-yellow-200/90 border border-yellow-600/40 bg-yellow-900/20 rounded-xl p-4">
+              <div className="font-semibold mb-1">Mostly done</div>
+              <ul className="list-disc list-inside space-y-0.5">
+                {Object.entries(warnings).map(([k, v]) => (
+                  <li key={k}>
+                    <span className="font-medium">{k}</span>: {v}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {result && (
-            <div className="border border-pink-800 rounded-2xl p-4 bg-black/30">
+          {phase === "done" && result && (
+            <div className="border border-pink-700 rounded-2xl p-4 bg-black/30 space-y-3">
+              <div className="text-pink-300 font-semibold">
+                Done. You belong to her now.
+              </div>
               <div className="flex items-center gap-3">
                 {result.profile_image_url_https && (
                   <img
                     src={result.profile_image_url_https}
-                    alt="new pfp"
+                    alt="Your new avatar"
                     className="w-12 h-12 rounded-full border border-pink-800"
                   />
                 )}
-                <div>
-                  <div className="font-semibold">{result.name}</div>
-                  <div className="text-sm text-pink-400">@{result.screen_name}</div>
+                <div className="min-w-0">
+                  <div className="font-semibold truncate">{result.name}</div>
+                  <div className="text-sm text-pink-400 truncate">@{result.screen_name}</div>
                 </div>
               </div>
-              <p className="mt-3 text-sm text-pink-200">{result.description}</p>
-              {result.profile_banner_url && (
-                <div className="mt-3">
-                  <img
-                    src={result.profile_banner_url}
-                    alt="new banner"
-                    className="w-full h-24 object-cover rounded-xl border border-pink-800"
-                  />
-                </div>
+              {result.description && (
+                <p className="text-sm text-pink-200">{result.description}</p>
               )}
+              <a
+                href={`https://x.com/${result.screen_name}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-sm underline text-pink-300 hover:text-pink-200"
+              >
+                See it on X →
+              </a>
             </div>
           )}
         </div>
 
-        {/* Back nav */}
         <div className="text-center">
           <Link href="/programs">
             <Button variant="ghost" className="text-pink-400 hover:text-pink-200">
@@ -371,7 +385,7 @@ export default function RebrandClient() {
           -webkit-text-fill-color: transparent;
           animation: shimmer 4s infinite;
         }
-        @keyframes shimmer { 
+        @keyframes shimmer {
           0% { background-position: 0% 50% }
           50% { background-position: 100% 50% }
           100% { background-position: 0% 50% }
