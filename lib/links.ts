@@ -62,7 +62,7 @@ export const routes = {
   claimed: "/claimed",
   // Hub
   programs: "/programs",
-  updates: "/updates",
+  // updates: "/updates",  // hidden until the feed is ready - see app/(hub)/updates/page.tsx
   links: "/links",
   contract: "/contract",
   preOrder: "/pre-order",

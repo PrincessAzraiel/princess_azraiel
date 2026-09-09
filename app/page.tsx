@@ -11,7 +11,6 @@ import {
   Bird,
   Gamepad2,
 } from "lucide-react";
-import { getUpdates } from "@/app/(hub)/updates/updates";
 import { links, routes, socials } from "@/lib/links";
 
 /**
@@ -76,13 +75,6 @@ function Panel({
 }
 
 export default function LandingPage() {
-  const latest = getUpdates()[0];
-  const latestDate = new Date(latest.date).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-
   return (
     <div
       className={`${italiana.variable} ${manrope.variable} ${syncopate.variable}
@@ -109,7 +101,7 @@ export default function LandingPage() {
           <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-pink-100/55">
             {[
               ["Programs", routes.programs],
-              ["Updates", routes.updates],
+              ["Sessions", routes.sessions],
               ["Comic", routes.comic],
               ["Links", routes.links],
             ].map(([label, href]) => (
@@ -202,22 +194,23 @@ export default function LandingPage() {
               </span>
               <span className="text-[15px] text-pink-100/85">Accepting new pets</span>
             </div>
-            <p className="mt-3 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.18em] text-pink-100/35">
-              Last transmission · {latestDate}
+            <p className="mt-3 text-[13px] leading-relaxed text-pink-100/55">
+              New drops land in the Discord first.
             </p>
           </Panel>
 
-          {/* ── Latest update (real data) ────────────────────────── */}
-          <Panel label="Latest transmission" className="md:col-span-3 lg:col-span-3">
-            <Link href={routes.updates} className="group block">
+          {/* Sessions */}
+          <Panel label="Book her" className="md:col-span-3 lg:col-span-3">
+            <Link href={routes.sessions} className="group block">
               <h3 className="font-[family-name:var(--f-display)] text-2xl leading-tight text-pink-50">
-                {latest.title}
+                Live sessions
               </h3>
-              <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-pink-100/55">
-                {latest.body}
+              <p className="mt-2 text-[13px] leading-relaxed text-pink-100/55">
+                Techdom, AnyDesk, draining, chess and blackjack — one on one,
+                on her terms.
               </p>
               <span className="mt-3 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.2em] text-pink-400 transition group-hover:text-pink-200">
-                All updates <ArrowUpRight className="h-3 w-3" />
+                See sessions <ArrowUpRight className="h-3 w-3" />
               </span>
             </Link>
           </Panel>
