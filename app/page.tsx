@@ -12,6 +12,7 @@ import {
   Gamepad2,
 } from "lucide-react";
 import { getUpdates } from "@/app/(hub)/updates/updates";
+import { links, routes, socials } from "@/lib/links";
 
 /**
  * Self-hosted through next/font rather than the `@import url(fonts.googleapis)`
@@ -22,22 +23,23 @@ const italiana = Italiana({ weight: "400", subsets: ["latin"], variable: "--f-di
 const manrope = Manrope({ subsets: ["latin"], variable: "--f-body" });
 const syncopate = Syncopate({ weight: ["400", "700"], subsets: ["latin"], variable: "--f-mono" });
 
-const SOCIALS = [
-  { label: "X", href: "https://x.com/PrincessAzraiel", Icon: Send },
-  { label: "Bluesky", href: "https://bsky.app/profile/princess-azraiel.bsky.social", Icon: Bird },
-  { label: "Discord", href: "https://discord.gg/e3uzBK2VJS", Icon: Globe },
-  { label: "Throne", href: "https://throne.com/princessazraiel", Icon: Gift },
-  { label: "Ko-fi", href: "https://ko-fi.com/princessazraiel", Icon: Coffee },
-  { label: "itch.io", href: "https://princessazraiel.itch.io/", Icon: Gamepad2 },
-];
+/** lib/links.ts stays free of component imports, so icons are mapped here. */
+const ICONS = {
+  send: Send,
+  bird: Bird,
+  globe: Globe,
+  gift: Gift,
+  coffee: Coffee,
+  gamepad: Gamepad2,
+} as const;
 
 const EXPERIENCES = [
-  { label: "Yandere", href: "/yandere", note: "9 chapters" },
-  { label: "Amae", href: "/amae", note: "visual novel" },
-  { label: "Corruption", href: "/corruption", note: "web" },
-  { label: "PrincessOS", href: "/princessos", note: "desktop" },
-  { label: "Ascension", href: "/ascension", note: "4 stages" },
-  { label: "ProjectOS", href: "/projectos", note: "terminal" },
+  { label: "Yandere", href: routes.yandere, note: "9 chapters" },
+  { label: "Amae", href: routes.amae, note: "visual novel" },
+  { label: "Corruption", href: routes.corruption, note: "web" },
+  { label: "PrincessOS", href: routes.princessos, note: "desktop" },
+  { label: "Ascension", href: routes.ascension, note: "4 stages" },
+  { label: "ProjectOS", href: routes.projectos, note: "terminal" },
 ];
 
 /** Counted from the repo, not invented. */
@@ -106,10 +108,10 @@ export default function LandingPage() {
           </div>
           <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-pink-100/55">
             {[
-              ["Programs", "/programs"],
-              ["Updates", "/updates"],
-              ["Comic", "/comic"],
-              ["Links", "/links"],
+              ["Programs", routes.programs],
+              ["Updates", routes.updates],
+              ["Comic", routes.comic],
+              ["Links", routes.links],
             ].map(([label, href]) => (
               <Link key={href} href={href} className="transition hover:text-pink-200">
                 {label}
@@ -146,7 +148,7 @@ export default function LandingPage() {
             </ul>
 
             <Link
-              href="/contract"
+              href={routes.contract}
               className="mt-5 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)]
                          text-[9px] uppercase tracking-[0.2em] text-pink-400 transition hover:text-pink-200"
             >
@@ -156,7 +158,7 @@ export default function LandingPage() {
 
           {/* ── Flagship ─────────────────────────────────────────── */}
           <Link
-            href="/infection"
+            href={routes.infection}
             className="group relative col-span-1 min-h-[300px] overflow-hidden rounded-2xl
                        border border-pink-500/20 md:col-span-3 lg:col-span-6 lg:row-span-2"
           >
@@ -207,7 +209,7 @@ export default function LandingPage() {
 
           {/* ── Latest update (real data) ────────────────────────── */}
           <Panel label="Latest transmission" className="md:col-span-3 lg:col-span-3">
-            <Link href="/updates" className="group block">
+            <Link href={routes.updates} className="group block">
               <h3 className="font-[family-name:var(--f-display)] text-2xl leading-tight text-pink-50">
                 {latest.title}
               </h3>
@@ -243,7 +245,7 @@ export default function LandingPage() {
 
           {/* ── Rebrand ──────────────────────────────────────────── */}
           <Link
-            href="/rebrand"
+            href={routes.rebrand}
             className="group relative col-span-1 min-h-[190px] overflow-hidden rounded-2xl
                        border border-pink-500/20 md:col-span-3 lg:col-span-3"
           >
@@ -270,7 +272,7 @@ export default function LandingPage() {
 
           {/* ── Comic ────────────────────────────────────────────── */}
           <Link
-            href="/comic"
+            href={routes.comic}
             className="group relative col-span-1 min-h-[190px] overflow-hidden rounded-2xl
                        border border-pink-500/20 md:col-span-3 lg:col-span-3"
           >
@@ -295,9 +297,11 @@ export default function LandingPage() {
           {/* ── Socials ──────────────────────────────────────────── */}
           <Panel label="Find her" className="md:col-span-3 lg:col-span-3">
             <div className="grid grid-cols-3 gap-2">
-              {SOCIALS.map(({ label, href, Icon }) => (
+              {socials.map(({ key, label, href, icon }) => {
+                const Icon = ICONS[icon];
+                return (
                 <a
-                  key={label}
+                  key={key}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -310,13 +314,14 @@ export default function LandingPage() {
                     {label}
                   </span>
                 </a>
-              ))}
+                );
+              })}
             </div>
           </Panel>
 
           {/* ── Programs ─────────────────────────────────────────── */}
           <Panel label="Archive" className="md:col-span-3 lg:col-span-3">
-            <Link href="/programs" className="group block">
+            <Link href={routes.programs} className="group block">
               <div className="flex items-baseline gap-2">
                 <span className="font-[family-name:var(--f-display)] text-5xl leading-none text-pink-50">
                   10
@@ -342,7 +347,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="https://discord.gg/e3uzBK2VJS"
+                  href={links.discord}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl border border-pink-500/30
@@ -352,7 +357,7 @@ export default function LandingPage() {
                   <Radio className="h-3.5 w-3.5" /> Join the Discord
                 </a>
                 <Link
-                  href="/links"
+                  href={routes.links}
                   className="inline-flex items-center gap-2 rounded-xl border border-pink-500/15
                              px-4 py-2.5 text-[13px] text-pink-100/70 transition
                              hover:border-pink-500/40 hover:text-pink-100"
@@ -369,9 +374,9 @@ export default function LandingPage() {
             Protocol V4.1 · 18+ only
           </p>
           <div className="flex gap-4 text-[12px] text-pink-100/40">
-            <Link href="/terms" className="transition hover:text-pink-200">Terms</Link>
-            <Link href="/privacy" className="transition hover:text-pink-200">Privacy</Link>
-            <Link href="/report" className="transition hover:text-pink-200">Report content</Link>
+            <Link href={routes.terms} className="transition hover:text-pink-200">Terms</Link>
+            <Link href={routes.privacy} className="transition hover:text-pink-200">Privacy</Link>
+            <Link href={routes.report} className="transition hover:text-pink-200">Report content</Link>
           </div>
         </footer>
       </div>
