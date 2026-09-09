@@ -39,6 +39,21 @@ type RebrandPlan = {
 
 type Phase = "checking" | "ready" | "redirecting" | "applying" | "done" | "failed";
 
+/**
+ * X's share ("intent") composer, pre-filled with the announcement.
+ *
+ * The fallback for when the API can't post — which today is every time, since
+ * the developer app has no X API v2 access. Intents need no API access at all,
+ * but they also can't attach media: the claim image reaches the timeline as
+ * the link card for /claimed instead.
+ *
+ * This has to be a real link the visitor clicks. Opening it from script after
+ * the rebrand finishes would be outside a user gesture and get blocked.
+ */
+function intentUrl(text: string) {
+  return `https://x.com/intent/post?text=${encodeURIComponent(text)}`;
+}
+
 export default function RebrandClient() {
   const params = useSearchParams();
   const justReturnedFromAuth = params.get("x_user") !== null;
@@ -381,13 +396,30 @@ export default function RebrandClient() {
                 <p className="text-sm text-pink-200">{result.description}</p>
               )}
               {tweetError && (
-                <p className="text-xs text-yellow-200/90 border border-yellow-600/40 bg-yellow-900/20 rounded-lg p-3">
-                  Your profile was rebranded, but the announcement post
-                  didn&rsquo;t go out
-                  {/^Status is a duplicate/i.test(tweetError)
-                    ? " — X won't let you post the same announcement twice."
-                    : `: ${tweetError}`}
-                </p>
+                <div className="space-y-3 border border-yellow-600/40 bg-yellow-900/20 rounded-lg p-3">
+                  <p className="text-xs text-yellow-200/90">
+                    Your profile was rebranded, but she couldn&rsquo;t post the
+                    announcement for you
+                    {/^Status is a duplicate/i.test(tweetError)
+                      ? " — X won't let the same announcement go out twice."
+                      : "."}{" "}
+                    Post it yourself instead:
+                  </p>
+                  {plan?.announcement && (
+                    <a
+                      href={intentUrl(plan.announcement.text)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full text-center rounded-xl bg-pink-600 hover:bg-pink-700
+                                 px-5 py-3 font-semibold text-white transition"
+                    >
+                      Post the announcement on X →
+                    </a>
+                  )}
+                  <p className="text-[11px] text-yellow-200/60">
+                    Opens X with the post already written. You just tap Post.
+                  </p>
+                </div>
               )}
               <a
                 href={`https://x.com/${result.screen_name}`}
