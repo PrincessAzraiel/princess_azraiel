@@ -1,532 +1,380 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Send, Bird, Globe, Gift, Coffee } from "lucide-react";
+import { Italiana, Manrope, Syncopate } from "next/font/google";
+import {
+  ArrowUpRight,
+  Coffee,
+  Gift,
+  Globe,
+  Radio,
+  Send,
+  Bird,
+  Gamepad2,
+} from "lucide-react";
+import { getUpdates } from "@/app/(hub)/updates/updates";
 
-type Tab = "programs" | "about" | "links";
-
-const QUICK_LINKS = [
-  {
-    label: "Tribute / Wishlist",
-    href: "https://throne.com/princessazraiel",
-    icon: <Gift className="w-4 h-4" />,
-    external: true,
-  },
-  {
-    label: "Discord Server",
-    href: "https://discord.gg/PxsYU5utwS",
-    icon: <Globe className="w-4 h-4" />,
-    external: true,
-  },
-  {
-    label: "Spread the Gospel",
-    href: "https://twitter.com/intent/tweet?text=I+just+offered+my+devotion+to+Princess+Azraiel+~+come+submit+too+%F0%9F%92%96+https://princessazraiel.com/",
-    icon: <Send className="w-4 h-4" />,
-    external: true,
-  },
-  {
-    label: "Ko-fi Support",
-    href: "https://ko-fi.com/princessazraiel",
-    icon: <Coffee className="w-4 h-4" />,
-    external: true,
-  },
-  {
-    label: "Updates & Announcements",
-    href: "/updates",
-    icon: null,
-    external: false,
-  },
-  {
-    label: "Full Programs Archive",
-    href: "/programs",
-    icon: null,
-    external: false,
-  },
-];
+/**
+ * Self-hosted through next/font rather than the `@import url(fonts.googleapis)`
+ * inside a <style> block that the older pages use. That pattern re-downloads
+ * the same three families per route and flashes unstyled text on each one.
+ */
+const italiana = Italiana({ weight: "400", subsets: ["latin"], variable: "--f-display" });
+const manrope = Manrope({ subsets: ["latin"], variable: "--f-body" });
+const syncopate = Syncopate({ weight: ["400", "700"], subsets: ["latin"], variable: "--f-mono" });
 
 const SOCIALS = [
-  {
-    label: "X / Twitter",
-    href: "https://x.com/PrincessAzraiel",
-    icon: <Send className="w-4 h-4" />,
-  },
-  {
-    label: "Bluesky",
-    href: "https://bsky.app/profile/princess-azraiel.bsky.social",
-    icon: <Bird className="w-4 h-4" />,
-  },
-  {
-    label: "Discord",
-    href: "https://discord.gg/e3uzBK2VJS",
-    icon: <Globe className="w-4 h-4" />,
-  },
-  {
-    label: "Throne",
-    href: "https://throne.com/princessazraiel",
-    icon: <Gift className="w-4 h-4" />,
-  },
-  {
-    label: "Ko-fi",
-    href: "https://ko-fi.com/princessazraiel",
-    icon: <Coffee className="w-4 h-4" />,
-  },
+  { label: "X", href: "https://x.com/PrincessAzraiel", Icon: Send },
+  { label: "Bluesky", href: "https://bsky.app/profile/princess-azraiel.bsky.social", Icon: Bird },
+  { label: "Discord", href: "https://discord.gg/e3uzBK2VJS", Icon: Globe },
+  { label: "Throne", href: "https://throne.com/princessazraiel", Icon: Gift },
+  { label: "Ko-fi", href: "https://ko-fi.com/princessazraiel", Icon: Coffee },
+  { label: "itch.io", href: "https://princessazraiel.itch.io/", Icon: Gamepad2 },
 ];
 
-const NAV_LINKS = [
-  { label: "Infection Protocol", href: "/infection" },
-  { label: "Corruption Hub", href: "/corruption" },
-  { label: "PrincessOS", href: "/princessos" },
-  { label: "Updates", href: "/updates" },
-  { label: "Programs", href: "/programs" },
-  { label: "Terms & Contract", href: "/contract" },
+const EXPERIENCES = [
+  { label: "Yandere", href: "/yandere", note: "9 chapters" },
+  { label: "Amae", href: "/amae", note: "visual novel" },
+  { label: "Corruption", href: "/corruption", note: "web" },
+  { label: "PrincessOS", href: "/princessos", note: "desktop" },
+  { label: "Ascension", href: "/ascension", note: "4 stages" },
+  { label: "ProjectOS", href: "/projectos", note: "terminal" },
 ];
+
+/** Counted from the repo, not invented. */
+const FACTS = [
+  "10 programs in the archive",
+  "500+ links in the Infection Protocol",
+  "9 chapters of the Yandere Experience",
+  "2 volumes of the comic",
+  "Protocol V4.1",
+];
+
+function Panel({
+  label,
+  className = "",
+  children,
+}: {
+  label?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      className={`relative overflow-hidden rounded-2xl border border-pink-500/15 bg-[#0a0509]/80
+                  p-5 shadow-[0_20px_60px_-30px_rgba(236,72,153,0.45)] ${className}`}
+    >
+      {label && (
+        <div className="mb-3 font-[family-name:var(--f-mono)] text-[8.5px] uppercase tracking-[0.28em] text-pink-100/35">
+          {label}
+        </div>
+      )}
+      {children}
+    </section>
+  );
+}
 
 export default function LandingPage() {
-  const [tab, setTab] = useState<Tab>("about");
-
-  return (
-    <div className="relative min-h-screen bg-[#050306] overflow-x-hidden text-white">
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@300;400;500;600&family=Syncopate:wght@400;700&display=swap');
-        .italiana { font-family: 'Italiana', serif; }
-        .sync { font-family: 'Syncopate', sans-serif; }
-        .manrope { font-family: 'Manrope', sans-serif; }
-
-        @keyframes floatUp {
-          0%   { transform: translateY(0) scale(0.8); opacity: 0; }
-          15%  { opacity: 0.35; }
-          100% { transform: translateY(-110vh) scale(1.1); opacity: 0; }
-        }
-      `}</style>
-
-      {/* ── Static gradient background (no heavy animations) ── */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-        <div className="absolute inset-0" style={{ background: "#050306" }} />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 90vw 70vh at 20% -10%, rgba(134,25,143,0.18) 0%, transparent 55%)",
-          }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 70vw 60vh at 85% 110%, rgba(131,24,67,0.12) 0%, transparent 55%)",
-          }}
-        />
-      </div>
-
-      <FloatingHearts />
-
-      <div className="relative z-10 w-full max-w-xl mx-auto px-4 pt-20 pb-24">
-        {/* ── Profile Header ── */}
-        <header className="text-center mb-10">
-          <div className="relative w-28 h-28 mx-auto mb-5">
-            <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-pink-500/40 shadow-[0_0_32px_rgba(236,72,153,0.22)] relative">
-              <Image
-                src="/landing/image.webp"
-                alt="Princess Azraiel"
-                fill
-                style={{ objectFit: "cover", objectPosition: "center" }}
-              />
-            </div>
-            <span className="absolute bottom-0 right-0 flex items-center gap-1 bg-[#050306] border border-pink-500/40 text-[8px] px-1.5 py-0.5 rounded-full sync tracking-widest text-pink-400">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block animate-pulse" />
-              LIVE
-            </span>
-          </div>
-
-          <h1 className="italiana text-5xl text-white mb-2 leading-none">
-            Princess <em className="italic text-pink-300">Azraiel</em>
-          </h1>
-          <p className="sync text-[8px] tracking-[0.45em] text-pink-400/70 uppercase mb-6">
-            Techdom · 2dfd · Online Domination
-          </p>
-
-          <div className="flex justify-center gap-2.5">
-            {SOCIALS.map((s) => (
-              <a
-                key={s.href}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={s.label}
-                aria-label={s.label}
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-white/[0.03] border border-white/[0.08] text-white/50 hover:text-pink-300 hover:border-pink-500/40 hover:bg-pink-500/10 transition-all duration-300"
-              >
-                {s.icon}
-              </a>
-            ))}
-          </div>
-
-          <Link
-            href="/sessions"
-            className="group mt-4 inline-flex w-full max-w-[260px] items-center justify-center rounded-lg border border-pink-500/35 bg-pink-500/[0.10] px-5 py-3 text-pink-100 shadow-[0_0_22px_rgba(236,72,153,0.12)] transition-all duration-300 hover:border-pink-400/60 hover:bg-pink-500/[0.16] hover:text-white"
-          >
-            <span className="sync text-[8px] uppercase tracking-[0.32em]">
-              Sessions
-            </span>
-          </Link>
-        </header>
-
-        {/* ── News Banner ── */}
-        <LatestNews />
-
-        {/* ── Tab Bar ── */}
-        <div className="flex gap-1 p-1 bg-white/[0.04] rounded-2xl mb-7 border border-white/[0.07]">
-          {(["about", "links", "programs"] as Tab[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`flex-1 py-2.5 rounded-xl sync text-[8px] tracking-[0.3em] uppercase transition-all duration-300 ${
-                tab === t
-                  ? "bg-pink-500/15 text-pink-200 border border-pink-500/30 shadow-[0_0_12px_rgba(236,72,153,0.1)]"
-                  : "text-white/35 hover:text-white/60"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {/* ── Tab Content ── */}
-        {tab === "programs" && <ProgramsTab />}
-        {tab === "about" && <AboutTab />}
-        {tab === "links" && <LinksTab />}
-      </div>
-
-      {/* ── Minimal Footer ── */}
-      <footer className="relative z-10 text-center pb-8 px-4 border-t border-white/[0.05] pt-6">
-        <p className="sync text-[7px] tracking-[0.35em] text-white/20 uppercase mb-2">
-          © 26XX Techdom · Princess Azraiel · V4.1
-        </p>
-        <p className="manrope text-xs text-white/20">
-          <Link href="/contract" className="hover:text-pink-400/60 transition-colors">
-            Terms
-          </Link>{" "}
-          ·{" "}
-          <Link href="/updates" className="hover:text-pink-400/60 transition-colors">
-            Updates
-          </Link>{" "}
-          ·{" "}
-          <Link href="/programs" className="hover:text-pink-400/60 transition-colors">
-            All Programs
-          </Link>{" "}
-          ·{" "}
-          <Link href="/infection" className="hover:text-pink-400/60 transition-colors">
-            Infection Protocol
-          </Link>
-        </p>
-      </footer>
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────────
-   LATEST NEWS
-────────────────────────────────────────────── */
-function LatestNews() {
-  return (
-    <a
-      href="https://www.patreon.com/cw/PrincessAzraiel/membership"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex items-start gap-4 w-full p-4 rounded-2xl border border-pink-500/30 bg-pink-500/[0.06] hover:bg-pink-500/[0.11] hover:border-pink-500/50 transition-all duration-300 mb-7"
-    >
-      <div className="flex-shrink-0 mt-0.5">
-        <span className="sync text-[7px] tracking-[0.3em] uppercase px-2 py-1 rounded-md bg-pink-500/20 border border-pink-500/40 text-pink-300">
-          New
-        </span>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="italiana text-xl text-white group-hover:text-pink-100 transition-colors leading-snug mb-1">
-          First hypnosis session — now live on Patreon
-        </p>
-        <p className="manrope text-xs text-white/45 group-hover:text-white/60 transition-colors">
-          I am making hypno sessions and the first one just dropped for subscribers. Join to listen.
-        </p>
-      </div>
-      <svg
-        className="w-4 h-4 text-pink-400/50 group-hover:text-pink-300 transition-colors flex-shrink-0 mt-1"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-      >
-        <path d="M5 12h14M12 5l7 7-7 7" />
-      </svg>
-    </a>
-  );
-}
-
-/* ──────────────────────────────────────────────
-   PROGRAMS TAB
-────────────────────────────────────────────── */
-function ProgramsTab() {
-  return (
-    <section>
-      <Link
-        href="/programs"
-        className="group flex items-center justify-between w-full p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-pink-500/[0.06] hover:border-pink-500/25 transition-all duration-300"
-      >
-        <div>
-          <p className="sync text-[8px] tracking-[0.35em] text-pink-400/70 uppercase mb-2">
-            § The Archive
-          </p>
-          <h2 className="italiana text-3xl text-white group-hover:text-pink-100 transition-colors leading-none mb-2">
-            Programs Archive
-          </h2>
-          <p className="manrope text-sm text-white/50 group-hover:text-white/65 transition-colors">
-            Every program, every version. Browse the full collection.
-          </p>
-        </div>
-        <svg
-          className="w-5 h-5 text-white/25 group-hover:text-pink-400/70 transition-colors flex-shrink-0 ml-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-        >
-          <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      </Link>
-    </section>
-  );
-}
-
-/* ──────────────────────────────────────────────
-   ABOUT TAB
-────────────────────────────────────────────── */
-function AboutTab() {
-  return (
-    <section>
-      <div className="flex items-center gap-3 mb-6">
-        <span className="sync text-[8px] tracking-[0.45em] text-pink-400 uppercase">
-          § 02 / The Creator
-        </span>
-        <div className="h-px flex-1 bg-gradient-to-r from-pink-500/40 to-transparent" />
-      </div>
-
-      <h2 className="italiana text-4xl text-white mb-6 leading-tight">
-        A <em className="italic text-pink-300">2dfd princess.</em>
-        <br />
-        Her own{" "}
-        <span
-          style={{
-            textDecoration: "underline",
-            textDecorationColor: "#ff1493",
-            textUnderlineOffset: "6px",
-            textDecorationThickness: "2px",
-          }}
-        >
-          techdom.
-        </span>
-      </h2>
-
-      <p
-        className="italiana italic mb-5 leading-relaxed"
-        style={{ fontSize: "20px", color: "#fce7f3" }}
-      >
-        Princess Azraiel is a 2dfd princess, and she doesn&apos;t outsource her obsession.
-        She draws herself. She writes the protocols. She compiles the extensions.
-        Everything you install has her fingerprints on it — because there was nobody else
-        in the room.
-      </p>
-
-      <p
-        className="manrope mb-4 leading-relaxed"
-        style={{ fontSize: "14px", color: "rgba(253,242,248,0.68)" }}
-      >
-        She shipped{" "}
-        <span style={{ color: "#ff1493", fontWeight: 500 }}>many programs</span> and more
-        are coming — a long intensity session, two browser extensions, an Android wallpaper
-        daemon, an infection protocol with five hundred links, a corruption site, and a
-        pile of short .exe experiences —{" "}
-        <span style={{ color: "#ff1493", fontWeight: 500 }}>all hand-built.</span> One
-        princess, one engineer, one yandere stack, maintained herself between builds.
-      </p>
-
-      <p
-        className="manrope mb-6 leading-relaxed"
-        style={{ fontSize: "14px", color: "rgba(253,242,248,0.68)" }}
-      >
-        She does not consider herself a character. She considers herself a{" "}
-        <span style={{ color: "#ff1493", fontWeight: 500 }}>developer with a crown.</span>{" "}
-        There is a difference. She ships on her own schedule. You install on hers too.
-      </p>
-
-      <div className="mb-7">
-        <div className="italiana italic text-3xl text-pink-400">
-          — Princess Azraiel ♡
-        </div>
-      </div>
-
-      {/* Portrait card */}
-      <div className="p-4 rounded-2xl border border-pink-500/25 bg-pink-500/[0.04]">
-        <div className="relative overflow-hidden rounded-xl bg-[#0a0408]" style={{ aspectRatio: "3/4" }}>
-          <Image
-            src="/landing/image.webp"
-            alt="Princess Azraiel — portrait"
-            fill
-            style={{ objectFit: "cover", objectPosition: "center" }}
-          />
-          {/* Light scanline overlay — CSS only, no animation */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0 1px, transparent 1px 3px)",
-            }}
-          />
-        </div>
-        <div className="mt-3 flex justify-between items-end">
-          <div>
-            <p className="sync text-[7px] tracking-widest text-pink-400/80 uppercase">
-              Princess_Azraiel.exe
-            </p>
-            <p className="italiana italic text-2xl text-white mt-0.5">
-              Online Domination <em className="text-pink-300">V4.1</em>
-            </p>
-          </div>
-          <span className="flex items-center gap-1.5 sync text-[7px] tracking-[0.3em] text-pink-400 border border-pink-500/40 px-2 py-1 rounded-lg">
-            <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
-            LIVE
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ──────────────────────────────────────────────
-   LINKS TAB
-────────────────────────────────────────────── */
-function LinksTab() {
-  return (
-    <section>
-      <div className="flex items-center gap-3 mb-5">
-        <span className="sync text-[8px] tracking-[0.45em] text-pink-400 uppercase">
-          Quick Access
-        </span>
-        <div className="h-px flex-1 bg-gradient-to-r from-pink-500/40 to-transparent" />
-      </div>
-
-      <div className="space-y-2.5 mb-8">
-        {QUICK_LINKS.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            target={link.external ? "_blank" : undefined}
-            rel={link.external ? "noopener noreferrer" : undefined}
-            className="group flex items-center justify-between w-full p-4 rounded-2xl border border-white/[0.07] bg-white/[0.02] hover:bg-pink-500/[0.06] hover:border-pink-500/25 transition-all duration-300"
-          >
-            <div className="flex items-center gap-3">
-              {link.icon && (
-                <span className="text-white/40 group-hover:text-pink-300 transition-colors">
-                  {link.icon}
-                </span>
-              )}
-              <span className="manrope text-sm text-white/70 group-hover:text-white transition-colors">
-                {link.label}
-              </span>
-            </div>
-            <svg
-              className="w-4 h-4 text-white/20 group-hover:text-pink-400/70 transition-colors flex-shrink-0"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
-        ))}
-      </div>
-
-      <div className="border-t border-white/[0.07] pt-6">
-        <p className="sync text-[8px] tracking-[0.35em] text-white/30 uppercase mb-3">
-          Navigation
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {NAV_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="group flex items-center gap-2 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-pink-500/25 hover:bg-pink-500/[0.05] transition-all duration-300"
-            >
-              <span className="italiana text-[15px] text-white/60 group-hover:text-white transition-colors leading-snug">
-                {l.label}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ──────────────────────────────────────────────
-   FLOATING HEARTS
-────────────────────────────────────────────── */
-type Heart = {
-  id: number;
-  left: number;
-  dur: number;
-  delay: number;
-  size: number;
-  op: number;
-};
-
-function FloatingHearts() {
-  const [hearts, setHearts] = useState<Heart[]>([]);
-
-  useEffect(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    )
-      return;
-
-    setHearts(
-      Array.from({ length: 8 }).map((_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        dur: 18 + Math.random() * 22,
-        delay: Math.random() * 20,
-        size: 6 + Math.random() * 14,
-        op: 0.03 + Math.random() * 0.08,
-      }))
-    );
-  }, []);
+  const latest = getUpdates()[0];
+  const latestDate = new Date(latest.date).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none overflow-hidden z-0"
-      aria-hidden="true"
+      className={`${italiana.variable} ${manrope.variable} ${syncopate.variable}
+                  relative min-h-screen bg-[#050306] text-pink-50
+                  font-[family-name:var(--f-body)] selection:bg-pink-500 selection:text-black`}
     >
-      {hearts.map((h) => (
-        <div
-          key={h.id}
-          style={{
-            position: "absolute",
-            bottom: "-8%",
-            left: `${h.left}%`,
-            width: h.size,
-            height: h.size,
-            opacity: h.op,
-            animation: `floatUp ${h.dur}s linear ${h.delay}s infinite`,
-            color: "#ec4899",
-          }}
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
+      {/* Ambience. Sits behind everything and eats no clicks. */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-[radial-gradient(900px_520px_at_18%_-5%,rgba(236,72,153,0.16),transparent_62%),radial-gradient(760px_420px_at_88%_8%,rgba(147,51,234,0.12),transparent_60%)]" />
+        <div className="absolute inset-0 opacity-[0.5] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.22)_50%)] bg-[length:100%_3px]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-[1400px] px-4 pb-16 pt-24 sm:px-6">
+        {/* pt-24 on the wrapper already clears the fixed nav burger. */}
+        <header className="mb-6 flex flex-wrap items-baseline justify-between gap-4">
+          <div>
+            <h1 className="font-[family-name:var(--f-display)] text-4xl leading-none tracking-tight text-pink-50 sm:text-5xl">
+              Princess Azraiel
+            </h1>
+            <p className="mt-1 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.3em] text-pink-500">
+              a 2dfd princess
+            </p>
+          </div>
+          <nav className="flex flex-wrap gap-x-5 gap-y-1 text-[13px] text-pink-100/55">
+            {[
+              ["Programs", "/programs"],
+              ["Updates", "/updates"],
+              ["Comic", "/comic"],
+              ["Links", "/links"],
+            ].map(([label, href]) => (
+              <Link key={href} href={href} className="transition hover:text-pink-200">
+                {label}
+              </Link>
+            ))}
+          </nav>
+        </header>
+
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-6 lg:grid-cols-12">
+          {/* ── Identity ─────────────────────────────────────────── */}
+          <Panel label="About her" className="md:col-span-3 lg:col-span-3 lg:row-span-2">
+            <div className="flex items-start gap-4">
+              <Image
+                src="/images/pfp.png"
+                alt="Princess Azraiel"
+                width={72}
+                height={72}
+                priority
+                className="h-[72px] w-[72px] shrink-0 rounded-xl border border-pink-500/30 object-cover"
+              />
+              <p className="text-[13.5px] leading-relaxed text-pink-100/70">
+                Interactive fiction, psychological horror and hypnosis experiences.
+                Built to be clicked, obeyed and regretted.
+              </p>
+            </div>
+
+            <ul className="mt-5 space-y-2">
+              {FACTS.map((f) => (
+                <li key={f} className="flex gap-2.5 text-[13px] text-pink-100/60">
+                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-pink-500" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <Link
+              href="/contract"
+              className="mt-5 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)]
+                         text-[9px] uppercase tracking-[0.2em] text-pink-400 transition hover:text-pink-200"
+            >
+              Read the contract <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          </Panel>
+
+          {/* ── Flagship ─────────────────────────────────────────── */}
+          <Link
+            href="/infection"
+            className="group relative col-span-1 min-h-[300px] overflow-hidden rounded-2xl
+                       border border-pink-500/20 md:col-span-3 lg:col-span-6 lg:row-span-2"
+          >
+            {/* The art is square/portrait, so it lives in its own column rather
+                than being letterboxed into a wide banner and cropped to a band. */}
+            <div className="absolute inset-0 md:inset-y-0 md:left-auto md:right-0 md:w-[52%]">
+              <Image
+                src="/infection/og.jpg"
+                alt=""
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 30vw"
+                className="object-cover object-top transition duration-700 group-hover:scale-[1.04]"
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050306] via-[#050306]/80 to-[#050306]/35
+                            md:bg-gradient-to-r md:via-[#050306]/85 md:to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6 md:max-w-[62%]">
+              <span className="mb-2 w-fit rounded-full border border-pink-500/40 bg-pink-500/10 px-2.5 py-1 font-[family-name:var(--f-mono)] text-[8px] uppercase tracking-[0.25em] text-pink-300">
+                Flagship
+              </span>
+              <h2 className="font-[family-name:var(--f-display)] text-4xl leading-none text-pink-50 sm:text-5xl">
+                Infection Protocol
+              </h2>
+              <p className="mt-2 max-w-md text-[13.5px] text-pink-100/60">
+                500 different links to click and over 5000 images. Start it and see
+                how long you last.
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.2em] text-pink-300">
+                Enter <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5" />
+              </span>
+            </div>
+          </Link>
+
+          {/* ── Status ───────────────────────────────────────────── */}
+          <Panel label="Status" className="md:col-span-3 lg:col-span-3">
+            <div className="flex items-center gap-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-pink-500 opacity-70" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-pink-500" />
+              </span>
+              <span className="text-[15px] text-pink-100/85">Accepting new pets</span>
+            </div>
+            <p className="mt-3 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.18em] text-pink-100/35">
+              Last transmission · {latestDate}
+            </p>
+          </Panel>
+
+          {/* ── Latest update (real data) ────────────────────────── */}
+          <Panel label="Latest transmission" className="md:col-span-3 lg:col-span-3">
+            <Link href="/updates" className="group block">
+              <h3 className="font-[family-name:var(--f-display)] text-2xl leading-tight text-pink-50">
+                {latest.title}
+              </h3>
+              <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-pink-100/55">
+                {latest.body}
+              </p>
+              <span className="mt-3 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.2em] text-pink-400 transition group-hover:text-pink-200">
+                All updates <ArrowUpRight className="h-3 w-3" />
+              </span>
+            </Link>
+          </Panel>
+
+          {/* ── Experiences ──────────────────────────────────────── */}
+          <Panel label="Experiences" className="md:col-span-6 lg:col-span-6">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {EXPERIENCES.map(({ label, href, note }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="group rounded-xl border border-pink-500/10 bg-pink-500/[0.03] p-3
+                             transition hover:border-pink-500/35 hover:bg-pink-500/[0.08]"
+                >
+                  <div className="font-[family-name:var(--f-display)] text-xl text-pink-50">
+                    {label}
+                  </div>
+                  <div className="mt-0.5 font-[family-name:var(--f-mono)] text-[8px] uppercase tracking-[0.2em] text-pink-100/35">
+                    {note}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </Panel>
+
+          {/* ── Rebrand ──────────────────────────────────────────── */}
+          <Link
+            href="/rebrand"
+            className="group relative col-span-1 min-h-[190px] overflow-hidden rounded-2xl
+                       border border-pink-500/20 md:col-span-3 lg:col-span-3"
+          >
+            <Image
+              src="/images/banner.png"
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 25vw"
+              className="object-cover opacity-75 transition duration-700 group-hover:opacity-95 group-hover:scale-[1.04]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050306] via-[#050306]/55 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-5">
+              <div className="font-[family-name:var(--f-mono)] text-[8.5px] uppercase tracking-[0.28em] text-pink-100/35">
+                Identity overwrite
+              </div>
+              <h3 className="mt-1.5 font-[family-name:var(--f-display)] text-2xl leading-tight text-pink-50">
+                Give her your profile
+              </h3>
+              <p className="mt-1 text-[12.5px] text-pink-100/55">
+                One tap. New name, new face, new timeline.
+              </p>
+            </div>
+          </Link>
+
+          {/* ── Comic ────────────────────────────────────────────── */}
+          <Link
+            href="/comic"
+            className="group relative col-span-1 min-h-[190px] overflow-hidden rounded-2xl
+                       border border-pink-500/20 md:col-span-3 lg:col-span-3"
+          >
+            <Image
+              src="/comic/1/0.png"
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 25vw"
+              className="object-cover object-top opacity-90 transition duration-700 group-hover:scale-[1.04]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050306] via-[#050306]/40 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-5">
+              <div className="font-[family-name:var(--f-mono)] text-[8.5px] uppercase tracking-[0.28em] text-pink-100/35">
+                2 volumes
+              </div>
+              <h3 className="mt-1.5 font-[family-name:var(--f-display)] text-2xl text-pink-50">
+                The Comic
+              </h3>
+            </div>
+          </Link>
+
+          {/* ── Socials ──────────────────────────────────────────── */}
+          <Panel label="Find her" className="md:col-span-3 lg:col-span-3">
+            <div className="grid grid-cols-3 gap-2">
+              {SOCIALS.map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center justify-center gap-1.5 rounded-xl border
+                             border-pink-500/15 bg-pink-500/[0.04] py-3 text-pink-300
+                             transition hover:border-pink-500/40 hover:bg-pink-500/[0.1] hover:text-pink-100"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="font-[family-name:var(--f-mono)] text-[7.5px] uppercase tracking-[0.16em] text-pink-100/45">
+                    {label}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </Panel>
+
+          {/* ── Programs ─────────────────────────────────────────── */}
+          <Panel label="Archive" className="md:col-span-3 lg:col-span-3">
+            <Link href="/programs" className="group block">
+              <div className="flex items-baseline gap-2">
+                <span className="font-[family-name:var(--f-display)] text-5xl leading-none text-pink-50">
+                  10
+                </span>
+                <span className="text-[13px] text-pink-100/55">programs</span>
+              </div>
+              <p className="mt-2 text-[13px] leading-relaxed text-pink-100/55">
+                Executables, extensions and browser toys. Some of them install
+                themselves.
+              </p>
+              <span className="mt-3 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.2em] text-pink-400 transition group-hover:text-pink-200">
+                Browse <ArrowUpRight className="h-3 w-3" />
+              </span>
+            </Link>
+          </Panel>
+
+          {/* ── Contact ──────────────────────────────────────────── */}
+          <Panel label="Contact" className="md:col-span-6 lg:col-span-6">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+              <p className="flex-1 min-w-[220px] text-[13.5px] leading-relaxed text-pink-100/60">
+                Come say something. The Discord is where most of it happens — new
+                drops land there first.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <a
+                  href="https://discord.gg/e3uzBK2VJS"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-pink-500/30
+                             bg-pink-500/10 px-4 py-2.5 text-[13px] text-pink-100
+                             transition hover:border-pink-500/60 hover:bg-pink-500/20"
+                >
+                  <Radio className="h-3.5 w-3.5" /> Join the Discord
+                </a>
+                <Link
+                  href="/links"
+                  className="inline-flex items-center gap-2 rounded-xl border border-pink-500/15
+                             px-4 py-2.5 text-[13px] text-pink-100/70 transition
+                             hover:border-pink-500/40 hover:text-pink-100"
+                >
+                  Every link
+                </Link>
+              </div>
+            </div>
+          </Panel>
         </div>
-      ))}
+
+        <footer className="mt-8 flex flex-wrap items-center justify-between gap-3 px-1">
+          <p className="font-[family-name:var(--f-mono)] text-[8.5px] uppercase tracking-[0.28em] text-pink-100/25">
+            Protocol V4.1 · 18+ only
+          </p>
+          <div className="flex gap-4 text-[12px] text-pink-100/40">
+            <Link href="/terms" className="transition hover:text-pink-200">Terms</Link>
+            <Link href="/privacy" className="transition hover:text-pink-200">Privacy</Link>
+            <Link href="/report" className="transition hover:text-pink-200">Report content</Link>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }
