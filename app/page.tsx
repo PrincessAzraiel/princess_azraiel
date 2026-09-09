@@ -45,7 +45,7 @@ const EXPERIENCES = [
 /** Counted from the repo, not invented. */
 const FACTS = [
   "10 programs in the archive",
-  "500+ links in the Infection Protocol",
+  "9 AI personas in the Infection Protocol",
   "9 chapters of the Yandere Experience",
   "2 volumes of the comic",
   "Protocol V4.1",
@@ -184,8 +184,8 @@ export default function LandingPage() {
                 Infection Protocol
               </h2>
               <p className="mt-2 max-w-md text-[13.5px] text-pink-100/60">
-                500 different links to click and over 5000 images. Start it and see
-                how long you last.
+                Nine AI personas loose in your Discord DMs. Pick how hard it
+                floods — a gentle drip, or all of them at once.
               </p>
               <span className="mt-4 inline-flex items-center gap-1.5 font-[family-name:var(--f-mono)] text-[9px] uppercase tracking-[0.2em] text-pink-300">
                 Enter <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5" />

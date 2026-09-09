@@ -25,11 +25,13 @@ export const links = {
   bluesky: "https://bsky.app/profile/princess-azraiel.bsky.social",
 
   /**
-   * The canonical invite. Three others are still hardcoded elsewhere in the
-   * app (sCusdWXxZF, j6pCbYRJJ5, BVkbrgYbRR) — confirm which should survive,
-   * then point those pages here and delete the rest.
+   * The canonical invite, confirmed by hand.
+   *
+   * Four others are still hardcoded in individual pages — sCusdWXxZF,
+   * j6pCbYRJJ5, BVkbrgYbRR and e3uzBK2VJS — and none of them is this one.
+   * Point those pages here and delete them.
    */
-  discord: "https://discord.gg/e3uzBK2VJS",
+  discord: "https://discord.gg/PxsYU5utwS",
 
   // ── Support & storefronts ───────────────────────────────────────────
   throne: "https://throne.com/princessazraiel",
