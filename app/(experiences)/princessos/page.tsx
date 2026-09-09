@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import './princessos.css';
 
+import { links } from "@/lib/links";
 // Character data with custom distinct drop-shadow glows
 const characters = [
   { id: 'princess', name: 'Princess', role: 'OS Assistant', clearance: 'Override', status: 'Learning...', image: '/princessos/princess.png', glow: 'drop-shadow(0 0 35px rgba(255, 105, 180, 0.8))' }, // Pink
@@ -86,7 +87,7 @@ export default function PrincessOSPage() {
           
           <Link href="https://x.com/PrincessAzraiel" target="_blank" className="text-neutral-500 hover:text-pink-400 transition-colors">SYS.X_MAIN</Link>
           <Link href="https://x.com/AzraielExe" target="_blank" className="text-neutral-500 hover:text-pink-400 transition-colors">SYS.X_DEV</Link>
-          <Link href="https://discord.gg/j6pCbYRJJ5" target="_blank" className="text-neutral-500 hover:text-[#5865F2] transition-colors">SYS.DISCORD</Link>
+          <Link href={links.discord} target="_blank" className="text-neutral-500 hover:text-[#5865F2] transition-colors">SYS.DISCORD</Link>
         </div>
       </header>
 

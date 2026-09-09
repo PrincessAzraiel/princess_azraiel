@@ -132,7 +132,7 @@ export const dlcs: DLC[] = [
     image: "/infection/vixen.jpg",
     features: ["Assertive, teasing tormentor", "Custom challenge prompts", "Boundary-pushing dares"],
     price: "Not available anymore",
-    link: "https://example.com/dlc/your-bully",
+    link: "",
     isAvailable: false,
   },
   {

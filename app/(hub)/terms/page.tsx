@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Home } from "lucide-react";
 
+import { links } from "@/lib/links";
 export const metadata: Metadata = {
   title: "Terms of Service — Princess Azraiel",
   description: "Terms of Service for princessazraiel.com. Adults only (18+).",
@@ -174,7 +175,7 @@ export default function TermsPage() {
                 Contact via report form
               </Link>
               {" "}or reach out through{" "}
-              <a href="https://discord.gg/e3uzBK2VJS" target="_blank" rel="noopener noreferrer" className="text-pink-400/60 hover:text-pink-300 transition-colors underline underline-offset-2">
+              <a href={links.discord} target="_blank" rel="noopener noreferrer" className="text-pink-400/60 hover:text-pink-300 transition-colors underline underline-offset-2">
                 Discord
               </a>.
             </p>

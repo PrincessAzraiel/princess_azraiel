@@ -12,11 +12,11 @@ const PROGRAMS = [
     num: '§ 01',
     title: 'Infection Protocol.', 
     titleSplit: ['Infection', 'Protocol.'],
-    description: 'A new protocol, with 500 different links to click and over 5000 new images.', 
+    description: 'Nine AI personas loose in your Discord DMs. Three tiers, from a gentle drip to a full flood.', 
     link: '/infection',
     tag: 'FLAGSHIP',
     isNew: true,
-    specs: ['500 LINKS', '5000 IMAGES'],
+    specs: ['9 PERSONAS', 'FROM 3€'],
     variant: 'k-flag',
     gridClass: 'md:col-span-6 lg:col-span-4 min-h-[320px]'
   },

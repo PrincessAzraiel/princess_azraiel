@@ -4,6 +4,7 @@ import { TypewriterText } from "../_components/TypewriterText";
 import { TransitionLink } from "../_components/TransitionLink";
 import { getLogStyle, getTypingSpeed, markPhaseComplete } from "../_utils/terminal";
 
+import { links } from "@/lib/links";
 type LogEntry = {
   id: string;
   source: "SYSTEM" | "ACOLYTE" | "NODE" | "ERROR";
@@ -117,7 +118,7 @@ export default function PhaseOneTerminal() {
 
     const tweetText = encodeURIComponent("My altar is prepared for @PrincessAzraiel. I am ready to ascend. #AscensionProtocol");
     const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
-    const discordInvite = "https://discord.gg/BVkbrgYbRR";
+    const discordInvite = links.discord;
     const discordChannelUrl = "https://discord.com/channels/1356925630566105169/1356980909991006248";
 
     setActions([
