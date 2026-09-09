@@ -5,13 +5,14 @@ export const fetchCache = "force-no-store";
 import React, { useEffect, useState } from "react";
 import { ArrowRight, ExternalLink, Lock } from "lucide-react";
 
+import { links, routes, shareOnX } from "@/lib/links";
 const secretLinks = [
   { label: "Tribute Now", url: "https://throne.com/princessazraiel" },
   {
     label: "Spread the Gospel",
-    url: "https://twitter.com/intent/tweet?text=I+just+offered+my+devotion+to+Princess+Azraiel+~+come+submit+too+%F0%9F%92%96+https://princessazraiel.vercel.app/",
+    url: shareOnX("I just offered my devotion to Princess Azraiel ~ come submit too 💖", routes.home),
   },
-  { label: "Discord Entry", url: "https://discord.gg/sCusdWXxZF" },
+  { label: "Discord Entry", url: links.discord },
   { label: "Corrupt Me More", url: "https://gofile.io/d/2uZY0d" },
   {
     label: "Steam Wishlist",

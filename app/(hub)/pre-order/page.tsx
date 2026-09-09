@@ -1,32 +1,19 @@
-// app/infection/page.tsx
-import type { Metadata } from "next";
-import PreOrderPageClient from "./PreOrderClient";
+// /pre-order is a legacy URL for the same product page as /infection.
+//
+// It renders the identical component rather than a copy of it, so prices,
+// tiers and personas are only ever edited in one place. Its metadata points
+// the canonical at /infection, so search engines don't see two products.
+//
+// `dynamic` and `fetchCache` are declared here rather than re-exported:
+// Next reads route segment config statically and rejects a re-export.
+import { metadata as infectionMetadata } from "@/app/(experiences)/infection/page";
+import InfectionClient from "@/app/(experiences)/infection/PreOrderClient";
 
-export const dynamic = "force-dynamic"; 
+export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 
-export const metadata: Metadata = {
-  title: "Princess's Infection Protocol — Final Release",
-  description:
-    "A multi-persona Discord experience that drips attention 24/7. Choose your personas, and let the Infection Protocol orchestrate messages, images, and prompts.",
-  openGraph: {
-    title: "Princess's Infection Protocol — Final Release",
-    description:
-      "Nine distinct AI personas, DLC packs, and full flood control. Runs on your Discord—no install required.",
-    type: "website",
-    url: "https://princessazraiel.com/infection",
-    images: [{ url: "/infection/og.jpg", width: 1200, height: 630, alt: "Infection Protocol" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Princess's Infection Protocol — Final Release",
-    description:
-      "Nine distinct AI personas, DLC packs, and full flood control. Runs on your Discord—no install required.",
-    images: ["/infection/og.jpg"],
-  },
-  alternates: { canonical: "https://princessazraiel.com/infection" },
-};
+export const metadata = infectionMetadata;
 
-export default function Page() {
-  return <PreOrderPageClient />;
+export default function PreOrderPage() {
+  return <InfectionClient />;
 }

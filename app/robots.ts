@@ -24,7 +24,7 @@ export default function robots(): MetadataRoute.Robots {
           "/stopped-trick-or-treat/",
           "/patreon-hypnosis/",
           "/api/",
-          "/updates/test/",
+          "/updates/",
           "/womensday/",
           "/yandere/patreon300/",
           "/yandere/patreon500/",

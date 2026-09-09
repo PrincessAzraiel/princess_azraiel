@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Home } from "lucide-react";
 
+import { links } from "@/lib/links";
 export const metadata: Metadata = {
   title: "Privacy Policy — Princess Azraiel",
   description: "Privacy Policy for princessazraiel.com. How your data is handled under GDPR.",
@@ -213,7 +214,7 @@ export default function PrivacyPage() {
                 Use the report form
               </Link>
               {" "}or reach out via{" "}
-              <a href="https://discord.gg/e3uzBK2VJS" target="_blank" rel="noopener noreferrer" className="text-pink-400/60 hover:text-pink-300 transition-colors underline underline-offset-2">
+              <a href={links.discord} target="_blank" rel="noopener noreferrer" className="text-pink-400/60 hover:text-pink-300 transition-colors underline underline-offset-2">
                 Discord
               </a>.
             </p>

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { characters, tiers, dlcs } from "./data";
 import type { Character, DLC } from "./types";
 
+import { links } from "@/lib/links";
 /** client-only portal (avoids SSR `document` access) */
 function ClientPortal({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -122,7 +123,7 @@ export default function ProtocolPageClient() {
               </li>
               <li className="flex gap-3">
                 <span aria-hidden className="mt-0.5 text-pink-500 font-bold">→</span>
-                You can activate/deactivate the flood anytime.
+                You can activate, pause or stop the flood at any time by messaging her on Discord.
               </li>
               <li className="flex gap-3">
                 <span aria-hidden className="mt-0.5 text-pink-500 font-bold">→</span>
@@ -239,6 +240,40 @@ export default function ProtocolPageClient() {
               </div>
             ))}
           </div>
+
+          {/* Buying on Throne provisions nothing on its own - without this step
+              a new buyer pays and is left with no idea what happens next. */}
+          <div className="mt-12 border-2 border-pink-900 bg-[#090004] p-6 text-left">
+            <h3 className="text-lg font-black uppercase tracking-wide text-white mb-3">
+              After you order
+            </h3>
+            <ol className="space-y-2 text-pink-200/85 font-medium">
+              <li>
+                <span className="text-pink-500 font-black mr-2">1.</span>
+                Complete your order on Throne.
+              </li>
+              <li>
+                <span className="text-pink-500 font-black mr-2">2.</span>
+                <a
+                  href={links.discord}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-pink-400 underline underline-offset-2 hover:text-pink-300"
+                >
+                  Join the Discord
+                </a>{" "}
+                and opt in on the server.
+              </li>
+              <li>
+                <span className="text-pink-500 font-black mr-2">3.</span>
+                DM the Princess with your order so your tier can be activated.
+              </li>
+            </ol>
+            <p className="mt-4 text-sm text-pink-300/70">
+              Activation is manual, so give her a little time. The same DM is how
+              you pause, resume or change your flood later.
+            </p>
+          </div>
         </section>
 
         {/* DLCS */}
@@ -248,7 +283,7 @@ export default function ProtocolPageClient() {
               DLC Expansions
             </h2>
             <p className="text-pink-200/80 max-w-2xl mx-auto text-lg font-medium">
-              Bolt-on packs that deepen the simulation. Add them at checkout or anytime later.
+              Packs that deepen the simulation. None are on sale right now - past drops are archived here, and new ones are announced on Discord first.
             </p>
           </div>
 
