@@ -34,7 +34,8 @@ const ICONS = {
 
 const EXPERIENCES = [
   { label: "Yandere", href: routes.yandere, note: "9 chapters" },
-  { label: "Amae", href: routes.amae, note: "visual novel" },
+  // Amae is work in progress - kept off the landing page, route still live.
+  { label: "Hypnosis V2", href: routes.corruption2, note: "deep trance" },
   { label: "Corruption", href: routes.corruption, note: "web" },
   { label: "PrincessOS", href: routes.princessos, note: "desktop" },
   { label: "Ascension", href: routes.ascension, note: "4 stages" },
