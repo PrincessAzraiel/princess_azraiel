@@ -155,21 +155,23 @@ export default function LandingPage() {
             className="group relative col-span-1 min-h-[300px] overflow-hidden rounded-2xl
                        border border-pink-500/20 md:col-span-3 lg:col-span-6 lg:row-span-2"
           >
-            {/* The art is square/portrait, so it lives in its own column rather
-                than being letterboxed into a wide banner and cropped to a band. */}
-            <div className="absolute inset-0 md:inset-y-0 md:left-auto md:right-0 md:w-[52%]">
-              <Image
-                src="/infection/og.jpg"
-                alt=""
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 30vw"
-                className="object-cover object-top transition duration-700 group-hover:scale-[1.04]"
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050306] via-[#050306]/80 to-[#050306]/35
-                            md:bg-gradient-to-r md:via-[#050306]/85 md:to-transparent" />
-            <div className="absolute inset-0 flex flex-col justify-end p-6 md:max-w-[62%]">
+            {/* The art is a 2:1 landscape and the card is ~1.86:1, so it fills
+                the whole card. Confining it to a side column cropped its sides
+                off and left a hard seam down the middle. */}
+            <Image
+              src="/infection/og.jpg"
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 55vw"
+              className="object-cover transition duration-700 group-hover:scale-[1.04]"
+            />
+            {/* Darkens the left so the copy stays readable, and fades out
+                before the artwork's own title on the right. */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050306] via-[#050306]/90 to-[#050306]/20
+                            md:bg-gradient-to-r md:from-[#050306] md:via-[#050306]/80 md:to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050306]/85 via-transparent to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6 md:max-w-[56%]">
               <span className="mb-2 w-fit rounded-full border border-pink-500/40 bg-pink-500/10 px-2.5 py-1 font-[family-name:var(--f-mono)] text-[8px] uppercase tracking-[0.25em] text-pink-300">
                 Flagship
               </span>
