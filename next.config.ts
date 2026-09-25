@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // /azratok lists public/AzraTok with fs at build time, which makes the
+  // bundler copy every video into the server function (over Vercel's 250 MB
+  // limit). The files are served from the CDN, so the function never needs them.
+  outputFileTracingExcludes: {
+    "/azratok": ["./public/AzraTok/**/*"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,

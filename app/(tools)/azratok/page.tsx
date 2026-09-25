@@ -10,7 +10,10 @@ export const metadata: Metadata = {
 };
 
 // Everything dropped into public/AzraTok shows up in the feed. The folder is
-// read when the page is built, so new files appear on the next deploy.
+// read when the page is built, so new files appear on the next deploy. It must
+// stay static: the folder isn't bundled into the server function (see
+// next.config.ts), so a runtime render would find it empty.
+export const dynamic = "force-static";
 const MEDIA_DIR = path.join(process.cwd(), "public", "AzraTok");
 
 const EXTENSIONS: Record<MediaKind, string[]> = {
