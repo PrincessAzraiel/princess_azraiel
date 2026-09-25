@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       // /bam was an earlier copy of the /typing experience; keep old shared
       // links working instead of duplicating the page.
       { source: "/bam", destination: "/typing", permanent: false },
+      // The feed lives at /azratok; this is the spelling that gets shared.
+      { source: "/AzraTok", destination: "/azratok", permanent: false },
     ];
   },
   async headers() {
