@@ -115,7 +115,7 @@ export default function AzraTokFeed({ items }: { items: FeedItem[] }) {
     }
 
     const first = makeRound(items, readSet(SEEN_KEY));
-    // A shared link (/azratok#<id>) opens on that post.
+    // A shared link (/AzraTok#<id>) opens on that post.
     const linked = first.findIndex((item) => item.id === window.location.hash.slice(1));
     if (linked > 0) first.unshift(...first.splice(linked, 1));
     setFeed(toSlots(first));

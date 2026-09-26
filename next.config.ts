@@ -1,11 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // /azratok lists public/AzraTok with fs at build time, which makes the
+  // /AzraTok lists public/AzraTok with fs at build time, which makes the
   // bundler copy every video into the server function (over Vercel's 250 MB
   // limit). The files are served from the CDN, so the function never needs them.
   outputFileTracingExcludes: {
-    "/azratok": ["./public/AzraTok/**/*"],
+    "/AzraTok": ["./public/AzraTok/**/*"],
   },
   images: {
     formats: ["image/avif", "image/webp"],
@@ -16,8 +16,6 @@ const nextConfig: NextConfig = {
       // /bam was an earlier copy of the /typing experience; keep old shared
       // links working instead of duplicating the page.
       { source: "/bam", destination: "/typing", permanent: false },
-      // The feed lives at /azratok; this is the spelling that gets shared.
-      { source: "/AzraTok", destination: "/azratok", permanent: false },
     ];
   },
   async headers() {
